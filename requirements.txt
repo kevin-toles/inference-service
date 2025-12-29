@@ -1,0 +1,22 @@
+# inference-service requirements
+# Generated from pyproject.toml dependencies
+# Use `pip install -e .` for development install with all deps
+
+# Core dependencies
+fastapi~=0.115.0
+uvicorn[standard]~=0.32.0
+pydantic~=2.10.0
+pydantic-settings~=2.6.0
+httpx~=0.28.0
+structlog~=24.4.0
+llama-cpp-python~=0.3.0
+numpy~=1.26.0
+
+# Development dependencies (also in pyproject.toml[dev])
+# Uncomment for manual install:
+# pytest~=8.3.0
+# pytest-asyncio~=0.24.0
+# pytest-cov~=6.0.0
+# ruff~=0.8.0
+# mypy~=1.13.0
+# pre-commit~=4.0.0

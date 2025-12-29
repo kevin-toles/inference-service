@@ -1,0 +1,128 @@
+# ==============================================================================
+# Inference Service - Docker Compose
+# ==============================================================================
+# Local development and testing configuration
+# Reference: docs/ARCHITECTURE.md → Docker Health Check
+# ==============================================================================
+#
+# Usage:
+#   docker-compose -f docker/docker-compose.yml up -d          # Start service
+#   docker-compose -f docker/docker-compose.yml up --build     # Rebuild and start
+#   docker-compose -f docker/docker-compose.yml logs -f        # Follow logs
+#   docker-compose -f docker/docker-compose.yml down           # Stop service
+#   docker-compose -f docker/docker-compose.yml ps             # Check status
+#
+# Health Verification:
+#   curl http://localhost:8085/health         # Liveness check
+#   curl http://localhost:8085/health/ready   # Readiness check
+#
+# GPU Support (requires nvidia-docker):
+#   docker-compose -f docker/docker-compose.yml --profile cuda up -d
+#
+# ==============================================================================
+
+services:
+  # ============================================================================
+  # Inference Service - CPU Version (Default)
+  # ============================================================================
+  inference-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: inference-service
+    ports:
+      - "8085:8085"
+    environment:
+      # Service configuration
+      INFERENCE_PORT: "8085"
+      INFERENCE_LOG_LEVEL: "INFO"
+      INFERENCE_WORKERS: "1"
+      # Model configuration
+      INFERENCE_MODEL_DIR: "/app/models"
+      INFERENCE_DEFAULT_MODEL: "llama-3.2-3b"
+      INFERENCE_N_GPU_LAYERS: "0"
+      INFERENCE_N_CTX: "4096"
+      # Orchestration
+      INFERENCE_CONFIG_PRESET: "D1"
+      INFERENCE_ORCHESTRATION_MODE: "single"
+    volumes:
+      # Mount local models directory
+      - ${MODELS_PATH:-../models}:/app/models:ro
+      # Mount config for hot reload
+      - ../config:/app/config:ro
+    # Health check per ARCHITECTURE.md specification
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 120s
+    restart: unless-stopped
+    networks:
+      - inference-network
+    # Resource limits for model inference
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+        reservations:
+          memory: 8G
+
+  # ============================================================================
+  # Inference Service - CUDA GPU Version
+  # Profile: cuda (use --profile cuda to enable)
+  # ============================================================================
+  inference-service-cuda:
+    profiles:
+      - cuda
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.cuda
+    container_name: inference-service-cuda
+    ports:
+      - "8085:8085"
+    environment:
+      # Service configuration
+      INFERENCE_PORT: "8085"
+      INFERENCE_LOG_LEVEL: "INFO"
+      INFERENCE_WORKERS: "1"
+      # Model configuration - GPU enabled
+      INFERENCE_MODEL_DIR: "/app/models"
+      INFERENCE_DEFAULT_MODEL: "llama-3.2-3b"
+      INFERENCE_N_GPU_LAYERS: "-1"
+      INFERENCE_N_CTX: "8192"
+      # Orchestration
+      INFERENCE_CONFIG_PRESET: "D1"
+      INFERENCE_ORCHESTRATION_MODE: "single"
+    volumes:
+      # Mount local models directory
+      - ${MODELS_PATH:-../models}:/app/models:ro
+      # Mount config for hot reload
+      - ../config:/app/config:ro
+    # Health check per ARCHITECTURE.md specification
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+      start_period: 120s
+    restart: unless-stopped
+    networks:
+      - inference-network
+    # NVIDIA GPU runtime
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+networks:
+  inference-network:
+    driver: bridge
+    name: inference-network
+
+volumes:
+  models-data:
+    driver: local

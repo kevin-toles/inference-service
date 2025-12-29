@@ -1,0 +1,177 @@
+[project]
+name = "inference-service"
+version = "0.1.0"
+description = "Self-hosted LLM inference service with llama-cpp-python and multi-model orchestration"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Kevin Toles" }]
+keywords = ["llm", "inference", "llama-cpp", "fastapi", "metal", "orchestration"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "fastapi~=0.115.0",
+    "uvicorn[standard]~=0.32.0",
+    "pydantic~=2.10.0",
+    "pydantic-settings~=2.6.0",
+    "httpx~=0.28.0",
+    "structlog~=24.4.0",
+    "llama-cpp-python~=0.3.0",
+    "numpy~=1.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest~=8.3.0",
+    "pytest-asyncio~=0.24.0",
+    "pytest-cov~=6.0.0",
+    "ruff~=0.8.0",
+    "mypy~=1.13.0",
+    "pre-commit~=4.0.0",
+    "httpx~=0.28.0",
+]
+vllm = [
+    "vllm>=0.6.0",
+    "torch>=2.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/kevintoles/inference-service"
+Documentation = "https://github.com/kevintoles/inference-service/blob/main/docs/ARCHITECTURE.md"
+
+[project.scripts]
+inference-service = "src.main:run"
+
+[build-system]
+requires = ["setuptools>=75.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+# =============================================================================
+# pytest configuration
+# =============================================================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "unit: Unit tests (fast, no external dependencies)",
+    "integration: Integration tests (may require models)",
+    "slow: Slow tests (model loading, large inputs)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+# =============================================================================
+# mypy configuration (strict mode per AC-20.6)
+# =============================================================================
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+show_column_numbers = true
+pretty = true
+
+[[tool.mypy.overrides]]
+module = [
+    "llama_cpp.*",
+    "vllm.*",
+]
+ignore_missing_imports = true
+
+# =============================================================================
+# ruff configuration
+# =============================================================================
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "F",      # pyflakes
+    "W",      # pycodestyle warnings
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "SIM",    # flake8-simplify
+    "ARG",    # flake8-unused-arguments
+    "PTH",    # flake8-use-pathlib
+    "RUF",    # ruff-specific rules
+    "ASYNC",  # flake8-async
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults (FastAPI Depends)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "ARG",    # unused arguments OK in tests (fixtures)
+    "S101",   # assert OK in tests
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+force-single-line = false
+lines-after-imports = 2
+
+# =============================================================================
+# coverage configuration
+# =============================================================================
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+    "tests/*",
+    "src/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+fail_under = 80
+show_missing = true

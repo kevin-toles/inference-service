@@ -1,0 +1,2 @@
+# Docker directory for inference-service
+# Contains Dockerfile, Dockerfile.cuda, docker-compose.yml

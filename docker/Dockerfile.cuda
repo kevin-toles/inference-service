@@ -1,0 +1,126 @@
+# ==============================================================================
+# Inference Service - CUDA Dockerfile
+# ==============================================================================
+# Multi-stage build for GPU-accelerated inference with CUDA support
+# For use with NVIDIA GPUs on Linux servers
+# Reference: docs/ARCHITECTURE.md → Docker Health Check
+# ==============================================================================
+
+# ==============================================================================
+# Stage 1: Builder with CUDA
+# ==============================================================================
+FROM nvidia/cuda:12.1-devel-ubuntu22.04 AS builder
+
+# Prevent Python from writing bytecode and buffering stdout/stderr
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Install Python and build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    python3.11-dev \
+    python3-pip \
+    build-essential \
+    cmake \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create virtual environment
+RUN python3.11 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install Python dependencies with CUDA support
+WORKDIR /build
+COPY requirements.txt .
+
+# Build llama-cpp-python with CUDA support
+ENV CMAKE_ARGS="-DGGML_CUDA=ON"
+ENV CUDA_DOCKER_ARCH="all"
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+# ==============================================================================
+# Stage 2: Production Runtime with CUDA
+# ==============================================================================
+FROM nvidia/cuda:12.1-runtime-ubuntu22.04 AS production
+
+# Labels (OCI standard)
+LABEL org.opencontainers.image.title="inference-service-cuda" \
+      org.opencontainers.image.description="Self-hosted LLM inference service with CUDA GPU support" \
+      org.opencontainers.image.version="0.1.0" \
+      org.opencontainers.image.vendor="kevin-toles" \
+      org.opencontainers.image.source="https://github.com/kevin-toles/inference-service"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Security: Run as non-root user
+RUN groupadd --gid 1000 appgroup && \
+    useradd --uid 1000 --gid appgroup --shell /bin/bash --create-home appuser
+
+# Install Python runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean \
+    && ln -sf /usr/bin/python3.11 /usr/bin/python
+
+# Runtime environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src \
+    PATH="/opt/venv/bin:$PATH" \
+    # CUDA settings
+    CUDA_VISIBLE_DEVICES=0 \
+    # Application defaults
+    INFERENCE_PORT=8085 \
+    INFERENCE_LOG_LEVEL=INFO \
+    INFERENCE_WORKERS=1 \
+    # Model settings for GPU
+    INFERENCE_N_GPU_LAYERS=-1
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+
+# ==============================================================================
+# Stage 3: Application Setup
+# ==============================================================================
+
+# Set working directory
+WORKDIR /app
+
+# Copy application code with correct ownership
+COPY --chown=appuser:appgroup src/ ./src/
+COPY --chown=appuser:appgroup config/ ./config/
+
+# Create models directory for mounting
+RUN mkdir -p /app/models && chown appuser:appgroup /app/models
+
+# Switch to non-root user
+USER appuser
+
+# ==============================================================================
+# Stage 4: Container Configuration
+# ==============================================================================
+
+# Health check using /health endpoint
+# Reference: docs/ARCHITECTURE.md → Docker Health Check
+HEALTHCHECK --interval=60s --timeout=30s --start-period=120s --retries=3 \
+    CMD curl -f http://localhost:${INFERENCE_PORT}/health || exit 1
+
+# Expose port (documentation)
+EXPOSE 8085
+
+# NVIDIA runtime requirements
+ENV NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Default command - single worker for model inference
+CMD uvicorn src.main:app --host 0.0.0.0 --port ${INFERENCE_PORT:-8085} --workers ${INFERENCE_WORKERS:-1}

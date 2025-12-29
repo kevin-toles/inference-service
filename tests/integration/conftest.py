@@ -1,0 +1,453 @@
+"""Integration test fixtures and configuration.
+
+This module provides shared fixtures for integration tests including:
+- HTTP client for API requests
+- Service lifecycle management
+- Model loading helpers
+- Test data generators
+
+Usage:
+    pytest tests/integration/ -m "not slow"  # Skip slow tests
+    pytest tests/integration/ --integration  # All integration tests
+    pytest tests/integration/ -k "e2e"       # Run only e2e tests
+
+Requirements:
+    - inference-service running on INFERENCE_SERVICE_URL (default: http://localhost:8085)
+    - For gateway tests: llm-gateway running on LLM_GATEWAY_URL (default: http://localhost:8080)
+    - For model tests: At least one GGUF model available
+"""
+
+from __future__ import annotations
+
+import asyncio
+import contextlib
+import os
+from collections.abc import AsyncGenerator, Generator
+from typing import Any
+
+import httpx
+import pytest
+
+
+# =============================================================================
+# Configuration
+# =============================================================================
+
+INFERENCE_SERVICE_URL = os.getenv("INFERENCE_SERVICE_URL", "http://localhost:8085")
+LLM_GATEWAY_URL = os.getenv("LLM_GATEWAY_URL", "http://localhost:8080")
+DEFAULT_TIMEOUT = float(os.getenv("INTEGRATION_TEST_TIMEOUT", "120.0"))
+STREAM_TIMEOUT = float(os.getenv("STREAM_TEST_TIMEOUT", "180.0"))
+
+
+# =============================================================================
+# Markers
+# =============================================================================
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    """Register custom pytest markers."""
+    config.addinivalue_line(
+        "markers", "integration: mark test as integration test (requires running services)"
+    )
+    config.addinivalue_line(
+        "markers", "slow: mark test as slow (skip with -m 'not slow')"
+    )
+    config.addinivalue_line(
+        "markers", "requires_model: mark test as requiring a loaded model"
+    )
+    config.addinivalue_line(
+        "markers", "requires_gateway: mark test as requiring llm-gateway"
+    )
+
+
+# =============================================================================
+# Service Health Fixtures
+# =============================================================================
+
+
+@pytest.fixture(scope="session")
+def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
+    """Create an event loop for the test session."""
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
+
+
+@pytest.fixture(scope="session")
+def inference_service_url() -> str:
+    """Return the inference service URL."""
+    return INFERENCE_SERVICE_URL
+
+
+@pytest.fixture(scope="session")
+def gateway_url() -> str:
+    """Return the llm-gateway URL."""
+    return LLM_GATEWAY_URL
+
+
+@pytest.fixture(scope="session")
+async def async_client() -> AsyncGenerator[httpx.AsyncClient, None]:
+    """Create an async HTTP client for the test session."""
+    async with httpx.AsyncClient(
+        base_url=INFERENCE_SERVICE_URL,
+        timeout=httpx.Timeout(DEFAULT_TIMEOUT),
+    ) as client:
+        yield client
+
+
+@pytest.fixture(scope="session")
+async def gateway_client() -> AsyncGenerator[httpx.AsyncClient, None]:
+    """Create an async HTTP client for llm-gateway."""
+    async with httpx.AsyncClient(
+        base_url=LLM_GATEWAY_URL,
+        timeout=httpx.Timeout(DEFAULT_TIMEOUT),
+    ) as client:
+        yield client
+
+
+@pytest.fixture(scope="function")
+async def client() -> AsyncGenerator[httpx.AsyncClient, None]:
+    """Create a per-test async HTTP client."""
+    async with httpx.AsyncClient(
+        base_url=INFERENCE_SERVICE_URL,
+        timeout=httpx.Timeout(DEFAULT_TIMEOUT),
+    ) as client:
+        yield client
+
+
+# =============================================================================
+# Service Availability Fixtures
+# =============================================================================
+
+
+@pytest.fixture(scope="session")
+async def service_available(async_client: httpx.AsyncClient) -> bool:
+    """Check if the inference service is available."""
+    try:
+        response = await async_client.get("/health")
+        return response.status_code == 200
+    except httpx.ConnectError:
+        return False
+
+
+@pytest.fixture(scope="session")
+async def gateway_available(gateway_client: httpx.AsyncClient) -> bool:
+    """Check if the llm-gateway is available."""
+    try:
+        response = await gateway_client.get("/health")
+        return response.status_code == 200
+    except httpx.ConnectError:
+        return False
+
+
+@pytest.fixture(scope="session")
+async def service_ready(async_client: httpx.AsyncClient) -> bool:
+    """Check if the inference service has models loaded."""
+    try:
+        response = await async_client.get("/health/ready")
+        return response.status_code == 200
+    except httpx.ConnectError:
+        return False
+
+
+# =============================================================================
+# Skip Conditions
+# =============================================================================
+
+
+@pytest.fixture
+def skip_if_service_unavailable(service_available: bool) -> None:
+    """Skip test if inference service is not available."""
+    if not service_available:
+        pytest.skip(f"Inference service not available at {INFERENCE_SERVICE_URL}")
+
+
+@pytest.fixture
+def skip_if_gateway_unavailable(gateway_available: bool) -> None:
+    """Skip test if llm-gateway is not available."""
+    if not gateway_available:
+        pytest.skip(f"LLM Gateway not available at {LLM_GATEWAY_URL}")
+
+
+@pytest.fixture
+def skip_if_no_models(service_ready: bool) -> None:
+    """Skip test if no models are loaded."""
+    if not service_ready:
+        pytest.skip("No models loaded in inference service")
+
+
+# =============================================================================
+# Request Builders
+# =============================================================================
+
+
+@pytest.fixture
+def chat_request_factory() -> Any:
+    """Factory for creating chat completion requests."""
+
+    class ChatRequestFactory:
+        """Factory for building chat completion request payloads."""
+
+        @staticmethod
+        def simple(
+            message: str = "Hello, how are you?",
+            model: str = "llama-3.2-3b",
+            max_tokens: int = 100,
+        ) -> dict[str, Any]:
+            """Create a simple chat request."""
+            return {
+                "model": model,
+                "messages": [
+                    {"role": "user", "content": message}
+                ],
+                "max_tokens": max_tokens,
+                "stream": False,
+            }
+
+        @staticmethod
+        def with_system(
+            system: str,
+            message: str,
+            model: str = "llama-3.2-3b",
+            max_tokens: int = 100,
+        ) -> dict[str, Any]:
+            """Create a chat request with system message."""
+            return {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": message},
+                ],
+                "max_tokens": max_tokens,
+                "stream": False,
+            }
+
+        @staticmethod
+        def streaming(
+            message: str = "Count from 1 to 5",
+            model: str = "llama-3.2-3b",
+            max_tokens: int = 100,
+        ) -> dict[str, Any]:
+            """Create a streaming chat request."""
+            return {
+                "model": model,
+                "messages": [
+                    {"role": "user", "content": message}
+                ],
+                "max_tokens": max_tokens,
+                "stream": True,
+            }
+
+        @staticmethod
+        def orchestrated(
+            message: str,
+            mode: str = "critique",
+            model: str = "phi-4",
+            max_tokens: int = 200,
+        ) -> dict[str, Any]:
+            """Create an orchestrated chat request."""
+            return {
+                "model": model,
+                "messages": [
+                    {"role": "user", "content": message}
+                ],
+                "max_tokens": max_tokens,
+                "stream": False,
+                "orchestration_mode": mode,
+            }
+
+        @staticmethod
+        def code_task(
+            message: str,
+            model: str = "phi-4",
+            max_tokens: int = 500,
+        ) -> dict[str, Any]:
+            """Create a code generation request."""
+            return {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": "You are a helpful coding assistant."},
+                    {"role": "user", "content": message},
+                ],
+                "max_tokens": max_tokens,
+                "stream": False,
+                "task_type": "code",
+            }
+
+    return ChatRequestFactory
+
+
+# =============================================================================
+# Response Validators
+# =============================================================================
+
+
+@pytest.fixture
+def response_validator() -> Any:
+    """Validator for chat completion responses."""
+
+    class ResponseValidator:
+        """Validate chat completion response structure."""
+
+        @staticmethod
+        def validate_completion(response: dict[str, Any]) -> None:
+            """Validate a non-streaming completion response."""
+            assert "id" in response, "Response missing 'id'"
+            assert response["id"].startswith("chatcmpl-"), "Invalid response ID format"
+            assert response.get("object") == "chat.completion", "Invalid object type"
+            assert "created" in response, "Response missing 'created'"
+            assert "model" in response, "Response missing 'model'"
+            assert "choices" in response, "Response missing 'choices'"
+            assert len(response["choices"]) > 0, "No choices in response"
+
+            choice = response["choices"][0]
+            assert "index" in choice, "Choice missing 'index'"
+            assert "message" in choice, "Choice missing 'message'"
+            assert "finish_reason" in choice, "Choice missing 'finish_reason'"
+
+            message = choice["message"]
+            assert message.get("role") == "assistant", "Invalid message role"
+            assert "content" in message, "Message missing 'content'"
+            assert isinstance(message["content"], str), "Content must be string"
+
+        @staticmethod
+        def validate_usage(response: dict[str, Any]) -> None:
+            """Validate usage statistics in response."""
+            assert "usage" in response, "Response missing 'usage'"
+            usage = response["usage"]
+            assert "prompt_tokens" in usage, "Usage missing 'prompt_tokens'"
+            assert "completion_tokens" in usage, "Usage missing 'completion_tokens'"
+            assert "total_tokens" in usage, "Usage missing 'total_tokens'"
+            assert usage["prompt_tokens"] > 0, "Prompt tokens should be > 0"
+            assert usage["completion_tokens"] > 0, "Completion tokens should be > 0"
+            assert usage["total_tokens"] == usage["prompt_tokens"] + usage["completion_tokens"]
+
+        @staticmethod
+        def validate_orchestration(
+            response: dict[str, Any],
+            expected_mode: str | None = None,
+        ) -> None:
+            """Validate orchestration metadata in response."""
+            assert "orchestration" in response, "Response missing 'orchestration'"
+            orch = response["orchestration"]
+            assert "mode" in orch, "Orchestration missing 'mode'"
+            assert "models_used" in orch, "Orchestration missing 'models_used'"
+
+            if expected_mode:
+                assert orch["mode"] == expected_mode, f"Expected mode {expected_mode}"
+
+        @staticmethod
+        def validate_streaming_chunk(chunk: dict[str, Any]) -> None:
+            """Validate a streaming chunk."""
+            assert "id" in chunk, "Chunk missing 'id'"
+            assert "choices" in chunk, "Chunk missing 'choices'"
+            assert len(chunk["choices"]) > 0, "No choices in chunk"
+
+            choice = chunk["choices"][0]
+            assert "index" in choice, "Choice missing 'index'"
+            assert "delta" in choice, "Choice missing 'delta'"
+
+    return ResponseValidator
+
+
+# =============================================================================
+# SSE Stream Parser
+# =============================================================================
+
+
+@pytest.fixture
+def sse_parser() -> Any:
+    """Parser for Server-Sent Events streams."""
+
+    class SSEParser:
+        """Parse SSE stream responses."""
+
+        @staticmethod
+        def parse_line(line: str) -> dict[str, Any] | str | None:
+            """Parse a single SSE line.
+
+            Returns:
+                - dict for JSON data
+                - "[DONE]" for stream end
+                - None for empty/comment lines
+            """
+            line = line.strip()
+
+            if not line or line.startswith(":"):
+                return None
+
+            if line.startswith("data: "):
+                data = line[6:]  # Remove "data: " prefix
+                if data == "[DONE]":
+                    return "[DONE]"
+                try:
+                    import json
+                    result: dict[str, Any] = json.loads(data)
+                    return result
+                except json.JSONDecodeError:
+                    return None
+
+            return None
+
+        @staticmethod
+        def parse_stream(content: str) -> list[dict[str, Any] | str]:
+            """Parse entire SSE stream content."""
+            import json
+
+            results: list[dict[str, Any] | str] = []
+            for line in content.split("\n"):
+                line = line.strip()
+                if not line or line.startswith(":"):
+                    continue
+                if line.startswith("data: "):
+                    data = line[6:]
+                    if data == "[DONE]":
+                        results.append("[DONE]")
+                    else:
+                        with contextlib.suppress(json.JSONDecodeError):
+                            results.append(json.loads(data))
+            return results
+
+        @staticmethod
+        def extract_content(chunks: list[dict[str, Any] | str]) -> str:
+            """Extract full content from streaming chunks."""
+            content_parts: list[str] = []
+            for chunk in chunks:
+                if isinstance(chunk, dict):
+                    choices = chunk.get("choices", [])
+                    if choices:
+                        delta = choices[0].get("delta", {})
+                        content = delta.get("content", "")
+                        if content:
+                            content_parts.append(content)
+            return "".join(content_parts)
+
+    return SSEParser
+
+
+# =============================================================================
+# Test Data
+# =============================================================================
+
+
+@pytest.fixture
+def sample_prompts() -> dict[str, str]:
+    """Sample prompts for testing."""
+    return {
+        "simple": "Hello, how are you?",
+        "code": "Write a Python function to calculate factorial.",
+        "math": "What is 2 + 2?",
+        "reasoning": "Explain why the sky is blue in simple terms.",
+        "long": "Write a detailed essay about the history of computing." * 10,
+    }
+
+
+@pytest.fixture
+def expected_models() -> list[str]:
+    """List of expected available models."""
+    return [
+        "llama-3.2-3b",
+        "phi-4",
+        "deepseek-r1-7b",
+        "qwen2.5-7b",
+    ]
