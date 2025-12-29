@@ -1,0 +1,12 @@
+
+Š€"List all models with their status.
+
+        Returns:
+            List of ModelInfo objects for all configured models.
+        "strself
+Á Á("B.
+,
+
+Ç Ç(R"?python-unknown?:Blist
+
+Ç Ç(R*E/Users/kevintoles/POC/inference-service/src/services/model_manager.py

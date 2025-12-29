@@ -162,12 +162,12 @@ class PipelineSaga:
                 )
             except Exception as e:
                 # Compensate and return partial result
-                return await self._compensate(state, e, start_time)
+                return self._compensate(state, e, start_time)
 
         # All steps completed successfully
         return self._build_response(state, start_time)
 
-    async def _compensate(
+    def _compensate(
         self,
         _state: dict[str, Any],
         error: Exception,

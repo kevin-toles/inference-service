@@ -1,0 +1,765 @@
+
+1.0PythonFrontend"1766977695889*py2.Bº$
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+.
+)tests/unit/services/test_model_manager.py9
+,
+&tests.unit.services.test_model_manager11
+
+
+__future__12
+
+asyncio14
+
+pathlib16
+
+typing18
+
+unittest.mock20
+ 
+src.services.model_manager22
+G
+Atests.unit.services.test_model_manager.TestModelManagerLoadPreset24
+[
+Utests.unit.services.test_model_manager.TestModelManagerLoadPreset.test_load_preset_d326
+
+typing.Coroutine28
+
+pathlib.Path30
+
+
+dict32
+
+unittest.mock.MagicMock34
+s
+mtests.unit.services.test_model_manager.TestModelManagerLoadPreset.test_load_preset_returns_orchestration_mode36
+m
+gtests.unit.services.test_model_manager.TestModelManagerLoadPreset.test_load_preset_invalid_raises_error38
+H
+Btests.unit.services.test_model_manager.TestModelManagerConcurrency40
+l
+ftests.unit.services.test_model_manager.TestModelManagerConcurrency.test_get_provider_concurrent_access42
+r
+ltests.unit.services.test_model_manager.TestModelManagerConcurrency.test_concurrent_requests_different_models44
+g
+atests.unit.services.test_model_manager.TestModelManagerConcurrency.test_concurrent_load_uses_lock46
+B
+<tests.unit.services.test_model_manager.TestModelManagerRoles48
+a
+[tests.unit.services.test_model_manager.TestModelManagerRoles.test_get_model_by_role_thinker50
+_
+Ytests.unit.services.test_model_manager.TestModelManagerRoles.test_get_model_by_role_coder52
+n
+htests.unit.services.test_model_manager.TestModelManagerRoles.test_get_model_by_role_with_multiple_loaded54
+Z
+Ttests.unit.services.test_model_manager.TestModelManagerRoles.test_get_models_by_role56
+q
+ktests.unit.services.test_model_manager.TestModelManagerRoles.test_get_model_by_role_not_loaded_returns_none58
+
+NoneType60
+?
+9tests.unit.services.test_model_manager.mock_model_configs62
+=
+7tests.unit.services.test_model_manager.mock_llama_class64
+C
+=tests.unit.services.test_model_manager.TestModelManagerMemory66
+g
+atests.unit.services.test_model_manager.TestModelManagerMemory.test_memory_limit_prevents_overload68
+\
+Vtests.unit.services.test_model_manager.TestModelManagerMemory.test_unload_frees_memory70
+X
+Rtests.unit.services.test_model_manager.TestModelManagerMemory.test_memory_tracking72
+E
+?tests.unit.services.test_model_manager.TestModelManagerTracking74
+[
+Utests.unit.services.test_model_manager.TestModelManagerTracking.test_get_model_status76
+l
+ftests.unit.services.test_model_manager.TestModelManagerTracking.test_get_loaded_models_empty_initially78
+_
+Ytests.unit.services.test_model_manager.TestModelManagerTracking.test_get_available_models80
+g
+atests.unit.services.test_model_manager.TestModelManagerTracking.test_get_loaded_models_after_load82
+G
+Atests.unit.services.test_model_manager.TestModelManagerLoadUnload84
+p
+jtests.unit.services.test_model_manager.TestModelManagerLoadUnload.test_load_nonexistent_model_raises_error86
+k
+etests.unit.services.test_model_manager.TestModelManagerLoadUnload.test_get_provider_not_loaded_raises88
+_
+Ytests.unit.services.test_model_manager.TestModelManagerLoadUnload.test_load_model_success90
+f
+`tests.unit.services.test_model_manager.TestModelManagerLoadUnload.test_unload_not_loaded_is_noop92
+a
+[tests.unit.services.test_model_manager.TestModelManagerLoadUnload.test_unload_model_success94
+G
+Atests.unit.services.test_model_manager.TestModelManagerExceptions96
+f
+`tests.unit.services.test_model_manager.TestModelManagerExceptions.test_exceptions_have_hierarchy98
+j
+ctests.unit.services.test_model_manager.TestModelManagerExceptions.test_exception_names_end_in_error100
+B
+;tests.unit.services.test_model_manager.TestModelManagerInit102
+g
+`tests.unit.services.test_model_manager.TestModelManagerInit.test_init_registers_available_models104
+\
+Utests.unit.services.test_model_manager.TestModelManagerInit.test_init_with_models_dir106
+^
+Wtests.unit.services.test_model_manager.TestModelManagerInit.test_init_with_memory_limit108
+D
+=tests.unit.services.test_model_manager.TestModelManagerImport110
+m
+ftests.unit.services.test_model_manager.TestModelManagerImport.test_model_manager_exceptions_importable112
+b
+[tests.unit.services.test_model_manager.TestModelManagerImport.test_model_manager_importable114
+A
+:tests.unit.services.test_model_manager.mock_config_presets116
+8
+1tests.unit.services.test_model_manager.models_dir118
+G
+@tests.unit.services.test_model_manager.TestModelManagerModelInfo120
+\
+Utests.unit.services.test_model_manager.TestModelManagerModelInfo.test_list_all_models122
+[
+Ttests.unit.services.test_model_manager.TestModelManagerModelInfo.test_get_model_info124J
+
+8
+89jŸ
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19185
+
+21
+21205
+
+23
+23225
+
+25
+25246 210
+
+27
+27267 225
+
+29
+29286
+
+31
+31306
+
+33
+33326
+
+35
+35346
+
+37
+37367 225
+
+39
+39387 225
+
+41
+41406 210
+
+43
+43427 241
+
+45
+45447 241
+
+47
+47467 241
+
+49
+49486 210
+
+51
+51507 249
+
+53
+53527 249
+
+55
+55547 249
+
+57
+57567 249
+
+59
+59587 249
+
+61
+61606
+
+63
+63627 210
+
+65
+65647 210
+
+67
+67666 210
+
+69
+69687 267
+
+71
+71707 267
+
+73
+73727 267
+
+75
+75746 210
+
+77
+77767 275
+
+79
+79787 275
+
+81
+81807 275
+
+83
+83827 275
+
+85
+85846 210
+
+87
+87867 285
+
+89
+89887 285
+
+91
+91907 285
+
+93
+93927 285
+
+95
+95947 285
+
+97
+97966 210
+
+99
+99987 297
+
+101
+1011007 297
+
+103
+1031026 210
+
+105
+1051047 2103
+
+107
+1071067 2103
+
+109
+1091087 2103
+
+111
+1111106 210
+
+113
+1131127 2111
+
+115
+1151147 2111
+
+117
+1171167 210
+
+119
+1191187 210
+
+121
+1211206 210
+
+123
+1231227 2121
+
+125
+1251247 2121rê 
+
+10131*
+8	 	(#
+
+10151*
+8 (
+
+10171*
+8 (
+
+10191*
+8 (
+
+10211*
+8 (+
+
+10231*
+8•	 •(<
+
+10231*
+8›	 Ÿ( 
+
+10231*
+8³	 ³(<
+
+10231*
+8Á	 Á(<
+
+10231*
+8Ï	 Ï(<
+
+10231*
+8í í(@
+
+10231*
+8ƒ	 ƒ(O
+
+10231*
+8˜ ˜(@
+
+10231*
+8±	 ±(<
+
+10231*
+8Á	 Á(<
+
+10231*
+8Õ Õ(@
+
+10231*
+8ê ê(@
+
+10231*
+8Œ Œ(@
+
+10231*
+8¡ £(
+
+10231*
+8Ç Ç(@
+
+10231*
+8ç ç(@
+
+10231*
+8‚ ‚(@
+
+10231*
+8¢ ¢(@
+
+10231*
+8Æ Æ(@
+
+10231*
+8Ü Ü(@
+
+10231*
+8ñ ñ(@
+
+10231*
+8…	 …(<
+
+10231*
+8™ ™(@
+
+10231*
+8¹ ¹(@
+
+10231*
+8É	 É(T
+
+10231*
+8Ü Ü(@
+
+10231*
+8í	 í(<
+
+10231*
+8ü	 ü(Q
+
+10231*
+8‘	 •( 
+
+10231*
+8¢	 ¦( 
+
+10231*
+8»	 »(<
+
+10231*
+8Ñ Ñ(@
+
+27293*
+8ä ä("
+
+27314*
+8ä ä("
+
+27334*
+8ä ä("
+
+27334*
+8ä ä("
+
+27354*
+8ä ä("
+
+37293*
+8 (:
+
+37314*
+8 (:
+
+37334*
+8 (:
+
+37334*
+8 (:
+
+37354*
+8 (:
+
+39293*
+8ü ü(4
+
+39314*
+8ü ü(4
+
+39334*
+8ü ü(4
+
+39334*
+8ü ü(4
+
+43293*
+8ú ú(2
+
+43314*
+8ú ú(2
+
+43334*
+8ú ú(2
+
+43354*
+8ú ú(2
+
+45293*
+8š š(8
+
+45314*
+8š š(8
+
+45334*
+8š š(8
+
+45354*
+8š š(8
+
+47293*
+8ß ß(-
+
+47314*
+8ß ß(-
+
+47334*
+8ß ß(-
+
+47354*
+8ß ß(-
+
+51293*
+8¾ ¾(-
+
+51314*
+8¾ ¾(-
+
+51334*
+8¾ ¾(-
+
+51354*
+8¾ ¾(-
+
+53293*
+8Ô Ô(+
+
+53314*
+8Ô Ô(+
+
+53334*
+8Ô Ô(+
+
+53354*
+8Ô Ô(+
+
+55293*
+8é é(:
+
+55314*
+8é é(:
+
+55334*
+8é é(:
+
+55354*
+8é é(:
+
+57293*
+8‘ ‘(&
+
+57314*
+8‘ ‘(&
+
+57334*
+8‘ ‘(&
+
+57354*
+8‘ ‘(&
+
+59613*
+8	 (7
+
+59314*
+8	 (7
+
+59334*
+8	 (7
+
+63333*
+8) )(
+
+65353*
+8{ {(
+
+69293*
+8™ ™(2
+
+69314*
+8™ ™(2
+
+69334*
+8™ ™(2
+
+69354*
+8™ ™(2
+
+71293*
+8¿ ¿('
+
+71314*
+8¿ ¿('
+
+71334*
+8¿ ¿('
+
+71354*
+8¿ ¿('
+
+73293*
+8„ „(#
+
+73314*
+8„ „(#
+
+73334*
+8„ „(#
+
+73354*
+8„ „(#
+
+77293*
+8â â($
+
+77314*
+8â â($
+
+77334*
+8â â($
+
+77354*
+8â â($
+
+79613*
+8½	 ½(/
+
+79314*
+8½	 ½(/
+
+79334*
+8½	 ½(/
+
+81613*
+8­	 ­("
+
+81314*
+8­	 ­("
+
+81334*
+8­	 ­("
+
+83293*
+8Í Í(0
+
+83314*
+8Í Í(0
+
+83334*
+8Í Í(0
+
+83354*
+8Í Í(0
+
+87293*
+8Å Å(7
+
+87314*
+8Å Å(7
+
+87334*
+8Å Å(7
+
+89293*
+8ø ø(2
+
+89314*
+8ø ø(2
+
+89334*
+8ø ø(2
+
+91293*
+8± ±(&
+
+91314*
+8± ±(&
+
+91334*
+8± ±(&
+
+91354*
+8± ±(&
+
+93293*
+8é é(-
+
+93314*
+8é é(-
+
+93334*
+8é é(-
+
+95293*
+8Ô Ô((
+
+95314*
+8Ô Ô((
+
+95334*
+8Ô Ô((
+
+95354*
+8Ô Ô((
+
+99613*
+8 	  ('
+
+101613*
+8	 (*
+
+105613*
+8Ë	 Ë(-
+
+105314*
+8Ë	 Ë(-
+
+105334*
+8Ë	 Ë(-
+
+107613*
+8¯	 ¯("
+
+107314*
+8¯	 ¯("
+
+107334*
+8¯	 ¯("
+
+109613*
+8½	 ½($
+
+109314*
+8½	 ½($
+
+109334*
+8½	 ½($
+
+113613*
+8™	 ™(1
+
+115613*
+8“	 “(&
+
+117333*
+8L L(
+
+119313*
+8g g(
+
+119314*
+8g g(
+
+123293*
+8É É(#
+
+123314*
+8É É(#
+
+123334*
+8É É(#
+
+123354*
+8É É(#
+
+125613*
+8·	 ·(
+
+125314*
+8·	 ·(
+
+125334*
+8·	 ·(

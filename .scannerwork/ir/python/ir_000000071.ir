@@ -1,0 +1,14 @@
+
+'"Get model ID for reconciler."strself
+´ ´( "ž.
+,
+
+¶ ¶("#get-field# _reconciler:-
++
+
+¶ ¶(*"#get-field# model_info:+
+)
+
+¶ ¶(3"#get-field# model_id:
+
+¶ ¶(3*I/Users/kevintoles/POC/inference-service/src/orchestration/modes/debate.py

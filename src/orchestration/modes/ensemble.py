@@ -121,6 +121,82 @@ def _jaccard_similarity(text_a: str, text_b: str) -> float:
     return len(intersection) / len(union)
 
 
+# Common stopwords to skip in disagreement analysis
+_STOPWORDS: frozenset[str] = frozenset({
+    "the", "is", "a", "an", "and", "or", "in", "on", "at", "to", "of"
+})
+
+
+def _tokenize_response(response: str) -> set[str]:
+    """Tokenize a response into clean lowercase words.
+
+    Args:
+        response: Response string to tokenize.
+
+    Returns:
+        Set of cleaned lowercase words.
+    """
+    clean_words: set[str] = set()
+    for word in response.split():
+        cleaned = word.strip(".,!?;:'\"()-")
+        if cleaned:
+            clean_words.add(cleaned.lower())
+    return clean_words
+
+
+def _count_words_across_responses(
+    responses: list[str],
+) -> tuple[Counter[str], dict[str, set[int]]]:
+    """Count word occurrences and track which responses contain each word.
+
+    Args:
+        responses: List of response strings.
+
+    Returns:
+        Tuple of (word_counts, word_sources) where word_sources maps
+        each word to the set of response indices containing it.
+    """
+    word_counts: Counter[str] = Counter()
+    word_sources: dict[str, set[int]] = {}
+
+    for i, response in enumerate(responses):
+        clean_words = _tokenize_response(response)
+        for word in clean_words:
+            word_counts[word] += 1
+            if word not in word_sources:
+                word_sources[word] = set()
+            word_sources[word].add(i)
+
+    return word_counts, word_sources
+
+
+def _identify_minority_words(
+    word_counts: Counter[str],
+    total_responses: int,
+) -> list[str]:
+    """Identify words that appear in minority of responses.
+
+    Args:
+        word_counts: Counter of word occurrences.
+        total_responses: Total number of responses.
+
+    Returns:
+        List of disagreement descriptions.
+    """
+    disagreements: list[str] = []
+    majority_threshold = total_responses / 2
+
+    for word, count in word_counts.items():
+        if word in _STOPWORDS:
+            continue
+        if 0 < count < majority_threshold:
+            disagreements.append(
+                f"'{word}' appears in minority ({count}/{total_responses} responses)"
+            )
+
+    return disagreements
+
+
 def extract_disagreement_points(responses: list[str]) -> list[str]:
     """Extract points where responses disagree.
 
@@ -140,46 +216,8 @@ def extract_disagreement_points(responses: list[str]) -> list[str]:
     if len(responses) <= 1:
         return []
 
-    # Common stopwords to skip
-    stopwords = {"the", "is", "a", "an", "and", "or", "in", "on", "at", "to", "of"}
-
-    # Count word occurrences across all responses
-    word_counts: Counter[str] = Counter()
-    word_sources: dict[str, set[int]] = {}
-
-    for i, response in enumerate(responses):
-        # Tokenize: split and clean punctuation
-        raw_words = response.split()
-        clean_words: set[str] = set()
-        for w in raw_words:
-            # Strip punctuation from word boundaries
-            cleaned = w.strip(".,!?;:'\"()-")
-            if cleaned:
-                clean_words.add(cleaned.lower())
-
-        for word in clean_words:
-            word_counts[word] += 1
-            if word not in word_sources:
-                word_sources[word] = set()
-            word_sources[word].add(i)
-
-    # Find words that appear in minority of responses
-    disagreements: list[str] = []
-    total_responses = len(responses)
-    majority_threshold = total_responses / 2
-
-    for word, count in word_counts.items():
-        # Skip very short common words (but keep numbers like "7" or "42")
-        if word in stopwords:
-            continue
-
-        # If word appears in less than half of responses, it's a potential disagreement
-        if 0 < count < majority_threshold:
-            disagreements.append(
-                f"'{word}' appears in minority ({count}/{total_responses} responses)"
-            )
-
-    return disagreements
+    word_counts, _ = _count_words_across_responses(responses)
+    return _identify_minority_words(word_counts, len(responses))
 
 
 # =============================================================================

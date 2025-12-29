@@ -1,0 +1,218 @@
+
+1.0PythonFrontend"1766977697998*py2.Bö
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+(
+#tests/integration/test_streaming.py9
+&
+ tests.integration.test_streaming11
+
+
+__future__12
+
+typing14
+
+
+time16
+:
+4tests.integration.test_streaming.TestStreamingErrors18
+X
+Rtests.integration.test_streaming.TestStreamingErrors.test_streaming_empty_messages20
+
+typing.Coroutine22
+
+NoneType24
+W
+Qtests.integration.test_streaming.TestStreamingErrors.test_streaming_invalid_model26
+7
+1tests.integration.test_streaming.TestSSEStreaming28
+U
+Otests.integration.test_streaming.TestSSEStreaming.test_streaming_ends_with_done30
+[
+Utests.integration.test_streaming.TestSSEStreaming.test_streaming_chunks_contain_delta32
+W
+Qtests.integration.test_streaming.TestSSEStreaming.test_streaming_extracts_content34
+^
+Xtests.integration.test_streaming.TestSSEStreaming.test_streaming_chunks_have_data_prefix36
+Y
+Stests.integration.test_streaming.TestSSEStreaming.test_streaming_returns_sse_format38
+?
+9tests.integration.test_streaming.TestStreamingPerformance40
+b
+\tests.integration.test_streaming.TestStreamingPerformance.test_streaming_first_chunk_latency42
+g
+atests.integration.test_streaming.TestStreamingPerformance.test_streaming_receives_multiple_chunks44
+B
+<tests.integration.test_streaming.TestStreamingChunkStructure46
+i
+ctests.integration.test_streaming.TestStreamingChunkStructure.test_last_data_chunk_has_finish_reason48
+a
+[tests.integration.test_streaming.TestStreamingChunkStructure.test_chunks_have_consistent_id50
+\
+Vtests.integration.test_streaming.TestStreamingChunkStructure.test_first_chunk_has_role52J
+
+8
+89j‘
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19186 210
+
+21
+21207 219
+
+23
+23226
+
+25
+25246
+
+27
+27267 219
+
+29
+29286 210
+
+31
+31307 229
+
+33
+33327 229
+
+35
+35347 229
+
+37
+37367 229
+
+39
+39387 229
+
+41
+41406 210
+
+43
+43427 241
+
+45
+45447 241
+
+47
+47466 210
+
+49
+49487 247
+
+51
+51507 247
+
+53
+53527 247rà
+
+10131*
+8 (#
+
+10151*
+8
+ 
+(&
+
+10171*
+8£ £(
+
+21233*
+8 (,
+
+21254*
+8 (,
+
+27233*
+8ï ï(+
+
+27254*
+8ï ï(+
+
+31233*
+8R R(,
+
+31254*
+8R R(,
+
+33233*
+8n n(2
+
+33254*
+8n n(2
+
+35233*
+8‡ ‡(.
+
+35254*
+8‡ ‡(.
+
+37233*
+88 8(5
+
+37254*
+88 8(5
+
+39233*
+8   (0
+
+39254*
+8   (0
+
+43233*
+8œ œ(1
+
+43254*
+8œ œ(1
+
+45233*
+8¹ ¹(6
+
+45254*
+8¹ ¹(6
+
+49233*
+8Ò Ò(5
+
+49254*
+8Ò Ò(5
+
+51233*
+8½ ½(-
+
+51254*
+8½ ½(-
+
+53233*
+8§ §((
+
+53254*
+8§ §((

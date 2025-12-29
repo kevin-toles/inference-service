@@ -277,7 +277,7 @@ class ModelManager:
             self.current_memory_gb -= model_size
             self.current_memory_gb = max(0.0, self.current_memory_gb)
 
-    async def get_provider(self, model_id: str) -> LlamaCppProvider:
+    def get_provider(self, model_id: str) -> LlamaCppProvider:
         """Get the provider for a loaded model.
 
         Args:

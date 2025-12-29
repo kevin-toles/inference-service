@@ -659,7 +659,7 @@ class TestErrorContaminationDetector:
         """Test validation passes for clean output."""
         output = "Here is the generated code for your REST API."
 
-        result = await detector.validate_handoff(clean_state, output)
+        result = detector.validate_handoff(clean_state, output)
 
         assert result.valid is True
         assert result.recommendation == "proceed"
@@ -671,7 +671,7 @@ class TestErrorContaminationDetector:
         """Test detection of 'I apologize' error marker."""
         output = "I apologize, but I cannot generate that code."
 
-        result = await detector.validate_handoff(clean_state, output)
+        result = detector.validate_handoff(clean_state, output)
 
         assert any(i.marker == "I apologize" for i in result.issues if i.marker)
 
@@ -682,7 +682,7 @@ class TestErrorContaminationDetector:
         """Test detection of 'I made an error' marker."""
         output = "I made an error in my previous response."
 
-        result = await detector.validate_handoff(clean_state, output)
+        result = detector.validate_handoff(clean_state, output)
 
         assert any(
             "error" in (i.marker or "").lower()
@@ -696,7 +696,7 @@ class TestErrorContaminationDetector:
         """Test detection of 'That's incorrect' marker."""
         output = "That's incorrect, let me fix that."
 
-        result = await detector.validate_handoff(clean_state, output)
+        result = detector.validate_handoff(clean_state, output)
 
         assert len(result.issues) > 0
 
@@ -707,7 +707,7 @@ class TestErrorContaminationDetector:
         """Test detection of 'hallucination' marker."""
         output = "This might be a hallucination from the previous model."
 
-        result = await detector.validate_handoff(clean_state, output)
+        result = detector.validate_handoff(clean_state, output)
 
         assert any(
             "hallucination" in (i.marker or "").lower()
@@ -721,7 +721,7 @@ class TestErrorContaminationDetector:
         """Test detection of information lacking marker."""
         output = "I don't have information about that API."
 
-        result = await detector.validate_handoff(clean_state, output)
+        result = detector.validate_handoff(clean_state, output)
 
         assert len(result.issues) > 0
 
@@ -732,7 +732,7 @@ class TestErrorContaminationDetector:
         """Test error marker issues have warning severity."""
         output = "I apologize for the confusion."
 
-        result = await detector.validate_handoff(clean_state, output)
+        result = detector.validate_handoff(clean_state, output)
 
         marker_issues = [i for i in result.issues if i.type == "error_marker_detected"]
         assert all(i.severity == "warning" for i in marker_issues)
@@ -744,7 +744,7 @@ class TestErrorContaminationDetector:
         """Test marker detection is case-insensitive."""
         output = "I APOLOGIZE FOR THE ERROR."
 
-        result = await detector.validate_handoff(clean_state, output)
+        result = detector.validate_handoff(clean_state, output)
 
         assert len(result.issues) > 0
 
@@ -761,7 +761,7 @@ class TestErrorContaminationDetector:
             active_errors=["error1", "error2", "error3"],  # 3 errors at step 2
         )
 
-        result = await detector.validate_handoff(state, "Clean output")
+        result = detector.validate_handoff(state, "Clean output")
 
         accumulation_issues = [
             i for i in result.issues if i.type == "error_accumulation"
@@ -782,7 +782,7 @@ class TestErrorContaminationDetector:
             active_errors=["e1", "e2"],  # 2 errors at step 1 -> accumulation
         )
 
-        result = await detector.validate_handoff(state, "Output")
+        result = detector.validate_handoff(state, "Output")
 
         assert result.valid is False
         assert result.recommendation == "quarantine"
@@ -794,7 +794,7 @@ class TestErrorContaminationDetector:
         """Test warning-only issues keep result valid."""
         output = "I apologize for the delay in processing."
 
-        result = await detector.validate_handoff(clean_state, output)
+        result = detector.validate_handoff(clean_state, output)
 
         # Has warning issues but should still be valid (no high severity)
         warning_issues = [i for i in result.issues if i.severity == "warning"]
@@ -891,3 +891,263 @@ class TestEdgeCases:
         )
 
         assert isinstance(trajectory, str)
+
+
+# =============================================================================
+# AC-10.6: Provider-Agnostic Compression tests
+# =============================================================================
+
+
+class TestProviderAgnosticCompression:
+    """Tests for provider-agnostic _apply_compression per design decision.
+
+    Design: The compression function should accept any InferenceProvider,
+    allowing ANY loaded LLM to perform compression (not hardcoded to specific model).
+
+    Reference: User requirement - "shouldn't the solution be flexible since it
+    could technically be used by any LLM as long as it is loaded"
+    """
+
+    @pytest.mark.asyncio
+    async def test_apply_compression_accepts_provider_parameter(self) -> None:
+        """Test _apply_compression accepts InferenceProvider parameter.
+
+        AC-10.6.1: Function signature includes provider parameter.
+        """
+        from src.orchestration.context import _apply_compression
+        from tests.unit.providers.mock_provider import MockProvider
+
+        provider = MockProvider(model_id="llama-3.2-3b")
+        content = "This is content that needs compression to fit budget."
+
+        # Should accept provider parameter without error
+        result = await _apply_compression(
+            content=content,
+            target_ratio=0.5,
+            preserve=["decisions"],
+            drop=["verbose"],
+            provider=provider,
+        )
+
+        assert isinstance(result, str)
+
+    @pytest.mark.asyncio
+    async def test_apply_compression_uses_provider_for_generation(self) -> None:
+        """Test _apply_compression uses provider.generate() for LLM-based compression.
+
+        AC-10.6.2: Compression delegates to provider instead of truncation.
+        """
+        from unittest.mock import AsyncMock, patch
+
+        from src.orchestration.context import _apply_compression
+        from tests.unit.providers.mock_provider import MockProvider
+
+        provider = MockProvider(model_id="compression-model")
+
+        # Mock the generate method to return compressed content
+        mock_response = AsyncMock()
+        mock_response.choices = [
+            AsyncMock(message=AsyncMock(content="Compressed: key decisions only"))
+        ]
+        provider.generate = AsyncMock(return_value=mock_response)
+
+        result = await _apply_compression(
+            content="Verbose content with lots of reasoning chains and examples.",
+            target_ratio=0.3,
+            preserve=["decisions"],
+            drop=["reasoning_chains", "examples"],
+            provider=provider,
+        )
+
+        # Should call provider.generate() for LLM-based compression
+        provider.generate.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_apply_compression_includes_preserve_categories(self) -> None:
+        """Test _apply_compression prompt includes preserve categories.
+
+        AC-10.6.3: Compression prompt instructs LLM what to preserve.
+        """
+        from unittest.mock import ANY, AsyncMock
+
+        from src.orchestration.context import _apply_compression
+        from tests.unit.providers.mock_provider import MockProvider
+
+        provider = MockProvider(model_id="llama-3.2-3b")
+        mock_response = AsyncMock()
+        mock_response.choices = [AsyncMock(message=AsyncMock(content="Compressed"))]
+        provider.generate = AsyncMock(return_value=mock_response)
+
+        await _apply_compression(
+            content="Content to compress",
+            target_ratio=0.5,
+            preserve=["decisions", "constraints", "errors"],
+            drop=["verbose"],
+            provider=provider,
+        )
+
+        # Verify the request includes preserve categories
+        call_args = provider.generate.call_args[0][0]
+        prompt_text = str(call_args.messages)
+
+        assert "decisions" in prompt_text.lower() or "preserve" in prompt_text.lower()
+
+    @pytest.mark.asyncio
+    async def test_apply_compression_includes_drop_categories(self) -> None:
+        """Test _apply_compression prompt includes drop categories.
+
+        AC-10.6.4: Compression prompt instructs LLM what to drop.
+        """
+        from unittest.mock import AsyncMock
+
+        from src.orchestration.context import _apply_compression
+        from tests.unit.providers.mock_provider import MockProvider
+
+        provider = MockProvider(model_id="llama-3.2-3b")
+        mock_response = AsyncMock()
+        mock_response.choices = [AsyncMock(message=AsyncMock(content="Compressed"))]
+        provider.generate = AsyncMock(return_value=mock_response)
+
+        await _apply_compression(
+            content="Content with reasoning chains and examples",
+            target_ratio=0.5,
+            preserve=["decisions"],
+            drop=["reasoning_chains", "examples", "verbose"],
+            provider=provider,
+        )
+
+        # Verify the request includes drop categories
+        call_args = provider.generate.call_args[0][0]
+        prompt_text = str(call_args.messages)
+
+        assert "drop" in prompt_text.lower() or "remove" in prompt_text.lower() or "reasoning" in prompt_text.lower()
+
+    @pytest.mark.asyncio
+    async def test_apply_compression_respects_target_ratio(self) -> None:
+        """Test _apply_compression instructs LLM about target ratio.
+
+        AC-10.6.5: Compression prompt specifies target length.
+        """
+        from unittest.mock import AsyncMock
+
+        from src.orchestration.context import _apply_compression
+        from tests.unit.providers.mock_provider import MockProvider
+
+        provider = MockProvider(model_id="llama-3.2-3b")
+        mock_response = AsyncMock()
+        mock_response.choices = [AsyncMock(message=AsyncMock(content="Short"))]
+        provider.generate = AsyncMock(return_value=mock_response)
+
+        content = "A" * 1000  # Long content
+
+        await _apply_compression(
+            content=content,
+            target_ratio=0.3,  # 30% of original
+            preserve=[],
+            drop=[],
+            provider=provider,
+        )
+
+        # Verify target length is communicated to LLM
+        call_args = provider.generate.call_args[0][0]
+        prompt_text = str(call_args.messages)
+
+        # Should mention target length (300 chars) or ratio (30%)
+        assert "300" in prompt_text or "30%" in prompt_text or "ratio" in prompt_text.lower()
+
+    @pytest.mark.asyncio
+    async def test_apply_compression_works_with_any_loaded_provider(self) -> None:
+        """Test _apply_compression works with different provider types.
+
+        AC-10.6.6: Any InferenceProvider implementation can compress.
+        """
+        from unittest.mock import AsyncMock
+
+        from src.orchestration.context import _apply_compression
+        from tests.unit.providers.mock_provider import MockProvider
+
+        # Test with different model configurations
+        providers = [
+            MockProvider(model_id="llama-3.2-3b", roles=["fast"]),
+            MockProvider(model_id="phi-4", roles=["primary"]),
+            MockProvider(model_id="qwen2.5-7b", roles=["coder"]),
+        ]
+
+        for provider in providers:
+            mock_response = AsyncMock()
+            mock_response.choices = [
+                AsyncMock(message=AsyncMock(content=f"Compressed by {provider._model_id}"))
+            ]
+            provider.generate = AsyncMock(return_value=mock_response)
+
+            result = await _apply_compression(
+                content="Content to compress",
+                target_ratio=0.5,
+                preserve=["decisions"],
+                drop=["verbose"],
+                provider=provider,
+            )
+
+            assert provider._model_id in result
+
+    @pytest.mark.asyncio
+    async def test_apply_compression_preserves_none_defaults_per_ap_1_5(self) -> None:
+        """Test _apply_compression handles None defaults correctly (AP-1.5).
+
+        AC-10.6.7: Mutable default avoidance pattern.
+        """
+        from src.orchestration.context import _apply_compression
+        from tests.unit.providers.mock_provider import MockProvider
+        from unittest.mock import AsyncMock
+
+        provider = MockProvider(model_id="test")
+        mock_response = AsyncMock()
+        mock_response.choices = [AsyncMock(message=AsyncMock(content="Compressed"))]
+        provider.generate = AsyncMock(return_value=mock_response)
+
+        # Should work with default empty lists
+        result = await _apply_compression(
+            content="Content",
+            target_ratio=0.5,
+            preserve=None,  # type: ignore - testing default handling
+            drop=None,  # type: ignore - testing default handling
+            provider=provider,
+        )
+
+        assert isinstance(result, str)
+
+    @pytest.mark.asyncio
+    async def test_fit_to_budget_uses_provider_for_compression(self) -> None:
+        """Test fit_to_budget passes provider to _apply_compression.
+
+        AC-10.6.8: Integration point - fit_to_budget forwards provider.
+        """
+        from unittest.mock import AsyncMock, patch, MagicMock
+
+        from src.orchestration.context import fit_to_budget
+        from tests.unit.providers.mock_provider import MockProvider
+
+        provider = MockProvider(model_id="compression-model")
+        mock_model = MagicMock()
+        mock_model.tokenize.side_effect = [
+            list(range(200)),  # Initial: over budget
+            list(range(50)),  # After compression: under budget
+        ]
+
+        with patch(
+            "src.orchestration.context._apply_compression",
+            new_callable=AsyncMock,
+            return_value="Compressed",
+        ) as mock_compress:
+            result = await fit_to_budget(
+                content="Long content",
+                max_tokens=100,
+                model=mock_model,
+                provider=provider,  # New parameter
+            )
+
+            # Verify provider was passed to _apply_compression
+            mock_compress.assert_called_once()
+            call_kwargs = mock_compress.call_args.kwargs
+            assert "provider" in call_kwargs
+            assert call_kwargs["provider"] is provider

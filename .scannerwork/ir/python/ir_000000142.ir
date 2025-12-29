@@ -1,0 +1,15 @@
+
+3*"Check if at maximum concurrent capacity."strself
+ ("¦0
+.
+
+Ÿ Ÿ(!"#get-field# _active_count:2
+0
+
+Ÿ% Ÿ(9"#get-field# _max_concurrent:,
+*
+
+Ÿ Ÿ(9"
+#binop >=#2>=:Bbool
+
+Ÿ Ÿ(9*E/Users/kevintoles/POC/inference-service/src/services/queue_manager.py

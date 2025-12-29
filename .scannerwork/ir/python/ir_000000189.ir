@@ -1,0 +1,28 @@
+
+­£"Create the draft step invoke function.
+
+        Args:
+            request: Original request.
+
+        Returns:
+            Async callable for saga step.
+        "strself
+ß ß(request
+ß ß(,"é#
+!
+
+€ €("#unknown-value#*
+(
+
+ê €(%closure"#new-object#(
+&
+
+ê €("#set-field# self:+
+)
+
+ê €("#set-field# request:-
++
+
+ê €("?python-partial-apply?:
+
+€ €(*K/Users/kevintoles/POC/inference-service/src/orchestration/modes/pipeline.py

@@ -1,0 +1,14 @@
+
+("Get model ID for synthesizer."strself
+‡ ‡(!"Ÿ/
+-
+
+‰ ‰( "#get-field# _synthesizer:-
++
+
+‰ ‰(+"#get-field# model_info:+
+)
+
+‰ ‰(4"#get-field# model_id:
+
+‰ ‰(4*K/Users/kevintoles/POC/inference-service/src/orchestration/modes/ensemble.py

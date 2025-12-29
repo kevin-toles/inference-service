@@ -1,0 +1,776 @@
+
+1.0PythonFrontend"1766977698035*py2.B¬)
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+*
+%tests/unit/providers/test_llamacpp.py9
+(
+"tests.unit.providers.test_llamacpp11
+
+asyncio12
+
+pathlib14
+
+typing16
+
+unittest.mock18
+/
+)src.models.requests.ChatCompletionRequest20
+!
+src.models.requests.Message22
+
+src.models.requests24
+.
+(src.models.responses.ChatCompletionChunk26
+1
++src.models.responses.ChatCompletionResponse28
+
+src.models.responses30
+
+src.providers.llamacpp32
+
+src.providers.base34
+A
+;tests.unit.providers.test_llamacpp.TestLlamaCppProviderLoad36
+Y
+Stests.unit.providers.test_llamacpp.TestLlamaCppProviderLoad.test_load_model_success38
+
+typing.Coroutine40
+
+pathlib.Path42
+
+unittest.mock.MagicMock44
+`
+Ztests.unit.providers.test_llamacpp.TestLlamaCppProviderLoad.test_load_failure_raises_error46
+c
+]tests.unit.providers.test_llamacpp.TestLlamaCppProviderLoad.test_load_with_metal_acceleration48
+V
+Ptests.unit.providers.test_llamacpp.TestLlamaCppProviderLoad.test_load_idempotent50
+_
+Ytests.unit.providers.test_llamacpp.TestLlamaCppProviderLoad.test_load_with_context_length52
+C
+=tests.unit.providers.test_llamacpp.TestLlamaCppProviderStream54
+c
+]tests.unit.providers.test_llamacpp.TestLlamaCppProviderStream.test_stream_chunks_have_content56
+f
+`tests.unit.providers.test_llamacpp.TestLlamaCppProviderStream.test_stream_when_not_loaded_raises58
+g
+atests.unit.providers.test_llamacpp.TestLlamaCppProviderStream.test_stream_ends_with_finish_reason60
+]
+Wtests.unit.providers.test_llamacpp.TestLlamaCppProviderStream.test_stream_yields_chunks62
+e
+_tests.unit.providers.test_llamacpp.TestLlamaCppProviderStream.test_stream_uses_stream_parameter64
+3
+-tests.unit.providers.test_llamacpp.model_path66
+9
+3tests.unit.providers.test_llamacpp.mock_llama_class68
+E
+?tests.unit.providers.test_llamacpp.TestLlamaCppProviderTokenize70
+h
+btests.unit.providers.test_llamacpp.TestLlamaCppProviderTokenize.test_tokenize_calls_model_tokenize72
+e
+_tests.unit.providers.test_llamacpp.TestLlamaCppProviderTokenize.test_tokenize_returns_token_ids74
+G
+Atests.unit.providers.test_llamacpp.TestLlamaCppProviderExceptions76
+f
+`tests.unit.providers.test_llamacpp.TestLlamaCppProviderExceptions.test_exceptions_have_hierarchy78
+
+NoneType80
+i
+ctests.unit.providers.test_llamacpp.TestLlamaCppProviderExceptions.test_exception_names_end_in_error82
+C
+=tests.unit.providers.test_llamacpp.TestLlamaCppProviderImport84
+g
+atests.unit.providers.test_llamacpp.TestLlamaCppProviderImport.test_provider_is_inference_provider86
+g
+atests.unit.providers.test_llamacpp.TestLlamaCppProviderImport.test_provider_exceptions_importable88
+\
+Vtests.unit.providers.test_llamacpp.TestLlamaCppProviderImport.test_provider_importable90
+A
+;tests.unit.providers.test_llamacpp.TestLlamaCppProviderInit92
+[
+Utests.unit.providers.test_llamacpp.TestLlamaCppProviderInit.test_init_with_gpu_layers94
+a
+[tests.unit.providers.test_llamacpp.TestLlamaCppProviderInit.test_init_not_loaded_by_default96
+V
+Ptests.unit.providers.test_llamacpp.TestLlamaCppProviderInit.test_init_with_roles98
+k
+dtests.unit.providers.test_llamacpp.TestLlamaCppProviderInit.test_init_with_invalid_path_raises_error100
+\
+Utests.unit.providers.test_llamacpp.TestLlamaCppProviderInit.test_init_with_model_path102
+L
+Etests.unit.providers.test_llamacpp.TestLlamaCppProviderContextManager104
+g
+`tests.unit.providers.test_llamacpp.TestLlamaCppProviderContextManager.test_async_context_manager106
+s
+ltests.unit.providers.test_llamacpp.TestLlamaCppProviderContextManager.test_context_manager_handles_exception108
+8
+1tests.unit.providers.test_llamacpp.sample_request110
+I
+Btests.unit.providers.test_llamacpp.TestLlamaCppProviderCountTokens112
+y
+rtests.unit.providers.test_llamacpp.TestLlamaCppProviderCountTokens.test_count_tokens_when_not_loaded_uses_estimate114
+g
+`tests.unit.providers.test_llamacpp.TestLlamaCppProviderCountTokens.test_count_tokens_returns_int116
+G
+@tests.unit.providers.test_llamacpp.TestLlamaCppProviderModelInfo118
+f
+_tests.unit.providers.test_llamacpp.TestLlamaCppProviderModelInfo.test_model_info_status_updates120
+h
+atests.unit.providers.test_llamacpp.TestLlamaCppProviderModelInfo.test_model_info_returns_metadata122
+j
+ctests.unit.providers.test_llamacpp.TestLlamaCppProviderModelInfo.test_model_info_includes_file_path124
+F
+?tests.unit.providers.test_llamacpp.TestLlamaCppProviderGenerate126
+d
+]tests.unit.providers.test_llamacpp.TestLlamaCppProviderGenerate.test_generate_returns_choices128
+k
+dtests.unit.providers.test_llamacpp.TestLlamaCppProviderGenerate.test_generate_when_not_loaded_raises130
+b
+[tests.unit.providers.test_llamacpp.TestLlamaCppProviderGenerate.test_generate_returns_usage132
+e
+^tests.unit.providers.test_llamacpp.TestLlamaCppProviderGenerate.test_generate_returns_response134
+f
+_tests.unit.providers.test_llamacpp.TestLlamaCppProviderGenerate.test_generate_passes_parameters136
+>
+7tests.unit.providers.test_llamacpp.mock_llama_streaming138
+D
+=tests.unit.providers.test_llamacpp.TestLlamaCppProviderUnload140
+`
+Ytests.unit.providers.test_llamacpp.TestLlamaCppProviderUnload.test_unload_when_not_loaded142
+V
+Otests.unit.providers.test_llamacpp.TestLlamaCppProviderUnload.test_unload_model144J
+
+8
+89j†
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19185
+
+21
+21205
+
+23
+23225
+
+25
+25245
+
+27
+27265
+
+29
+29285
+
+31
+31305
+
+33
+33325
+
+35
+35345
+
+37
+37366 210
+
+39
+39387 237
+
+41
+41406
+
+43
+43426
+
+45
+45446
+
+47
+47467 237
+
+49
+49487 237
+
+51
+51507 237
+
+53
+53527 237
+
+55
+55546 210
+
+57
+57567 255
+
+59
+59587 255
+
+61
+61607 255
+
+63
+63627 255
+
+65
+65647 255
+
+67
+67667 210
+
+69
+69687 210
+
+71
+71706 210
+
+73
+73727 271
+
+75
+75747 271
+
+77
+77766 210
+
+79
+79787 277
+
+81
+81806
+
+83
+83827 277
+
+85
+85846 210
+
+87
+87867 285
+
+89
+89887 285
+
+91
+91907 285
+
+93
+93926 210
+
+95
+95947 293
+
+97
+97967 293
+
+99
+99987 293
+
+101
+1011007 293
+
+103
+1031027 293
+
+105
+1051046 210
+
+107
+1071067 2105
+
+109
+1091087 2105
+
+111
+1111107 210
+
+113
+1131126 210
+
+115
+1151147 2113
+
+117
+1171167 2113
+
+119
+1191186 210
+
+121
+1211207 2119
+
+123
+1231227 2119
+
+125
+1251247 2119
+
+127
+1271266 210
+
+129
+1291287 2127
+
+131
+1311307 2127
+
+133
+1331327 2127
+
+135
+1351347 2127
+
+137
+1371367 2127
+
+139
+1391387 210
+
+141
+1411406 210
+
+143
+1431427 2141
+
+145
+1451447 2141rç
+
+10131*
+8	 	(
+
+10151*
+8
+ 
+(
+
+10171*
+8 (
+
+10191*
+8 (6
+
+10211*
+8! (6
+
+10231*
+88 (?
+
+10251*
+8 (?
+
+10271*
+8" (5
+
+10291*
+87 (M
+
+10311*
+8 (M
+
+10331*
+8ö	 ö(<
+
+10351*
+8†	 †(9
+
+10331*
+8°	 °(<
+
+10331*
+8ß	 ´("
+
+10331*
+8Ω	 Ω(<
+
+10331*
+8À	 À(<
+
+10331*
+8ÿ	 ÿ(<
+
+10331*
+8Ê	 Ê(<
+
+10331*
+8Ú	 Ù(
+
+10331*
+8ç ç(@
+
+10331*
+8† †(@
+
+10331*
+8µ µ(@
+
+10331*
+8À À(X
+
+10331*
+8‹ ‹(@
+
+10331*
+8˘ ˘(@
+
+10331*
+8ä	 ä(<
+
+10331*
+8® ®(@
+
+10331*
+8ø ø(@
+
+10331*
+8◊ ◊(@
+
+10331*
+8Ï	 Ï(T
+
+10331*
+8ˇ ˇ(@
+
+10331*
+8´ ´(@
+
+10331*
+8ƒ ƒ(@
+
+10331*
+8ﬁ ﬁ(@
+
+10331*
+8Û	 Û(T
+
+10331*
+8à à(@
+
+10331*
+8ß ß(@
+
+10331*
+8ª ª(@
+
+10331*
+8÷ ÷(@
+
+10331*
+8Ë	 Ë(<
+
+10351*
+8Ä	 Ä(5
+
+10331*
+8Å	 Å(<
+
+10331*
+8ì	 ì(<
+
+10331*
+8• •(@
+
+10331*
+8¿	 ƒ("
+
+10331*
+8—	 ’("
+
+10331*
+8Ï Ï(@
+
+10331*
+8ˇ ˇ(@
+
+39413*
+8à à(&
+
+39434*
+8à à(&
+
+39454*
+8à à(&
+
+47413*
+8√ √(-
+
+47434*
+8√ √(-
+
+49413*
+8õ õ(0
+
+49434*
+8õ õ(0
+
+49454*
+8õ õ(0
+
+51413*
+8◊ ◊(#
+
+51434*
+8◊ ◊(#
+
+51454*
+8◊ ◊(#
+
+53413*
+8∞ ∞(,
+
+53434*
+8∞ ∞(,
+
+53454*
+8∞ ∞(,
+
+57413*
+8º º(.
+
+57434*
+8º º(.
+
+57454*
+8º º(.
+
+59413*
+8Ô Ô(1
+
+59434*
+8Ô Ô(1
+
+61413*
+8÷ ÷(2
+
+61434*
+8÷ ÷(2
+
+61454*
+8÷ ÷(2
+
+63413*
+8£ £((
+
+63434*
+8£ £((
+
+63454*
+8£ £((
+
+65413*
+8Ä Ä(0
+
+65434*
+8Ä Ä(0
+
+65454*
+8Ä Ä(0
+
+67433*
+8à à(
+
+67434*
+8à à(
+
+69453*
+8 (
+
+73413*
+8∂ ∂(1
+
+73434*
+8∂ ∂(1
+
+73454*
+8∂ ∂(1
+
+75413*
+8¢ ¢(.
+
+75434*
+8¢ ¢(.
+
+75454*
+8¢ ¢(.
+
+79813*
+8œ	 œ('
+
+83813*
+8æ	 æ(*
+
+87813*
+8û	 û(,
+
+89813*
+8•	 •(,
+
+91813*
+8ò	 ò(!
+
+95813*
+8…	 …("
+
+95434*
+8…	 …("
+
+97813*
+8‰	 ‰((
+
+97434*
+8‰	 ‰((
+
+99813*
+8÷	 ÷(
+
+99434*
+8÷	 ÷(
+
+101813*
+8	 (1
+
+103813*
+8ª	 ª("
+
+103434*
+8ª	 ª("
+
+107413*
+8Á Á()
+
+107434*
+8Á Á()
+
+107454*
+8Á Á()
+
+109413*
+8˙ ˙(5
+
+109434*
+8˙ ˙(5
+
+109454*
+8˙ ˙(5
+
+115813*
+8‰	 ‰(8
+
+115434*
+8‰	 ‰(8
+
+117413*
+8— —(,
+
+117434*
+8— —(,
+
+117454*
+8— —(,
+
+121413*
+8† †(-
+
+121434*
+8† †(-
+
+121454*
+8† †(-
+
+123813*
+8˛	 ˛()
+
+123434*
+8˛	 ˛()
+
+125813*
+8ë	 ë(+
+
+125434*
+8ë	 ë(+
+
+129413*
+8∑ ∑(,
+
+129434*
+8∑ ∑(,
+
+129454*
+8∑ ∑(,
+
+131413*
+8Ë Ë(3
+
+131434*
+8Ë Ë(3
+
+133413*
+8œ œ(*
+
+133434*
+8œ œ(*
+
+133454*
+8œ œ(*
+
+135413*
+8† †(-
+
+135434*
+8† †(-
+
+135454*
+8† †(-
+
+137413*
+8¯ ¯(.
+
+137434*
+8¯ ¯(.
+
+137454*
+8¯ ¯(.
+
+139453*
+8; ;(
+
+143413*
+8à à(*
+
+143434*
+8à à(*
+
+145413*
+8Ù Ù( 
+
+145434*
+8Ù Ù( 
+
+145454*
+8Ù Ù( 

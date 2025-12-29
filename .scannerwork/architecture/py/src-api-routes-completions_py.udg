@@ -1,0 +1,178 @@
+
+1.0PythonFrontend"1766977695887*py2.Bõ
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+"
+src/api/routes/completions.py9
+ 
+src.api.routes.completions11
+
+
+__future__12
+
+logging14
+
+collections.abc16
+
+typing18
+
+starlette.status20
+
+fastapi22
+
+fastapi.responses24
+/
+)src.models.requests.ChatCompletionRequest26
+
+src.models.requests28
+1
++src.models.responses.ChatCompletionResponse30
+
+src.models.responses32
+ 
+src.services.model_manager34
+1
++src.api.routes.completions._stream_response36
+
+typing.Coroutine38
+ 
+starlette.requests.Request40
+7
+1src.api.routes.completions.create_chat_completion42
+3
+-src.api.routes.completions._get_model_manager44
+-
+'src.services.model_manager.ModelManager46J
+
+8
+89jŠ
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19185
+
+21
+21205
+
+23
+23225
+
+25
+25245
+
+27
+27265
+
+29
+29285
+
+31
+31305
+
+33
+33325
+
+35
+35345
+
+37
+37367 210
+
+39
+39386
+
+41
+41406
+
+43
+43427 210
+
+45
+45447 210
+
+47
+47466rð
+
+10131*
+8 (#
+
+10151*
+8
+ 
+(
+
+10171*
+8 (*
+
+10191*
+8 (!
+
+10211*
+88 (>
+
+10231*
+8 (>
+
+10251*
+8 (0
+
+10271*
+8! (6
+
+10291*
+8 (6
+
+10311*
+8" (8
+
+10331*
+8 (8
+
+10351*
+8 (8
+
+10351*
+8 	  (C
+
+37393*
+8C C(
+
+37414*
+8C C(
+
+43393*
+8{ {(!
+
+43414*
+8{ {(!
+
+45473*
+8, ,(
+
+45414*
+8, ,(

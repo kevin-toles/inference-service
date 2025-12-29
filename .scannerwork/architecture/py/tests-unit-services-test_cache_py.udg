@@ -1,0 +1,942 @@
+
+1.0PythonFrontend"1766977698245*py2.B„@
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+&
+!tests/unit/services/test_cache.py9
+$
+tests.unit.services.test_cache11
+
+asyncio12
+
+hashlib14
+	
+abc16
+
+typing18
+
+unittest.mock20
+
+src.orchestration.context22
+
+src.services.cache24
+:
+4tests.unit.services.test_cache.TestHandoffCacheClear26
+Y
+Stests.unit.services.test_cache.TestHandoffCacheClear.test_clear_empties_local_cache28
+
+typing.Coroutine30
+^
+Xtests.unit.services.test_cache.TestHandoffCacheClear.test_invalidate_by_model_clears_all32
+
+NoneType34
+9
+3tests.unit.services.test_cache.TestPromptCacheStore36
+_
+Ytests.unit.services.test_cache.TestPromptCacheStore.test_get_returns_none_for_missing_key38
+R
+Ltests.unit.services.test_cache.TestPromptCacheStore.test_store_adds_to_cache40
+B
+<tests.unit.services.test_cache.TestCacheInvalidatorEdgeCases42
+X
+Rtests.unit.services.test_cache.TestCacheInvalidatorEdgeCases.test_empty_cache_list44
+h
+btests.unit.services.test_cache.TestCacheInvalidatorEdgeCases.test_first_model_load_no_invalidation46
+>
+8tests.unit.services.test_cache.TestCompressionCacheStore48
+b
+\tests.unit.services.test_cache.TestCompressionCacheStore.test_store_saves_compressed_content50
+a
+[tests.unit.services.test_cache.TestCompressionCacheStore.test_store_different_target_tokens52
+>
+8tests.unit.services.test_cache.TestCompressionCacheClear54
+b
+\tests.unit.services.test_cache.TestCompressionCacheClear.test_invalidate_by_model_clears_all56
+W
+Qtests.unit.services.test_cache.TestCompressionCacheClear.test_clear_empties_cache58
+@
+:tests.unit.services.test_cache.TestPromptCacheTokenization60
+a
+[tests.unit.services.test_cache.TestPromptCacheTokenization.test_get_tokenized_uses_hash_key62
+a
+[tests.unit.services.test_cache.TestPromptCacheTokenization.test_get_tokenized_caches_result64
+m
+gtests.unit.services.test_cache.TestPromptCacheTokenization.test_get_tokenized_different_text_not_cached66
+b
+\tests.unit.services.test_cache.TestPromptCacheTokenization.test_get_tokenized_returns_tokens68
+:
+4tests.unit.services.test_cache.TestHandoffCacheStore70
+N
+Htests.unit.services.test_cache.TestHandoffCacheStore.test_store_with_ttl72
+O
+Itests.unit.services.test_cache.TestHandoffCacheStore.test_store_uses_lock74
+a
+[tests.unit.services.test_cache.TestHandoffCacheStore.test_store_saves_handoff_state_locally76
+;
+5tests.unit.services.test_cache.TestHandoffCacheImport78
+Y
+Stests.unit.services.test_cache.TestHandoffCacheImport.test_handoff_cache_importable80
+i
+ctests.unit.services.test_cache.TestHandoffCacheImport.test_handoff_cache_instantiates_without_redis82
+c
+]tests.unit.services.test_cache.TestHandoffCacheImport.test_handoff_cache_accepts_redis_client84
+9
+3tests.unit.services.test_cache.TestCacheIntegration86
+W
+Qtests.unit.services.test_cache.TestCacheIntegration.test_all_caches_work_together88
+\
+Vtests.unit.services.test_cache.TestCacheIntegration.test_cache_key_collision_prevented90
+@
+:tests.unit.services.test_cache.TestHandoffCacheConcurrency92
+f
+`tests.unit.services.test_cache.TestHandoffCacheConcurrency.test_concurrent_writes_dont_lose_data94
+d
+^tests.unit.services.test_cache.TestHandoffCacheConcurrency.test_concurrent_read_write_same_key96
+E
+?tests.unit.services.test_cache.TestCacheInvalidatorInvalidation98
+u
+ntests.unit.services.test_cache.TestCacheInvalidatorInvalidation.test_on_model_loaded_no_invalidation_same_hash100
+l
+etests.unit.services.test_cache.TestCacheInvalidatorInvalidation.test_on_config_change_invalidates_all102
+x
+qtests.unit.services.test_cache.TestCacheInvalidatorInvalidation.test_on_config_change_no_invalidation_same_config104
+v
+otests.unit.services.test_cache.TestCacheInvalidatorInvalidation.test_on_model_loaded_invalidates_on_hash_change106
+q
+jtests.unit.services.test_cache.TestCacheInvalidatorInvalidation.test_invalidate_for_model_calls_all_caches108
+9
+2tests.unit.services.test_cache.TestHandoffCacheGet110
+Y
+Rtests.unit.services.test_cache.TestHandoffCacheGet.test_get_retrieves_stored_state112
+[
+Ttests.unit.services.test_cache.TestHandoffCacheGet.test_get_returns_none_for_missing114
+L
+Etests.unit.services.test_cache.TestHandoffCacheGet.test_get_uses_lock116
+@
+9tests.unit.services.test_cache.TestCacheInvalidatorImport118
+j
+ctests.unit.services.test_cache.TestCacheInvalidatorImport.test_cache_invalidator_accepts_cache_list120
+b
+[tests.unit.services.test_cache.TestCacheInvalidatorImport.test_cache_invalidator_importable122
+;
+4tests.unit.services.test_cache.TestPromptCacheImport124
+`
+Ytests.unit.services.test_cache.TestPromptCacheImport.test_prompt_cache_requires_tokenizer126
+X
+Qtests.unit.services.test_cache.TestPromptCacheImport.test_prompt_cache_importable128
+@
+9tests.unit.services.test_cache.TestCompressionCacheImport130
+b
+[tests.unit.services.test_cache.TestCompressionCacheImport.test_compression_cache_importable132
+d
+]tests.unit.services.test_cache.TestCompressionCacheImport.test_compression_cache_instantiates134
+=
+6tests.unit.services.test_cache.TestCompressionCacheGet136
+^
+Wtests.unit.services.test_cache.TestCompressionCacheGet.test_get_with_key_returns_by_key138
+_
+Xtests.unit.services.test_cache.TestCompressionCacheGet.test_get_returns_none_for_missing140
+a
+Ztests.unit.services.test_cache.TestCompressionCacheGet.test_get_returns_cached_compression142
+:
+3tests.unit.services.test_cache.TestPromptCacheClear144
+^
+Wtests.unit.services.test_cache.TestPromptCacheClear.test_invalidate_by_model_clears_all146
+S
+Ltests.unit.services.test_cache.TestPromptCacheClear.test_clear_empties_cache148
+h
+atests.unit.services.test_cache.TestPromptCacheClear.test_invalidate_by_model_ignores_other_models150
+=
+6tests.unit.services.test_cache.TestHandoffCacheLocking152
+u
+ntests.unit.services.test_cache.TestHandoffCacheLocking.test_get_lock_returns_different_lock_for_different_keys154
+`
+Ytests.unit.services.test_cache.TestHandoffCacheLocking.test_get_lock_creates_lock_for_key156
+j
+ctests.unit.services.test_cache.TestHandoffCacheLocking.test_get_lock_returns_same_lock_for_same_key158
+_
+Xtests.unit.services.test_cache.TestHandoffCacheLocking.test_handoff_cache_has_locks_dict160
+:
+3tests.unit.services.test_cache.create_handoff_state162
+
+
+str164
+
+
+int166
+
+dict168
+;
+4tests.unit.services.test_cache.TestInferenceCacheABC170
+_
+Xtests.unit.services.test_cache.TestInferenceCacheABC.test_inference_cache_has_get_method172
+a
+Ztests.unit.services.test_cache.TestInferenceCacheABC.test_inference_cache_has_clear_method174
+o
+htests.unit.services.test_cache.TestInferenceCacheABC.test_inference_cache_has_invalidate_by_model_method176
+a
+Ztests.unit.services.test_cache.TestInferenceCacheABC.test_inference_cache_has_store_method178
+a
+Ztests.unit.services.test_cache.TestInferenceCacheABC.test_inference_cache_not_instantiable180
+[
+Ttests.unit.services.test_cache.TestInferenceCacheABC.test_inference_cache_importable182
+W
+Ptests.unit.services.test_cache.TestInferenceCacheABC.test_inference_cache_is_abc184
+F
+?tests.unit.services.test_cache.TestInferenceCacheImplementation186
+r
+ktests.unit.services.test_cache.TestInferenceCacheImplementation.test_compression_cache_implements_interface188
+n
+gtests.unit.services.test_cache.TestInferenceCacheImplementation.test_handoff_cache_implements_interface190
+m
+ftests.unit.services.test_cache.TestInferenceCacheImplementation.test_prompt_cache_implements_interface192
+G
+@tests.unit.services.test_cache.TestCompressionCacheKeyGeneration194
+k
+dtests.unit.services.test_cache.TestCompressionCacheKeyGeneration.test_get_key_includes_target_tokens196
+m
+ftests.unit.services.test_cache.TestCompressionCacheKeyGeneration.test_get_key_same_content_same_tokens198
+f
+_tests.unit.services.test_cache.TestCompressionCacheKeyGeneration.test_get_key_uses_content_hash200
+c
+\tests.unit.services.test_cache.TestCompressionCacheKeyGeneration.test_get_key_returns_string202
+G
+@tests.unit.services.test_cache.TestCacheInvalidatorModelTracking204
+l
+etests.unit.services.test_cache.TestCacheInvalidatorModelTracking.test_on_model_loaded_updates_version206
+k
+dtests.unit.services.test_cache.TestCacheInvalidatorModelTracking.test_on_model_loaded_tracks_version208J
+
+8
+89jÕ
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19185
+
+21
+21205
+
+23
+23225
+
+25
+25245
+
+27
+27266 210
+
+29
+29287 227
+
+31
+31306
+
+33
+33327 227
+
+35
+35346
+
+37
+37366 210
+
+39
+39387 237
+
+41
+41407 237
+
+43
+43426 210
+
+45
+45447 243
+
+47
+47467 243
+
+49
+49486 210
+
+51
+51507 249
+
+53
+53527 249
+
+55
+55546 210
+
+57
+57567 255
+
+59
+59587 255
+
+61
+61606 210
+
+63
+63627 261
+
+65
+65647 261
+
+67
+67667 261
+
+69
+69687 261
+
+71
+71706 210
+
+73
+73727 271
+
+75
+75747 271
+
+77
+77767 271
+
+79
+79786 210
+
+81
+81807 279
+
+83
+83827 279
+
+85
+85847 279
+
+87
+87866 210
+
+89
+89887 287
+
+91
+91907 287
+
+93
+93926 210
+
+95
+95947 293
+
+97
+97967 293
+
+99
+99986 210
+
+101
+1011007 299
+
+103
+1031027 299
+
+105
+1051047 299
+
+107
+1071067 299
+
+109
+1091087 299
+
+111
+1111106 210
+
+113
+1131127 2111
+
+115
+1151147 2111
+
+117
+1171167 2111
+
+119
+1191186 210
+
+121
+1211207 2119
+
+123
+1231227 2119
+
+125
+1251246 210
+
+127
+1271267 2125
+
+129
+1291287 2125
+
+131
+1311306 210
+
+133
+1331327 2131
+
+135
+1351347 2131
+
+137
+1371366 210
+
+139
+1391387 2137
+
+141
+1411407 2137
+
+143
+1431427 2137
+
+145
+1451446 210
+
+147
+1471467 2145
+
+149
+1491487 2145
+
+151
+1511507 2145
+
+153
+1531526 210
+
+155
+1551547 2153
+
+157
+1571567 2153
+
+159
+1591587 2153
+
+161
+1611607 2153
+
+163
+1631627 210
+
+165
+1651646
+
+167
+1671666
+
+169
+1691686
+
+171
+1711706 210
+
+173
+1731727 2171
+
+175
+1751747 2171
+
+177
+1771767 2171
+
+179
+1791787 2171
+
+181
+1811807 2171
+
+183
+1831827 2171
+
+185
+1851847 2171
+
+187
+1871866 210
+
+189
+1891887 2187
+
+191
+1911907 2187
+
+193
+1931927 2187
+
+195
+1951946 210
+
+197
+1971967 2195
+
+199
+1991987 2195
+
+201
+2012007 2195
+
+203
+2032027 2195
+
+205
+2052046 210
+
+207
+2072067 2205
+
+209
+2092087 2205r®
+
+10131*
+8 (
+
+10151*
+8 (
+
+10171*
+8 (
+
+10191*
+8 (
+
+10211*
+8 (6
+
+10231*
+8% %(7
+
+10251*
+8:	 :(6
+
+10251*
+8@	 @(6
+
+10251*
+8F	 F(6
+
+10251*
+8M	 M(6
+
+10251*
+8U	 U(6
+
+10251*
+8\	 \(6
+
+10251*
+8c	 c(6
+
+10251*
+8p	 p(C
+
+10251*
+8x	 x(D
+
+10251*
+8	 (H
+
+10251*
+8è	 è(3
+
+10251*
+8ï	 ï(3
+
+10251*
+8°	 °(3
+
+10251*
+8Æ	 Æ(3
+
+10251*
+8ø	 ø(3
+
+10251*
+8Œ	 Œ(3
+
+10251*
+8‡	 ‡(3
+
+10251*
+8Ï	 Ï(3
+
+10251*
+8˙	 ˙(3
+
+10251*
+8ã	 ã(3
+
+10251*
+8õ	 õ(3
+
+10251*
+8¥	 ¥(4
+
+10251*
+8∫	 ∫(4
+
+10251*
+8¡	 ¡(4
+
+10251*
+8Õ	 Õ(4
+
+10251*
+8’	 ’(4
+
+10251*
+8ﬂ	 ﬂ(4
+
+10251*
+8È	 È(4
+
+10251*
+8˜	 ˜(4
+
+10251*
+8Ç	 Ç(4
+
+10251*
+8ï	 ï(4
+
+10251*
+8•	 •(4
+
+10251*
+8∂	 ∂(4
+
+10251*
+8ø	 ø(4
+
+10251*
+8’	 ’(4
+
+10251*
+8Î	 Î(4
+
+10251*
+8é	 é(4
+
+10251*
+8õ	 õ(4
+
+10251*
+8∞	 ∞(8
+
+10251*
+8∂	 ∂(8
+
+10251*
+8¡	 ¡(8
+
+10251*
+8 	  (8
+
+10251*
+8÷	 ÷(8
+
+10251*
+8‡	 ‡(8
+
+10251*
+8Ó	 Ó(8
+
+10251*
+8¯	 ¯(8
+
+10251*
+8á	 á(8
+
+10251*
+8ë	 ë(8
+
+10251*
+8ö	 ö(8
+
+10251*
+8®	 ®(8
+
+10251*
+8µ	 µ(8
+
+10251*
+8…	 …(8
+
+10251*
+8œ	 “(
+
+10251*
+8Â	 Â(8
+
+10251*
+8Ô	 Ô(8
+
+10251*
+8˛	 ˛(J
+
+10251*
+8ì	 ì(J
+
+10251*
+8°	 °(J
+
+10251*
+8±	 ±(J
+
+10251*
+8Ω	 Ω(H
+
+10251*
+8Œ	 Œ(8
+
+10251*
+8ÿ	 ÿ(J
+
+10251*
+8Ô	 Û(
+
+10251*
+8è	 è(8
+
+29313*
+8å å(-
+
+33353*
+8ô	 ô(,
+
+39353*
+8Í	 Í(.
+
+41353*
+8ﬁ	 ﬁ(!
+
+45353*
+8Ã	 Ã(
+
+47353*
+8÷	 ÷(.
+
+51353*
+8Ï	 Ï(,
+
+53353*
+8ˆ	 ˆ(+
+
+57353*
+8≥	 ≥(,
+
+59353*
+8¶	 ¶(!
+
+63353*
+8Ã	 Ã()
+
+65353*
+8¨	 ¨()
+
+67353*
+8Ω	 Ω(5
+
+69353*
+8ü	 ü(*
+
+73313*
+8ì ì("
+
+75313*
+8Ä Ä(#
+
+77313*
+8ı ı(5
+
+81353*
+8≤	 ≤(&
+
+83353*
+8∏	 ∏(6
+
+85353*
+8ø	 ø(0
+
+89313*
+8Ì Ì(,
+
+91353*
+8ç	 ç(+
+
+95313*
+8” ”(4
+
+97313*
+8È È(2
+
+101353*
+8ë	 ë(7
+
+103353*
+8ü	 ü(.
+
+105353*
+8Ø	 Ø(:
+
+107353*
+8¸	 ¸(8
+
+109353*
+8ª	 ª(3
+
+113313*
+8£ £(.
+
+115313*
+8¥ ¥(0
+
+117313*
+8Ω Ω(!
+
+121353*
+8Õ	 Õ(2
+
+123353*
+8«	 «(*
+
+127353*
+8ì	 ì(-
+
+129353*
+8ç	 ç(%
+
+133353*
+8Æ	 Æ(*
+
+135353*
+8¥	 ¥(,
+
+139353*
+8ò	 ò()
+
+141353*
+8è	 è(*
+
+143353*
+8Ö	 Ö(,
+
+147353*
+8â	 â(,
+
+149353*
+8¯	 ¯(!
+
+151353*
+8ô	 ô(6
+
+155353*
+8Á	 Á(@
+
+157353*
+8”	 ”(+
+
+159353*
+8›	 ›(5
+
+161353*
+8À	 À(*
+
+1631654*
+8 (
+
+1631654*
+8 (
+
+1631674*
+8 (
+
+1631674*
+8 (
+
+1631694*
+8 (
+
+173353*
+8K	 K(,
+
+175353*
+8Z	 Z(.
+
+177353*
+8a	 a(<
+
+179353*
+8S	 S(.
+
+181353*
+8D	 D(.
+
+183353*
+88	 8((
+
+185353*
+8>	 >($
+
+189353*
+8}	 }(4
+
+191353*
+8v	 v(0
+
+193353*
+8n	 n(/
+
+197353*
+8»	 »(,
+
+199353*
+8ﬁ	 ﬁ(.
+
+201353*
+8‘	 ‘('
+
+203353*
+8ø	 ø($
+
+207353*
+8Ì	 Ì(-
+
+209353*
+8„	 „(,

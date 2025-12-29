@@ -1,0 +1,7 @@
+organization=kevin-toles
+projectKey=kevin-toles_inference-service
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.78018
+dashboardUrl=https://sonarcloud.io/dashboard?id=kevin-toles_inference-service
+ceTaskId=AZtoFD96x0mWaziK73eD
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZtoFD96x0mWaziK73eD

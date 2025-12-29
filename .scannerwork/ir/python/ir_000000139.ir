@@ -1,0 +1,8 @@
+
+1("Get current number of active requests."strself
+é é("D0
+.
+
+ê ê(!"#get-field# _active_count:
+
+ê ê(!*E/Users/kevintoles/POC/inference-service/src/services/queue_manager.py

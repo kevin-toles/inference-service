@@ -11,7 +11,11 @@ Per ARCHITECTURE.md Context Management section.
 """
 
 from dataclasses import dataclass, field
-from typing import ClassVar, Protocol
+from typing import TYPE_CHECKING, ClassVar, Protocol
+
+
+if TYPE_CHECKING:
+    from src.providers.base import InferenceProvider
 
 
 # =============================================================================
@@ -189,26 +193,75 @@ def _calculate_compression_ratio(target: int, current: int) -> float:
 async def _apply_compression(
     content: str,
     target_ratio: float,
-    preserve: list[str],  # noqa: ARG001 - placeholder for production implementation
-    drop: list[str],  # noqa: ARG001 - placeholder for production implementation
+    preserve: list[str] | None = None,
+    drop: list[str] | None = None,
+    provider: "InferenceProvider | None" = None,
 ) -> str:
-    """Apply compression using fast model.
+    """Apply compression using any loaded LLM via InferenceProvider.
 
-    This is a placeholder that would call a compression model.
-    In production, this would use llama-3.2-3b or similar for compression.
+    This function uses the provided InferenceProvider to perform LLM-based
+    compression. Any loaded model can be used for compression, making this
+    solution flexible and provider-agnostic.
 
     Args:
         content: Content to compress.
-        target_ratio: Target compression ratio.
-        preserve: Categories to preserve.
-        drop: Categories to drop.
+        target_ratio: Target compression ratio (0.0-1.0).
+        preserve: Categories to preserve (e.g., ["decisions", "constraints"]).
+        drop: Categories to drop (e.g., ["reasoning_chains", "examples"]).
+        provider: InferenceProvider to use for LLM-based compression.
+                  If None, falls back to simple truncation.
 
     Returns:
         Compressed content.
+
+    Note:
+        - Uses `preserve or []` pattern per AP-1.5 for mutable defaults.
+        - Provider parameter allows any loaded LLM to compress.
     """
-    # Placeholder implementation - real implementation would use model
-    # For now, truncate to approximate target ratio
+    # AP-1.5: Handle None defaults for mutable arguments
+    preserve_list = preserve or []
+    drop_list = drop or []
+
+    # Calculate target length
     target_len = int(len(content) * target_ratio)
+
+    # If no provider, fall back to simple truncation (legacy behavior)
+    if provider is None:
+        return content[:target_len]
+
+    # Build compression prompt for LLM
+    from src.models.requests import ChatCompletionRequest, Message
+
+    preserve_text = ", ".join(preserve_list) if preserve_list else "all key information"
+    drop_text = ", ".join(drop_list) if drop_list else "redundant details"
+
+    compression_prompt = f"""Compress the following content to approximately {target_len} characters (target ratio: {target_ratio:.0%}).
+
+PRESERVE: {preserve_text}
+DROP/REMOVE: {drop_text}
+
+Return ONLY the compressed content, no explanations.
+
+CONTENT TO COMPRESS:
+{content}"""
+
+    request = ChatCompletionRequest(
+        model=provider.model_info.model_id,
+        messages=[
+            Message(role="system", content="You are a compression assistant. Compress content while preserving key information."),
+            Message(role="user", content=compression_prompt),
+        ],
+        max_tokens=target_len,  # Limit output to target length
+        temperature=0.1,  # Low temperature for deterministic compression
+    )
+
+    response = await provider.generate(request)
+
+    # Extract compressed content from response
+    if response.choices and response.choices[0].message:
+        return response.choices[0].message.content or content[:target_len]
+
+    # Fallback to truncation if LLM fails
     return content[:target_len]
 
 
@@ -222,6 +275,7 @@ async def fit_to_budget(
     max_tokens: int,
     model: TokenizableModel,
     max_iterations: int = 3,
+    provider: "InferenceProvider | None" = None,
 ) -> str:
     """Iteratively compress until under budget.
 
@@ -233,6 +287,8 @@ async def fit_to_budget(
         max_tokens: Maximum number of tokens allowed.
         model: Model for tokenization.
         max_iterations: Maximum compression iterations.
+        provider: InferenceProvider to use for LLM-based compression.
+                  If None, falls back to simple truncation.
 
     Returns:
         Content that fits within token budget.
@@ -249,12 +305,13 @@ async def fit_to_budget(
         # Calculate compression ratio needed
         ratio = _calculate_compression_ratio(max_tokens, current_tokens)
 
-        # Compress using fast model
+        # Compress using provider (LLM-based) or fallback to truncation
         content = await _apply_compression(
             content=content,
             target_ratio=ratio,
             preserve=["decisions", "constraints", "errors"],
             drop=["reasoning_chains", "examples", "verbose"],
+            provider=provider,
         )
 
     # Max iterations reached - raise instead of silent truncation
@@ -321,7 +378,7 @@ class ErrorContaminationDetector:
         "I don't have information about",
     ]
 
-    async def validate_handoff(
+    def validate_handoff(
         self, state: HandoffState, output: str
     ) -> ValidationResult:
         """Check for error contamination before passing to next model.

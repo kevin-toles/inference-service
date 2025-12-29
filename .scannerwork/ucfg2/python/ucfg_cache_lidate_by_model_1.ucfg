@@ -1,0 +1,58 @@
+
+2src.services.cache.PromptCache.invalidate_by_modelI
+=/Users/kevintoles/POC/inference-service/src/services/cache.py· ·("2*‚
+2
+¸ ¼(i
+g
+
+½ ½(
+%2"__id*M
+
+__unknown_file (1*/ 
+src.services.cache.PromptCache"
+	_model_idi
+g
+
+½% ½(3
+%3"__id*M
+
+__unknown_file (1*/ 
+src.services.cache.PromptCache"
+	_model_id’
+
+
+½% ½(?
+%4"	__compare*"
+
+__unknown_file (
+==*"
+
+__unknown_file (
+
+%3*(
+
+__unknown_file (
+
+
+model_id*
+3
+4*.
+3
+
+cache.py"
+Æ Æ
+implicit return*q
+4
+¾ ¾([Y
+
+¾ ¾(
+%1*>
+
+__unknown_file (" 
+src.services.cache.PromptCache2clear*
+3:
+
+·" ·(/
+
+model_idB" 
+src.services.cache.PromptCacheH

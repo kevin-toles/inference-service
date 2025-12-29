@@ -1,0 +1,436 @@
+
+1.0PythonFrontend"1766977697414*py2.BÇ
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+
+src/providers/llamacpp.py9
+
+src.providers.llamacpp11
+
+
+__future__12
+
+asyncio14
+
+platform16
+
+
+time18
+
+collections.abc20
+
+pathlib22
+
+typing24
+/
+)src.models.requests.ChatCompletionRequest26
+
+src.models.requests28
+.
+(src.models.responses.ChatCompletionChunk30
+1
++src.models.responses.ChatCompletionResponse32
+!
+src.models.responses.Choice34
+(
+"src.models.responses.ChoiceMessage36
+&
+ src.models.responses.ChunkChoice38
+%
+src.models.responses.ChunkDelta40
+ 
+src.models.responses.Usage42
+
+src.models.responses44
+
+src.providers.base46
+
+llama_cpp.Llama48
+
+	llama_cpp50
+7
+1src.providers.llamacpp.LlamaCppModelNotFoundError52
+2
+,src.providers.llamacpp.LlamaCppProviderError54
+
+	Exception56
+3
+-src.providers.llamacpp.LlamaCppInferenceError58
+3
+-src.providers.llamacpp.LlamaCppModelLoadError60
+-
+'src.providers.llamacpp.LlamaCppProvider62
+*
+$src.providers.base.InferenceProvider64
+F
+@src.providers.llamacpp.LlamaCppProvider._build_generation_kwargs66
+
+
+dict68
+6
+0src.providers.llamacpp.LlamaCppProvider.tokenize70
+
+
+list72
+	
+str74
+2
+,src.providers.llamacpp.LlamaCppProvider.load76
+
+typing.Coroutine78
+D
+>src.providers.llamacpp.LlamaCppProvider._parse_streaming_chunk80
+H
+Bsrc.providers.llamacpp.LlamaCppProvider._parse_completion_response82
+7
+1src.providers.llamacpp.LlamaCppProvider.is_loaded84
+
+
+bool86
+8
+2src.providers.llamacpp.LlamaCppProvider.__aenter__88
+8
+2src.providers.llamacpp.LlamaCppProvider.model_info90
+&
+ src.providers.base.ModelMetadata92
+4
+.src.providers.llamacpp.LlamaCppProvider.stream94
+?
+9src.providers.llamacpp.LlamaCppProvider._convert_messages96
+6
+0src.providers.llamacpp.LlamaCppProvider.generate98
+7
+0src.providers.llamacpp.LlamaCppProvider.__init__100
+
+NoneType102
+
+pathlib.Path104
+
+
+int106
+5
+.src.providers.llamacpp.LlamaCppProvider.unload108
+8
+1src.providers.llamacpp.LlamaCppProvider.__aexit__110
+;
+4src.providers.llamacpp.LlamaCppProvider.count_tokens112J
+
+8
+89jø
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19185
+
+21
+21205
+
+23
+23225
+
+25
+25245
+
+27
+27265
+
+29
+29285
+
+31
+31305
+
+33
+33325
+
+35
+35345
+
+37
+37365
+
+39
+39385
+
+41
+41405
+
+43
+43425
+
+45
+45445
+
+47
+47465
+
+49
+49485
+
+51
+51505
+
+53
+53526 210
+
+55
+55546 210
+
+57
+57566
+
+59
+59586 210
+
+61
+61606 210
+
+63
+63626 210
+
+65
+65646
+
+67
+67667 263
+
+69
+69686
+
+71
+71707 263
+
+73
+73726
+
+75
+75746
+
+77
+77767 263
+
+79
+79786
+
+81
+81807 263
+
+83
+83827 263
+
+85
+85847 263
+
+87
+87866
+
+89
+89887 263
+
+91
+91907 263
+
+93
+93926
+
+95
+95947 263
+
+97
+97967 263
+
+99
+99987 263
+
+101
+1011007 263
+
+103
+1031026
+
+105
+1051046
+
+107
+1071066
+
+109
+1091087 263
+
+111
+1111107 263
+
+113
+1131127 263rž
+
+
+10131*
+8 (#
+
+10151*
+8 (
+
+10171*
+8 (
+
+10191*
+8 (
+
+10211*
+8 (*
+
+10231*
+8 (
+
+10251*
+8 (&
+
+10271*
+8! (6
+
+10291*
+8 (6
+
+10311*
+8 (
+
+10331*
+8 (
+
+10351*
+8 (
+
+10371*
+8 (
+
+10391*
+8 (
+
+10411*
+8 (
+
+10431*
+8   (
+
+
+10451*
+8  (
+
+
+10471*
+8" "(@
+
+10491*
+8( (( 
+
+10511*
+8( (( 
+
+53552*
+8G G(!
+
+55572*
+8@ @(
+
+59552*
+8U U(
+
+61552*
+8N N(
+
+63652*
+8a a(
+
+67693*
+8Ë	 Ë(!
+
+71733*
+8Ž	 Ž(
+
+71754*
+8Ž	 Ž(
+
+77793*
+8Ï Ï(
+
+81694*
+8—	 —(
+
+83694*
+8ì	 ì(#
+
+85873*
+8Ã	 Ã(
+
+89793*
+8Œ Œ(
+
+91933*
+8°	 °(
+
+95793*
+8Ú Ú(
+
+97733*
+8¸	 ¸(
+
+97734*
+8¸	 ¸(
+
+99793*
+8¬ ¬(
+
+1011033*
+8„	 „(
+
+1011054*
+8„	 „(
+
+101754*
+8„	 „(
+
+1011074*
+8„	 „(
+
+1011074*
+8„	 „(
+
+1011074*
+8„	 „(
+
+109793*
+8þ þ(
+
+111793*
+8— —(
+
+1131073*
+8¢	 ¢(
+
+113754*
+8¢	 ¢(

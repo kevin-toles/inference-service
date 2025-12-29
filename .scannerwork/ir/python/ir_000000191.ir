@@ -1,0 +1,28 @@
+
+®¤"Create the refine step invoke function.
+
+        Args:
+            request: Original request.
+
+        Returns:
+            Async callable for saga step.
+        "strself
+ƒ ƒ(request
+ƒ ƒ(,"é#
+!
+
+­ ­("#unknown-value#*
+(
+
+Ž ­(%closure"#new-object#(
+&
+
+Ž ­("#set-field# self:+
+)
+
+Ž ­("#set-field# request:-
++
+
+Ž ­("?python-partial-apply?:
+
+­ ­(*K/Users/kevintoles/POC/inference-service/src/orchestration/modes/pipeline.py

@@ -62,19 +62,22 @@ class InferenceCache(ABC):
     All cache implementations must implement this interface to ensure
     consistent behavior and support cache invalidation.
 
+    Note: The get/store methods use **kwargs to allow subclasses to
+    define domain-specific parameters while maintaining a consistent
+    interface for cache invalidation and clearing.
+
     Methods:
-        get: Retrieve cached value by key
+        get: Retrieve cached value
         store: Store value in cache
         clear: Clear entire cache
         invalidate_by_model: Clear entries for specific model
     """
 
     @abstractmethod
-    def get(self, *, key: str) -> Any:
-        """Retrieve cached value by key.
+    def get(self, **kwargs: Any) -> Any:
+        """Retrieve cached value.
 
-        Args:
-            key: Cache key to lookup.
+        Subclasses define specific parameters (e.g., key, request_id, content).
 
         Returns:
             Cached value or None if not found.
@@ -82,12 +85,10 @@ class InferenceCache(ABC):
         ...
 
     @abstractmethod
-    def store(self, *, key: str, value: Any) -> None:
+    def store(self, **kwargs: Any) -> None:
         """Store value in cache.
 
-        Args:
-            key: Cache key.
-            value: Value to cache.
+        Subclasses define specific parameters (e.g., key, value, state, ttl).
         """
         ...
 
@@ -156,7 +157,7 @@ class PromptCache(InferenceCache):
             self._cache[key] = self._tokenizer.tokenize(text.encode())
         return self._cache[key]
 
-    def get(self, *, key: str) -> list[int] | None:
+    def get(self, **kwargs: Any) -> list[int] | None:
         """Retrieve cached tokens by key.
 
         Args:
@@ -165,16 +166,20 @@ class PromptCache(InferenceCache):
         Returns:
             Cached token list or None.
         """
+        key = kwargs.get("key", "")
         return self._cache.get(key)
 
-    def store(self, *, key: str, value: list[int]) -> None:
+    def store(self, **kwargs: Any) -> None:
         """Store tokenized value in cache.
 
         Args:
             key: Cache key.
             value: Token list to cache.
         """
-        self._cache[key] = value
+        key = kwargs.get("key", "")
+        value = kwargs.get("value")
+        if key and value is not None:
+            self._cache[key] = value
 
     def clear(self) -> None:
         """Clear entire token cache."""
@@ -243,13 +248,11 @@ class HandoffCache(InferenceCache):
             self._locks[key] = asyncio.Lock()
         return self._locks[key]
 
-    async def store(  # type: ignore[override]
+    async def store(
         self,
         state: HandoffState | None = None,
         ttl: int = 3600,
-        *,
-        key: str | None = None,
-        value: Any = None,
+        **kwargs: Any,
     ) -> None:
         """Store handoff state with optional TTL.
 
@@ -258,9 +261,11 @@ class HandoffCache(InferenceCache):
         Args:
             state: HandoffState to store (async usage).
             ttl: Time-to-live in seconds (default 3600).
-            key: Direct key for interface compliance.
-            value: Direct value for interface compliance.
+            **kwargs: key/value for interface compliance.
         """
+        key = kwargs.get("key")
+        value = kwargs.get("value")
+        
         if state is not None:
             cache_key = f"handoff:{state.request_id}"
             async with self._get_lock(cache_key):
@@ -276,18 +281,19 @@ class HandoffCache(InferenceCache):
     async def get(
         self,
         request_id: str | None = None,
-        *,
-        key: str | None = None,
+        **kwargs: Any,
     ) -> HandoffState | str | None:
         """Retrieve handoff state by request ID.
 
         Args:
             request_id: Request ID to lookup (async usage).
-            key: Direct key for interface compliance.
+            **kwargs: key for interface compliance.
 
         Returns:
             HandoffState if found via request_id, str if via key, None otherwise.
         """
+        key = kwargs.get("key")
+        
         if request_id is not None:
             cache_key = f"handoff:{request_id}"
             async with self._get_lock(cache_key):
@@ -360,8 +366,7 @@ class CompressionCache(InferenceCache):
         self,
         content: str | None = None,
         target_tokens: int | None = None,
-        *,
-        key: str | None = None,
+        **kwargs: Any,
     ) -> str | None:
         """Retrieve cached compression.
 
@@ -370,11 +375,12 @@ class CompressionCache(InferenceCache):
         Args:
             content: Original content (optional).
             target_tokens: Target token count (optional).
-            key: Direct cache key (optional).
+            **kwargs: key for direct lookup.
 
         Returns:
             Cached compressed content or None.
         """
+        key = kwargs.get("key")
         if key:
             return self._cache.get(key)
         if content is not None and target_tokens is not None:
@@ -387,9 +393,7 @@ class CompressionCache(InferenceCache):
         content: str | None = None,
         target_tokens: int | None = None,
         compressed: str | None = None,
-        *,
-        key: str | None = None,
-        value: str | None = None,
+        **kwargs: Any,
     ) -> None:
         """Store compressed content.
 
@@ -399,9 +403,11 @@ class CompressionCache(InferenceCache):
             content: Original content (optional).
             target_tokens: Target token count (optional).
             compressed: Compressed version (optional).
-            key: Direct cache key (optional).
-            value: Direct value (optional).
+            **kwargs: key/value for direct storage.
         """
+        key = kwargs.get("key")
+        value = kwargs.get("value")
+        
         if key and value:
             self._cache[key] = value
         elif content is not None and target_tokens is not None and compressed:

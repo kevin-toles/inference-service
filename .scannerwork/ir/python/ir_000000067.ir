@@ -1,0 +1,8 @@
+
+&"Get participant B provider."strself
+   ("E1
+/
+
+¢ ¢(""#get-field# _participant_b:
+
+¢ ¢("*I/Users/kevintoles/POC/inference-service/src/orchestration/modes/debate.py

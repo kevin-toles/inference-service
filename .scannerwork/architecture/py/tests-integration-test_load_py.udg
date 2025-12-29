@@ -1,0 +1,193 @@
+
+1.0PythonFrontend"1766977697588*py2.Bﬂ	
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+#
+tests/integration/test_load.py9
+!
+tests.integration.test_load11
+
+
+__future__12
+
+asyncio14
+
+
+time16
+
+typing18
+3
+-tests.integration.test_load.TestQueueBehavior20
+O
+Itests.integration.test_load.TestQueueBehavior.test_queue_full_returns_50322
+
+typing.Coroutine24
+
+NoneType26
+R
+Ltests.integration.test_load.TestQueueBehavior.test_requests_queued_when_busy28
+8
+2tests.integration.test_load.TestConcurrentRequests30
+[
+Utests.integration.test_load.TestConcurrentRequests.test_concurrent_streaming_requests32
+_
+Ytests.integration.test_load.TestConcurrentRequests.test_5_concurrent_requests_all_succeed34
+T
+Ntests.integration.test_load.TestConcurrentRequests.test_10_concurrent_requests36
+,
+&tests.integration.test_load.TestStress38
+K
+Etests.integration.test_load.TestStress.test_rapid_sequential_requests40
+E
+?tests.integration.test_load.TestStress.test_mixed_request_types42
+8
+2tests.integration.test_load.TestPerformanceMetrics44
+V
+Ptests.integration.test_load.TestPerformanceMetrics.test_response_time_under_load46
+T
+Ntests.integration.test_load.TestPerformanceMetrics.test_throughput_measurement48J
+
+8
+89jŸ
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19185
+
+21
+21206 210
+
+23
+23227 221
+
+25
+25246
+
+27
+27266
+
+29
+29287 221
+
+31
+31306 210
+
+33
+33327 231
+
+35
+35347 231
+
+37
+37367 231
+
+39
+39386 210
+
+41
+41407 239
+
+43
+43427 239
+
+45
+45446 210
+
+47
+47467 245
+
+49
+49487 245r‘
+
+10131*
+8 (#
+
+10151*
+8
+ 
+(
+
+10171*
+8 (
+
+10191*
+8 (&
+
+23253*
+8∆ ∆(*
+
+23274*
+8∆ ∆(*
+
+29253*
+8® ®(-
+
+29274*
+8® ®(-
+
+33253*
+8v v(1
+
+33274*
+8v v(1
+
+35253*
+8Y Y(5
+
+35274*
+8Y Y(5
+
+37253*
+8% %(*
+
+37274*
+8% %(*
+
+41253*
+8æ æ(-
+
+41274*
+8æ æ(-
+
+43253*
+8÷ ÷('
+
+43274*
+8÷ ÷('
+
+47253*
+8Ò Ò(,
+
+47274*
+8Ò Ò(,
+
+49253*
+8ì ì(*
+
+49274*
+8ì ì(*

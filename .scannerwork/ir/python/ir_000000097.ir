@@ -1,0 +1,12 @@
+
+†}"Check if model is currently loaded.
+
+        Returns:
+            True if model is loaded and ready for inference.
+        "strself
+Ã Ã("A-
++
+
+É É("#get-field# _is_loaded:
+
+É É(*A/Users/kevintoles/POC/inference-service/src/providers/llamacpp.py

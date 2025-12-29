@@ -523,7 +523,7 @@ class TestModelManagerConcurrency:
 
             # Concurrent access to different models
             async def access_model(model_id: str) -> bool:
-                provider = await manager.get_provider(model_id)
+                provider = manager.get_provider(model_id)
                 return provider is not None
 
             results = await asyncio.gather(
@@ -554,8 +554,8 @@ class TestModelManagerConcurrency:
             await manager.load_model(MODEL_DEEPSEEK)
 
             # Both models should be accessible concurrently
-            phi4_provider = await manager.get_provider(MODEL_PHI4)
-            deepseek_provider = await manager.get_provider(MODEL_DEEPSEEK)
+            phi4_provider = manager.get_provider(MODEL_PHI4)
+            deepseek_provider = manager.get_provider(MODEL_DEEPSEEK)
 
             assert phi4_provider is not None
             assert deepseek_provider is not None
@@ -769,7 +769,7 @@ class TestModelManagerLoadUnload:
         )
 
         with pytest.raises(ModelNotLoadedError):
-            await manager.get_provider(MODEL_PHI4)
+            manager.get_provider(MODEL_PHI4)
 
 
 # =============================================================================

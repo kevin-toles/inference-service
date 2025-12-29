@@ -1,0 +1,752 @@
+
+1.0PythonFrontend"1766977698525*py2.B”.
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+4
+/tests/unit/orchestration/modes/test_ensemble.py9
+2
+,tests.unit.orchestration.modes.test_ensemble11
+
+asyncio12
+
+
+time14
+
+unittest.mock16
+/
+)src.models.requests.ChatCompletionRequest18
+!
+src.models.requests.Message20
+
+src.models.requests22
+1
++src.models.responses.ChatCompletionResponse24
+!
+src.models.responses.Choice26
+(
+"src.models.responses.ChoiceMessage28
+ 
+src.models.responses.Usage30
+
+src.models.responses32
+&
+ src.orchestration.modes.ensemble34
+L
+Ftests.unit.orchestration.modes.test_ensemble.TestEnsembleModeSynthesis36
+{
+utests.unit.orchestration.modes.test_ensemble.TestEnsembleModeSynthesis.test_ensemble_mode_returns_synthesized_content38
+
+typing.Coroutine40
+
+
+list42
+
+unittest.mock.MagicMock44
+q
+ktests.unit.orchestration.modes.test_ensemble.TestEnsembleModeSynthesis.test_ensemble_mode_calls_synthesizer46
+Ä
+ztests.unit.orchestration.modes.test_ensemble.TestEnsembleModeSynthesis.test_ensemble_mode_synthesizer_receives_all_outputs48
+~
+xtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeSynthesis.test_ensemble_mode_synthesizer_can_be_participant50
+J
+Dtests.unit.orchestration.modes.test_ensemble.mock_providers_agreeing52
+L
+Ftests.unit.orchestration.modes.test_ensemble.TestEnsembleModeEdgeCases54
+u
+otests.unit.orchestration.modes.test_ensemble.TestEnsembleModeEdgeCases.test_ensemble_mode_preserves_model_field56
+v
+ptests.unit.orchestration.modes.test_ensemble.TestEnsembleModeEdgeCases.test_ensemble_mode_handles_empty_response58
+|
+vtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeEdgeCases.test_ensemble_mode_large_number_of_participants60
+K
+Etests.unit.orchestration.modes.test_ensemble.TestEnsembleModeMetadata62
+u
+otests.unit.orchestration.modes.test_ensemble.TestEnsembleModeMetadata.test_ensemble_mode_reports_inference_time64
+v
+ptests.unit.orchestration.modes.test_ensemble.TestEnsembleModeMetadata.test_ensemble_mode_reports_all_models_used66
+u
+otests.unit.orchestration.modes.test_ensemble.TestEnsembleModeMetadata.test_ensemble_mode_aggregates_usage_stats68
+t
+ntests.unit.orchestration.modes.test_ensemble.TestEnsembleModeMetadata.test_ensemble_mode_sets_mode_to_ensemble70
+A
+;tests.unit.orchestration.modes.test_ensemble.sample_request72
+M
+Gtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeProperties74
+w
+qtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeProperties.test_ensemble_mode_min_agreement_property76
+
+NoneType78
+v
+ptests.unit.orchestration.modes.test_ensemble.TestEnsembleModeProperties.test_ensemble_mode_participants_property80
+v
+ptests.unit.orchestration.modes.test_ensemble.TestEnsembleModeProperties.test_ensemble_mode_default_min_agreement82
+v
+ptests.unit.orchestration.modes.test_ensemble.TestEnsembleModeProperties.test_ensemble_mode_participant_model_ids84
+u
+otests.unit.orchestration.modes.test_ensemble.TestEnsembleModeProperties.test_ensemble_mode_synthesizer_property86
+C
+=tests.unit.orchestration.modes.test_ensemble.mock_synthesizer88
+M
+Gtests.unit.orchestration.modes.test_ensemble.mock_providers_disagreeing90
+U
+Otests.unit.orchestration.modes.test_ensemble.TestEnsembleModeParallelGeneration92
+|
+vtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeParallelGeneration.test_ensemble_mode_calls_all_providers94
+~
+xtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeParallelGeneration.test_ensemble_mode_minimum_two_providers96
+á
+Ätests.unit.orchestration.modes.test_ensemble.TestEnsembleModeParallelGeneration.test_ensemble_mode_handles_single_provider_error98
+ã
+Étests.unit.orchestration.modes.test_ensemble.TestEnsembleModeParallelGeneration.test_ensemble_mode_returns_chat_completion_response100
+ã
+Étests.unit.orchestration.modes.test_ensemble.TestEnsembleModeParallelGeneration.test_ensemble_mode_uses_asyncio_gather_for_parallel102
+P
+Itests.unit.orchestration.modes.test_ensemble.TestEnsembleModeDisagreement104
+w
+ptests.unit.orchestration.modes.test_ensemble.TestEnsembleModeDisagreement.test_ensemble_mode_flags_low_consensus106
+Å
+ztests.unit.orchestration.modes.test_ensemble.TestEnsembleModeDisagreement.test_extract_disagreement_points_no_disagreement108
+
+xtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeDisagreement.test_extract_disagreement_points_majority_vote110
+x
+qtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeDisagreement.test_extract_disagreement_points_simple112
+H
+Atests.unit.orchestration.modes.test_ensemble.create_mock_provider114
+
+
+str116
+H
+Atests.unit.orchestration.modes.test_ensemble.create_mock_response118
+
+
+int120
+M
+Ftests.unit.orchestration.modes.test_ensemble.TestEnsembleModeConsensus122
+Å
+ztests.unit.orchestration.modes.test_ensemble.TestEnsembleModeConsensus.test_ensemble_mode_lower_consensus_for_disagreement124
+Ö
+~tests.unit.orchestration.modes.test_ensemble.TestEnsembleModeConsensus.test_ensemble_mode_high_consensus_for_similar_responses126
+}
+vtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeConsensus.test_calculate_pairwise_consensus_two_responses128
+
+xtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeConsensus.test_calculate_pairwise_consensus_single_response130
+{
+ttests.unit.orchestration.modes.test_ensemble.TestEnsembleModeConsensus.test_ensemble_mode_calculates_consensus_score132
+w
+ptests.unit.orchestration.modes.test_ensemble.TestEnsembleModeConsensus.test_calculate_pairwise_consensus_partial134
+z
+stests.unit.orchestration.modes.test_ensemble.TestEnsembleModeConsensus.test_calculate_pairwise_consensus_empty_list136
+Ñ
+}tests.unit.orchestration.modes.test_ensemble.TestEnsembleModeConsensus.test_calculate_pairwise_consensus_completely_different138
+y
+rtests.unit.orchestration.modes.test_ensemble.TestEnsembleModeConsensus.test_calculate_pairwise_consensus_identical140J
+
+8
+89j€
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19185
+
+21
+21205
+
+23
+23225
+
+25
+25245
+
+27
+27265
+
+29
+29285
+
+31
+31305
+
+33
+33325
+
+35
+35345
+
+37
+37366 210
+
+39
+39387 237
+
+41
+41406
+
+43
+43426
+
+45
+45446
+
+47
+47467 237
+
+49
+49487 237
+
+51
+51507 237
+
+53
+53527 210
+
+55
+55546 210
+
+57
+57567 255
+
+59
+59587 255
+
+61
+61607 255
+
+63
+63626 210
+
+65
+65647 263
+
+67
+67667 263
+
+69
+69687 263
+
+71
+71707 263
+
+73
+73727 210
+
+75
+75746 210
+
+77
+77767 275
+
+79
+79786
+
+81
+81807 275
+
+83
+83827 275
+
+85
+85847 275
+
+87
+87867 275
+
+89
+89887 210
+
+91
+91907 210
+
+93
+93926 210
+
+95
+95947 293
+
+97
+97967 293
+
+99
+99987 293
+
+101
+1011007 293
+
+103
+1031027 293
+
+105
+1051046 210
+
+107
+1071067 2105
+
+109
+1091087 2105
+
+111
+1111107 2105
+
+113
+1131127 2105
+
+115
+1151147 210
+
+117
+1171166
+
+119
+1191187 210
+
+121
+1211206
+
+123
+1231226 210
+
+125
+1251247 2123
+
+127
+1271267 2123
+
+129
+1291287 2123
+
+131
+1311307 2123
+
+133
+1331327 2123
+
+135
+1351347 2123
+
+137
+1371367 2123
+
+139
+1391387 2123
+
+141
+1411407 2123r…
+
+10131*
+8 (
+
+10151*
+8 (
+
+10171*
+8 (/
+
+10191*
+8! (6
+
+10211*
+88 (?
+
+10231*
+8 (?
+
+10251*
+8 (
+
+10271*
+8 (
+
+10291*
+8 (
+
+10311*
+8 (
+
+
+10331*
+8 (
+
+
+10351*
+8Ñ	 Ñ(B
+
+10351*
+8ñ	 ñ(B
+
+10351*
+8√	 √(B
+
+10351*
+8÷	 ÷(B
+
+10351*
+8Î	 Î(B
+
+10351*
+8à	 à(B
+
+10351*
+8õ	 õ(B
+
+10351*
+8≥	 ≥(B
+
+10351*
+8¬	 ¬(R
+
+10351*
+8 	  (R
+
+10351*
+8◊	 ◊(R
+
+10351*
+8ﬂ	 ﬂ(R
+
+10351*
+8Á	 Á(R
+
+10351*
+8Ó	 Ó(R
+
+10351*
+8É	 É(B
+
+10351*
+8ï	 ï(B
+
+10351*
+8Æ	 Æ(B
+
+10351*
+8ø	 ø(B
+
+10351*
+8Í	 Í(B
+
+10351*
+8á	 á(Q
+
+10351*
+8ò	 ò(Q
+
+10351*
+8•	 •(Q
+
+10351*
+8¬	 ¬(B
+
+10351*
+8’	 ’(B
+
+10351*
+8Ï	 Ï(B
+
+10351*
+8ˇ	 ˇ(B
+
+10351*
+8ú	 ú(B
+
+10351*
+8´	 ´(B
+
+10351*
+8∫	 ∫(B
+
+10351*
+8 	  (B
+
+10351*
+8Ÿ	 Ÿ(B
+
+10351*
+8ı	 ı(B
+
+10351*
+8å	 å(B
+
+10351*
+8û	 û(B
+
+39413*
+8ß ß(=
+
+39434*
+8ß ß(=
+
+39454*
+8ß ß(=
+
+47413*
+8¸ ¸(3
+
+47434*
+8¸ ¸(3
+
+47454*
+8¸ ¸(3
+
+49413*
+8é é(B
+
+49434*
+8é é(B
+
+49454*
+8é é(B
+
+51413*
+8∫ ∫(@
+
+53433*
+8L L(
+
+57413*
+8Ö Ö(7
+
+57434*
+8Ö Ö(7
+
+57454*
+8Ö Ö(7
+
+59413*
+8Ó Ó(8
+
+59434*
+8Ó Ó(8
+
+59454*
+8Ó Ó(8
+
+61413*
+8ò ò(>
+
+61454*
+8ò ò(>
+
+65413*
+8Â Â(8
+
+65434*
+8Â Â(8
+
+65454*
+8Â Â(8
+
+67413*
+8Œ Œ(9
+
+67434*
+8Œ Œ(9
+
+67454*
+8Œ Œ(9
+
+69413*
+8¯ ¯(8
+
+69434*
+8¯ ¯(8
+
+69454*
+8¯ ¯(8
+
+71413*
+8ª ª(7
+
+71434*
+8ª ª(7
+
+71454*
+8ª ª(7
+
+77793*
+8¥	 ¥(2
+
+77434*
+8¥	 ¥(2
+
+77454*
+8¥	 ¥(2
+
+81793*
+8ñ	 ñ(1
+
+81434*
+8ñ	 ñ(1
+
+81454*
+8ñ	 ñ(1
+
+83793*
+8ƒ	 ƒ(1
+
+83434*
+8ƒ	 ƒ(1
+
+83454*
+8ƒ	 ƒ(1
+
+85793*
+8”	 ”(1
+
+85434*
+8”	 ”(1
+
+85454*
+8”	 ”(1
+
+87793*
+8•	 •(0
+
+87434*
+8•	 •(0
+
+87454*
+8•	 •(0
+
+89453*
+8j j(
+
+91433*
+8[ [(
+
+95413*
+8} }(5
+
+95434*
+8} }(5
+
+95454*
+8} }(5
+
+97413*
+8Ω Ω(7
+
+97454*
+8Ω Ω(7
+
+99413*
+8œ œ(?
+
+99434*
+8œ œ(?
+
+99454*
+8œ œ(?
+
+101413*
+8‰ ‰(B
+
+101434*
+8‰ ‰(B
+
+101454*
+8‰ ‰(B
+
+103413*
+8ê ê(B
+
+103454*
+8ê ê(B
+
+107413*
+8‰ ‰(5
+
+107454*
+8‰ ‰(5
+
+109793*
+8ñ	 ñ(9
+
+111793*
+8£	 £(7
+
+113793*
+8Ö	 Ö(0
+
+115453*
+8B B(
+
+1151174*
+8B B(
+
+1191174*
+8+ +(
+
+1191174*
+8+ +(
+
+1191214*
+8+ +(
+
+1191214*
+8+ +(
+
+125413*
+8¨ ¨(B
+
+125434*
+8¨ ¨(B
+
+125454*
+8¨ ¨(B
+
+127413*
+8ï ï(F
+
+127454*
+8ï ï(F
+
+129793*
+8›	 ›(8
+
+131793*
+8Ï	 Ï(:
+
+133413*
+8Å Å(<
+
+133434*
+8Å Å(<
+
+133454*
+8Å Å(<
+
+135793*
+8»	 »(2
+
+137793*
+8Â	 Â(5
+
+139793*
+8’	 ’(?
+
+141793*
+8¿	 ¿(4

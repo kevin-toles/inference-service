@@ -1,0 +1,14 @@
+
+$"Get the drafter model ID."strself
+‚ ‚("›+
+)
+
+„ „("#get-field# _drafter:-
++
+
+„ „('"#get-field# model_info:+
+)
+
+„ „(0"#get-field# model_id:
+
+„ „(0*K/Users/kevintoles/POC/inference-service/src/orchestration/modes/pipeline.py

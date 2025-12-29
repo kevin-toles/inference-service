@@ -323,7 +323,7 @@ async def validation_error_handler(
     )
 
 
-async def generic_error_handler(
+def generic_error_handler(
     _request: Request,
     exc: Exception,
 ) -> JSONResponse:

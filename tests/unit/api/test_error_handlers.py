@@ -314,11 +314,10 @@ class TestErrorHandlerFunctions:
         response = await validation_error_handler(mock_request, error)
         assert response.status_code == 400
 
-    @pytest.mark.asyncio
-    async def test_generic_error_handler(self, mock_request: Any) -> None:
+    def test_generic_error_handler(self, mock_request: Any) -> None:
         """Test generic Exception handler."""
         error = RuntimeError("Unexpected")
-        response = await generic_error_handler(mock_request, error)
+        response = generic_error_handler(mock_request, error)
         assert response.status_code == 500
 
 

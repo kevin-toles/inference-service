@@ -1,0 +1,49 @@
+
+
+4int
+©Ÿ"Compress content if it exceeds limit.
+
+        Simple truncation-based compression for now.
+        In production, would use fit_to_budget() from context.py.
+
+        AC-13.2: Compresses between steps if needed.
+
+        Args:
+            content: Content to potentially compress.
+            limit: Token limit (approximate character-based).
+
+        Returns:
+            Original or compressed content.
+        "str
+
+"..."strself
+é é(content
+é é(limit
+é é(;"³3
+1
+
+ú ú(
+char_limit"	#binop *#*2*:,
+*
+
+ü ü("
+builtinslen*:Bint,
+*
+
+ü ü(%"
+#binop <=#2<=:Bbool "
+
+ü ü(% *
+ü ü(
+"
+
+ý ý("_#
+!
+
+€ €((	"#unknown-value#$
+"
+
+€ €(0"	#binop +#2+:	
+
+
+€ €(0*K/Users/kevintoles/POC/inference-service/src/orchestration/modes/pipeline.py

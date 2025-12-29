@@ -1,0 +1,236 @@
+
+1.0PythonFrontend"1766977698274*py2.B∞
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+"
+tests/integration/test_e2e.py9
+ 
+tests.integration.test_e2e11
+
+
+__future__12
+
+typing14
+2
+,tests.integration.test_e2e.TestErrorHandling16
+X
+Rtests.integration.test_e2e.TestErrorHandling.test_invalid_request_body_returns_42218
+
+typing.Coroutine20
+
+NoneType22
+Q
+Ktests.integration.test_e2e.TestErrorHandling.test_invalid_model_returns_40424
+T
+Ntests.integration.test_e2e.TestErrorHandling.test_empty_messages_returns_error26
+3
+-tests.integration.test_e2e.TestModelsEndpoint28
+Q
+Ktests.integration.test_e2e.TestModelsEndpoint.test_list_models_returns_data30
+M
+Gtests.integration.test_e2e.TestModelsEndpoint.test_model_info_structure32
+3
+-tests.integration.test_e2e.TestResponseFormat34
+a
+[tests.integration.test_e2e.TestResponseFormat.test_response_has_openai_compatible_structure36
+S
+Mtests.integration.test_e2e.TestResponseFormat.test_choice_has_required_fields38
+U
+Otests.integration.test_e2e.TestResponseFormat.test_message_has_role_and_content40
+6
+0tests.integration.test_e2e.TestChatCompletionE2E42
+Z
+Ttests.integration.test_e2e.TestChatCompletionE2E.test_completion_with_system_message44
+M
+Gtests.integration.test_e2e.TestChatCompletionE2E.test_simple_completion46
+U
+Otests.integration.test_e2e.TestChatCompletionE2E.test_completion_includes_usage48
+Z
+Ttests.integration.test_e2e.TestChatCompletionE2E.test_completion_respects_max_tokens50
+2
+,tests.integration.test_e2e.TestServiceHealth52
+S
+Mtests.integration.test_e2e.TestServiceHealth.test_health_endpoint_returns_20054
+M
+Gtests.integration.test_e2e.TestServiceHealth.test_health_ready_endpoint56J
+
+8
+89j…
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17166 210
+
+19
+19187 217
+
+21
+21206
+
+23
+23226
+
+25
+25247 217
+
+27
+27267 217
+
+29
+29286 210
+
+31
+31307 229
+
+33
+33327 229
+
+35
+35346 210
+
+37
+37367 235
+
+39
+39387 235
+
+41
+41407 235
+
+43
+43426 210
+
+45
+45447 243
+
+47
+47467 243
+
+49
+49487 243
+
+51
+51507 243
+
+53
+53526 210
+
+55
+55547 253
+
+57
+57567 253r∞
+
+10131*
+8 (#
+
+10151*
+8
+ 
+(&
+
+19213*
+8‹ ‹(4
+
+19234*
+8‹ ‹(4
+
+25213*
+8À À(-
+
+25234*
+8À À(-
+
+27213*
+8Î Î(0
+
+27234*
+8Î Î(0
+
+31213*
+8@ @(,
+
+31234*
+8@ @(,
+
+33213*
+8M M((
+
+33234*
+8M M((
+
+37213*
+8Ö Ö(<
+
+37234*
+8Ö Ö(<
+
+39213*
+8ú ú(.
+
+39234*
+8ú ú(.
+
+41213*
+8≤ ≤(0
+
+41234*
+8≤ ≤(0
+
+45213*
+8Ñ Ñ(2
+
+45234*
+8Ñ Ñ(2
+
+47213*
+8g g(%
+
+47234*
+8g g(%
+
+49213*
+8ô ô(-
+
+49234*
+8ô ô(-
+
+51213*
+8≠ ≠(2
+
+51234*
+8≠ ≠(2
+
+55213*
+8 (/
+
+55234*
+8 (/
+
+57213*
+8* *()
+
+57234*
+8* *()

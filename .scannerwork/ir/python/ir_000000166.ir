@@ -1,0 +1,36 @@
+
+"a"bool
+
+0int
+èÞ"Calculate required compression ratio with safety margin.
+
+    Args:
+        target: Target number of tokens.
+        current: Current number of tokens.
+
+    Returns:
+        Compression ratio with 10% safety margin.
+    "str
+0.9float
+"S3518"bool
+"division by zero"booltarget
+°! °(,current
+°. °(:"Ç,
+*
+
+º º("
+#binop !=#2!=:Bbool"
+ 
+
+º º(	"
+#assert#:,
+*
+
+º º(
+"#dependent-value#*:3
+1
+
+º º(#"#dependent-value#*:
+Bfloat
+
+º º(#*D/Users/kevintoles/POC/inference-service/src/orchestration/context.py

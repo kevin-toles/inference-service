@@ -134,8 +134,7 @@ class TestQueueManagerEnforcesMaxConcurrent:
         self, fifo_queue: QueueManager
     ) -> None:
         """acquire_slot() should succeed when slots are available."""
-        success = await fifo_queue.acquire_slot()
-        assert success is True
+        await fifo_queue.acquire_slot()  # Should not raise
         assert fifo_queue.active_count == 1
 
     @pytest.mark.asyncio
@@ -623,7 +622,7 @@ class TestQueueManagerClear:
             await fifo_queue.enqueue(create_request_item(f"req-{i}"))
 
         assert fifo_queue.pending_count == 5
-        await fifo_queue.clear()
+        fifo_queue.clear()
         assert fifo_queue.pending_count == 0
 
     @pytest.mark.asyncio
@@ -635,6 +634,6 @@ class TestQueueManagerClear:
         for item in items:
             await fifo_queue.enqueue(item)
 
-        removed = await fifo_queue.clear()
+        removed = fifo_queue.clear()
         assert len(removed) == 3
         assert all(isinstance(item, RequestItem) for item in removed)

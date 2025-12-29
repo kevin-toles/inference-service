@@ -1,0 +1,453 @@
+
+1.0PythonFrontend"1766977685515*py2.BÛ
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+2
+-tests/unit/orchestration/test_orchestrator.py9
+0
+*tests.unit.orchestration.test_orchestrator11
+
+
+time12
+
+collections.abc14
+
+unittest.mock16
+/
+)src.models.requests.ChatCompletionRequest18
+!
+src.models.requests.Message20
+
+src.models.requests22
+.
+(src.models.responses.ChatCompletionChunk24
+1
++src.models.responses.ChatCompletionResponse26
+!
+src.models.responses.Choice28
+(
+"src.models.responses.ChoiceMessage30
+&
+ src.models.responses.ChunkChoice32
+%
+src.models.responses.ChunkDelta34
+ 
+src.models.responses.Usage36
+
+src.models.responses38
+$
+src.orchestration.orchestrator40
+
+src.providers.base42
+J
+Dtests.unit.orchestration.test_orchestrator.TestOrchestrationModeEnum44
+o
+itests.unit.orchestration.test_orchestrator.TestOrchestrationModeEnum.test_orchestration_mode_debate_value46
+
+NoneType48
+m
+gtests.unit.orchestration.test_orchestrator.TestOrchestrationModeEnum.test_orchestration_mode_all_values50
+q
+ktests.unit.orchestration.test_orchestrator.TestOrchestrationModeEnum.test_orchestration_mode_ensemble_value52
+o
+itests.unit.orchestration.test_orchestrator.TestOrchestrationModeEnum.test_orchestration_mode_single_value54
+q
+ktests.unit.orchestration.test_orchestrator.TestOrchestrationModeEnum.test_orchestration_mode_pipeline_value56
+n
+htests.unit.orchestration.test_orchestrator.TestOrchestrationModeEnum.test_orchestration_mode_from_string58
+q
+ktests.unit.orchestration.test_orchestrator.TestOrchestrationModeEnum.test_orchestration_mode_critique_value60
+J
+Dtests.unit.orchestration.test_orchestrator.TestOrchestratorStreaming62
+r
+ltests.unit.orchestration.test_orchestrator.TestOrchestratorStreaming.test_orchestrator_stream_in_single_mode64
+
+typing.Coroutine66
+
+unittest.mock.MagicMock68
+
+
+list70
+{
+utests.unit.orchestration.test_orchestrator.TestOrchestratorStreaming.test_orchestrator_stream_unsupported_mode_raises72
+J
+Dtests.unit.orchestration.test_orchestrator.TestOrchestratorEdgeCases74
+w
+qtests.unit.orchestration.test_orchestrator.TestOrchestratorEdgeCases.test_orchestrator_invalid_mode_string_raises76
+t
+ntests.unit.orchestration.test_orchestrator.TestOrchestratorEdgeCases.test_orchestrator_with_different_provider78
+w
+qtests.unit.orchestration.test_orchestrator.TestOrchestratorEdgeCases.test_orchestrator_propagates_provider_errors80
+I
+Ctests.unit.orchestration.test_orchestrator.TestOrchestratorDispatch82
+l
+ftests.unit.orchestration.test_orchestrator.TestOrchestratorDispatch.test_orchestrator_models_used_list84
+x
+rtests.unit.orchestration.test_orchestrator.TestOrchestratorDispatch.test_orchestrator_single_mode_returns_response86
+u
+otests.unit.orchestration.test_orchestrator.TestOrchestratorDispatch.test_orchestrator_dispatches_to_single_mode88
+y
+stests.unit.orchestration.test_orchestrator.TestOrchestratorDispatch.test_orchestrator_unsupported_mode_raises_error90
+I
+Ctests.unit.orchestration.test_orchestrator.TestUnsupportedModeError92
+m
+gtests.unit.orchestration.test_orchestrator.TestUnsupportedModeError.test_unsupported_mode_error_message94
+r
+ltests.unit.orchestration.test_orchestrator.TestUnsupportedModeError.test_unsupported_mode_error_is_exception96
+@
+:tests.unit.orchestration.test_orchestrator.sample_response98
+F
+?tests.unit.orchestration.test_orchestrator.TestOrchestratorInit100
+l
+etests.unit.orchestration.test_orchestrator.TestOrchestratorInit.test_orchestrator_init_with_mode_enum102
+k
+dtests.unit.orchestration.test_orchestrator.TestOrchestratorInit.test_orchestrator_init_with_provider104
+o
+htests.unit.orchestration.test_orchestrator.TestOrchestratorInit.test_orchestrator_default_mode_is_single106
+n
+gtests.unit.orchestration.test_orchestrator.TestOrchestratorInit.test_orchestrator_init_with_mode_string108
+@
+9tests.unit.orchestration.test_orchestrator.sample_request110
+?
+8tests.unit.orchestration.test_orchestrator.sample_chunks112
+?
+8tests.unit.orchestration.test_orchestrator.mock_provider114J
+
+8
+89j⁄	
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19185
+
+21
+21205
+
+23
+23225
+
+25
+25245
+
+27
+27265
+
+29
+29285
+
+31
+31305
+
+33
+33325
+
+35
+35345
+
+37
+37365
+
+39
+39385
+
+41
+41405
+
+43
+43425
+
+45
+45446 210
+
+47
+47467 245
+
+49
+49486
+
+51
+51507 245
+
+53
+53527 245
+
+55
+55547 245
+
+57
+57567 245
+
+59
+59587 245
+
+61
+61607 245
+
+63
+63626 210
+
+65
+65647 263
+
+67
+67666
+
+69
+69686
+
+71
+71706
+
+73
+73727 263
+
+75
+75746 210
+
+77
+77767 275
+
+79
+79787 275
+
+81
+81807 275
+
+83
+83826 210
+
+85
+85847 283
+
+87
+87867 283
+
+89
+89887 283
+
+91
+91907 283
+
+93
+93926 210
+
+95
+95947 293
+
+97
+97967 293
+
+99
+99987 210
+
+101
+1011006 210
+
+103
+1031027 2101
+
+105
+1051047 2101
+
+107
+1071067 2101
+
+109
+1091087 2101
+
+111
+1111107 210
+
+113
+1131127 210
+
+115
+1151147 210r≤
+
+10131*
+8 (
+
+10151*
+8	 	(*
+
+10171*
+8
+ 
+(/
+
+10191*
+8! (6
+
+10211*
+88 (?
+
+10231*
+8 (?
+
+10251*
+8 (
+
+10271*
+8 (
+
+10291*
+8 (
+
+10311*
+8 (
+
+10331*
+8 (
+
+10351*
+8 (
+
+10371*
+8 (
+
+
+10391*
+8 (
+
+
+10411*
+8 (
+
+10431*
+8 (@
+
+47493*
+8à	 à(-
+
+51493*
+8ô	 ô(+
+
+53493*
+8å	 å(/
+
+55493*
+8Ä	 Ä(-
+
+57493*
+8ê	 ê(/
+
+59493*
+8î	 î(,
+
+61493*
+8Ñ	 Ñ(/
+
+65673*
+8î î(6
+
+65694*
+8î î(6
+
+65714*
+8î î(6
+
+73673*
+8≠ ≠(?
+
+73694*
+8≠ ≠(?
+
+77493*
+8“	 “(5
+
+77694*
+8“	 “(5
+
+79673*
+8⁄ ⁄(8
+
+81673*
+8√ √(;
+
+81694*
+8√ √(;
+
+85673*
+8Ä Ä(1
+
+85694*
+8Ä Ä(1
+
+87673*
+8· ·(=
+
+87694*
+8· ·(=
+
+89673*
+8œ œ(:
+
+89694*
+8œ œ(:
+
+91673*
+8Ò Ò(>
+
+91694*
+8Ò Ò(>
+
+95493*
+8â	 â(,
+
+97493*
+8è	 è(1
+
+103493*
+8¿	 ¿(.
+
+103694*
+8¿	 ¿(.
+
+105493*
+8®	 ®(-
+
+105694*
+8®	 ®(-
+
+107493*
+8∞	 ∞(1
+
+107694*
+8∞	 ∞(1
+
+109493*
+8∏	 ∏(0
+
+109694*
+8∏	 ∏(0
+
+113713*
+8Z Z(
+
+115693*
+8& &(

@@ -1,0 +1,666 @@
+
+1.0PythonFrontend"1766977697554*py2.B»+
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+4
+/tests/unit/orchestration/modes/test_critique.py9
+2
+,tests.unit.orchestration.modes.test_critique11
+
+
+time12
+
+unittest.mock14
+/
+)src.models.requests.ChatCompletionRequest16
+!
+src.models.requests.Message18
+
+src.models.requests20
+1
++src.models.responses.ChatCompletionResponse22
+!
+src.models.responses.Choice24
+(
+"src.models.responses.ChoiceMessage26
+ 
+src.models.responses.Usage28
+
+src.models.responses30
+
+src.orchestration.context32
+&
+ src.orchestration.modes.critique34
+
+src.providers.base36
+P
+Jtests.unit.orchestration.modes.test_critique.critique_response_with_issues38
+B
+<tests.unit.orchestration.modes.test_critique.critic_provider40
+
+unittest.mock.MagicMock42
+L
+Ftests.unit.orchestration.modes.test_critique.TestCritiqueModeMaxRounds44
+w
+qtests.unit.orchestration.modes.test_critique.TestCritiqueModeMaxRounds.test_critique_mode_early_exit_on_no_issues46
+
+typing.Coroutine48
+~
+xtests.unit.orchestration.modes.test_critique.TestCritiqueModeMaxRounds.test_critique_mode_max_rounds_zero_skips_critique50
+r
+ltests.unit.orchestration.modes.test_critique.TestCritiqueModeMaxRounds.test_critique_mode_default_max_rounds52
+
+{tests.unit.orchestration.modes.test_critique.TestCritiqueModeMaxRounds.test_critique_mode_reports_actual_rounds_in_metadata54
+z
+ttests.unit.orchestration.modes.test_critique.TestCritiqueModeMaxRounds.test_critique_mode_respects_custom_max_rounds56
+s
+mtests.unit.orchestration.modes.test_critique.TestCritiqueModeMaxRounds.test_critique_mode_stops_at_max_rounds58
+E
+?tests.unit.orchestration.modes.test_critique.generator_provider60
+L
+Ftests.unit.orchestration.modes.test_critique.TestCritiqueModeEdgeCases62
+y
+stests.unit.orchestration.modes.test_critique.TestCritiqueModeEdgeCases.test_critique_mode_same_model_for_both_roles64
+z
+ttests.unit.orchestration.modes.test_critique.TestCritiqueModeEdgeCases.test_critique_mode_propagates_generator_error66
+x
+rtests.unit.orchestration.modes.test_critique.TestCritiqueModeEdgeCases.test_critique_mode_handles_empty_generation68
+w
+qtests.unit.orchestration.modes.test_critique.TestCritiqueModeEdgeCases.test_critique_mode_propagates_critic_error70
+~
+xtests.unit.orchestration.modes.test_critique.TestCritiqueModeEdgeCases.test_critique_mode_preserves_original_model_field72
+G
+Atests.unit.orchestration.modes.test_critique.TestCritiqueModeFlow74
+v
+ptests.unit.orchestration.modes.test_critique.TestCritiqueModeFlow.test_critique_mode_skips_revise_when_no_issues76
+r
+ltests.unit.orchestration.modes.test_critique.TestCritiqueModeFlow.test_critique_mode_executes_critique_phase78
+‚
+|tests.unit.orchestration.modes.test_critique.TestCritiqueModeFlow.test_critique_mode_executes_revise_phase_when_issues_found80
+r
+ltests.unit.orchestration.modes.test_critique.TestCritiqueModeFlow.test_critique_mode_executes_generate_phase82
+e
+_tests.unit.orchestration.modes.test_critique.TestCritiqueModeFlow.test_critique_mode_flow_order84
+C
+=tests.unit.orchestration.modes.test_critique.revised_response86
+A
+;tests.unit.orchestration.modes.test_critique.sample_request88
+O
+Itests.unit.orchestration.modes.test_critique.TestCritiqueModeHandoffState90
+~
+xtests.unit.orchestration.modes.test_critique.TestCritiqueModeHandoffState.test_critique_mode_passes_generation_to_critic92
+}
+wtests.unit.orchestration.modes.test_critique.TestCritiqueModeHandoffState.test_critique_mode_passes_critique_to_reviser94
+{
+utests.unit.orchestration.modes.test_critique.TestCritiqueModeHandoffState.test_critique_mode_handoff_tracks_decisions96
+x
+rtests.unit.orchestration.modes.test_critique.TestCritiqueModeHandoffState.test_critique_mode_creates_handoff_state98
+O
+Htests.unit.orchestration.modes.test_critique.critique_response_no_issues100
+N
+Gtests.unit.orchestration.modes.test_critique.TestCritiqueModeProperties102
+q
+jtests.unit.orchestration.modes.test_critique.TestCritiqueModeProperties.test_critique_mode_critic_model_id104
+
+NoneType106
+u
+ntests.unit.orchestration.modes.test_critique.TestCritiqueModeProperties.test_critique_mode_max_rounds_property108
+t
+mtests.unit.orchestration.modes.test_critique.TestCritiqueModeProperties.test_critique_mode_generator_property110
+t
+mtests.unit.orchestration.modes.test_critique.TestCritiqueModeProperties.test_critique_mode_generator_model_id112
+q
+jtests.unit.orchestration.modes.test_critique.TestCritiqueModeProperties.test_critique_mode_critic_property114
+L
+Etests.unit.orchestration.modes.test_critique.TestCritiqueModeMetadata116
+y
+rtests.unit.orchestration.modes.test_critique.TestCritiqueModeMetadata.test_critique_mode_high_score_when_no_issues118
+v
+otests.unit.orchestration.modes.test_critique.TestCritiqueModeMetadata.test_critique_mode_reports_inference_time120
+u
+ntests.unit.orchestration.modes.test_critique.TestCritiqueModeMetadata.test_critique_mode_sets_mode_to_critique122
+s
+ltests.unit.orchestration.modes.test_critique.TestCritiqueModeMetadata.test_critique_mode_reports_final_score124
+~
+wtests.unit.orchestration.modes.test_critique.TestCritiqueModeMetadata.test_critique_mode_lower_score_when_issues_remain126
+s
+ltests.unit.orchestration.modes.test_critique.TestCritiqueModeMetadata.test_critique_mode_reports_both_models128
+v
+otests.unit.orchestration.modes.test_critique.TestCritiqueModeMetadata.test_critique_mode_aggregates_usage_stats130
+G
+@tests.unit.orchestration.modes.test_critique.generation_response132J
+
+8
+89jö
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19185
+
+21
+21205
+
+23
+23225
+
+25
+25245
+
+27
+27265
+
+29
+29285
+
+31
+31305
+
+33
+33325
+
+35
+35345
+
+37
+37365
+
+39
+39387 210
+
+41
+41407 210
+
+43
+43426
+
+45
+45446 210
+
+47
+47467 245
+
+49
+49486
+
+51
+51507 245
+
+53
+53527 245
+
+55
+55547 245
+
+57
+57567 245
+
+59
+59587 245
+
+61
+61607 210
+
+63
+63626 210
+
+65
+65647 263
+
+67
+67667 263
+
+69
+69687 263
+
+71
+71707 263
+
+73
+73727 263
+
+75
+75746 210
+
+77
+77767 275
+
+79
+79787 275
+
+81
+81807 275
+
+83
+83827 275
+
+85
+85847 275
+
+87
+87867 210
+
+89
+89887 210
+
+91
+91906 210
+
+93
+93927 291
+
+95
+95947 291
+
+97
+97967 291
+
+99
+99987 291
+
+101
+1011007 210
+
+103
+1031026 210
+
+105
+1051047 2103
+
+107
+1071066
+
+109
+1091087 2103
+
+111
+1111107 2103
+
+113
+1131127 2103
+
+115
+1151147 2103
+
+117
+1171166 210
+
+119
+1191187 2117
+
+121
+1211207 2117
+
+123
+1231227 2117
+
+125
+1251247 2117
+
+127
+1271267 2117
+
+129
+1291287 2117
+
+131
+1311307 2117
+
+133
+1331327 210r“
+
+10131*
+8 (
+
+10151*
+8 (5
+
+10171*
+8! (6
+
+10191*
+88 (?
+
+10211*
+8 (?
+
+10231*
+8 (
+
+10251*
+8 (
+
+10271*
+8 (
+
+10291*
+8 (
+
+
+10311*
+8 (
+
+
+10331*
+8 (3
+
+10351*
+8 (:
+
+10371*
+8 (@
+
+41433*
+82 2(
+
+47493*
+8¨ ¨(9
+
+47434*
+8¨ ¨(9
+
+47434*
+8¨ ¨(9
+
+51493*
+8Â Â(@
+
+51434*
+8Â Â(@
+
+51434*
+8Â Â(@
+
+53493*
+8Þ Þ(4
+
+53434*
+8Þ Þ(4
+
+53434*
+8Þ Þ(4
+
+55493*
+8Ú Ú(C
+
+55434*
+8Ú Ú(C
+
+55434*
+8Ú Ú(C
+
+57493*
+8ò ò(<
+
+57434*
+8ò ò(<
+
+57434*
+8ò ò(<
+
+59493*
+8Ž Ž(5
+
+59434*
+8Ž Ž(5
+
+59434*
+8Ž Ž(5
+
+61433*
+8# #(
+
+65493*
+8ú ú(;
+
+65434*
+8ú ú(;
+
+67493*
+8Ð Ð(<
+
+67434*
+8Ð Ð(<
+
+67434*
+8Ð Ð(<
+
+69493*
+8® ®(:
+
+69434*
+8® ®(:
+
+69434*
+8® ®(:
+
+71493*
+8ä ä(9
+
+71434*
+8ä ä(9
+
+71434*
+8ä ä(9
+
+73493*
+8’ ’(@
+
+73434*
+8’ ’(@
+
+73434*
+8’ ’(@
+
+77493*
+8‹ ‹(=
+
+77434*
+8‹ ‹(=
+
+77434*
+8‹ ‹(=
+
+79493*
+8Ú Ú(9
+
+79434*
+8Ú Ú(9
+
+79434*
+8Ú Ú(9
+
+81493*
+8ð ð(I
+
+81434*
+8ð ð(I
+
+81434*
+8ð ð(I
+
+83493*
+8Ä Ä(9
+
+83434*
+8Ä Ä(9
+
+83434*
+8Ä Ä(9
+
+85493*
+8¡ ¡(,
+
+85434*
+8¡ ¡(,
+
+85434*
+8¡ ¡(,
+
+93493*
+8ú ú(=
+
+93434*
+8ú ú(=
+
+93434*
+8ú ú(=
+
+95493*
+8™ ™(<
+
+95434*
+8™ ™(<
+
+95434*
+8™ ™(<
+
+97493*
+8¸ ¸(:
+
+97434*
+8¸ ¸(:
+
+97434*
+8¸ ¸(:
+
+99493*
+8ã ã(7
+
+99434*
+8ã ã(7
+
+99434*
+8ã ã(7
+
+1051073*
+8á	 á(+
+
+105434*
+8á	 á(+
+
+105434*
+8á	 á(+
+
+1091073*
+8È	 È(/
+
+109434*
+8È	 È(/
+
+109434*
+8È	 È(/
+
+1111073*
+8°	 °(.
+
+111434*
+8°	 °(.
+
+111434*
+8°	 °(.
+
+1131073*
+8Õ	 Õ(.
+
+113434*
+8Õ	 Õ(.
+
+113434*
+8Õ	 Õ(.
+
+1151073*
+8¼	 ¼(+
+
+115434*
+8¼	 ¼(+
+
+115434*
+8¼	 ¼(+
+
+119493*
+8Û Û(;
+
+119434*
+8Û Û(;
+
+119434*
+8Û Û(;
+
+121493*
+8­ ­(8
+
+121434*
+8­ ­(8
+
+121434*
+8­ ­(8
+
+123493*
+8— —(7
+
+123434*
+8— —(7
+
+123434*
+8— —(7
+
+125493*
+8Ã Ã(5
+
+125434*
+8Ã Ã(5
+
+125434*
+8Ã Ã(5
+
+127493*
+8ñ ñ(@
+
+127434*
+8ñ ñ(@
+
+127434*
+8ñ ñ(@
+
+129493*
+8ÿ ÿ(5
+
+129434*
+8ÿ ÿ(5
+
+129434*
+8ÿ ÿ(5
+
+131493*
+8Š Š(8
+
+131434*
+8Š Š(8
+
+131434*
+8Š Š(8

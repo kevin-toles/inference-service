@@ -189,14 +189,11 @@ class QueueManager:
         """
         return await self._queue.get()
 
-    async def acquire_slot(self) -> bool:
+    async def acquire_slot(self) -> None:
         """Acquire a processing slot.
 
         If reject_when_full is True and queue is full, raises QueueFullError.
         Otherwise, blocks until a slot becomes available.
-
-        Returns:
-            True if slot was acquired
 
         Raises:
             QueueFullError: If reject_when_full=True and at capacity
@@ -211,13 +208,12 @@ class QueueManager:
                         max_concurrent=self._max_concurrent,
                     )
                 self._active_count += 1
-                return True
+                return
 
         # Block until slot available
         await self._semaphore.acquire()
         async with self._active_lock:
             self._active_count += 1
-        return True
 
     def release_slot(self) -> None:
         """Release a processing slot.
@@ -234,7 +230,7 @@ class QueueManager:
         if not self._reject_when_full:
             self._semaphore.release()
 
-    async def clear(self) -> list[RequestItem]:
+    def clear(self) -> list[RequestItem]:
         """Clear all pending items from the queue.
 
         Returns:

@@ -1,0 +1,249 @@
+
+1.0PythonFrontend"1766977697843*py2.B¾
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+!
+src/orchestration/context.py9
+
+src.orchestration.context11
+
+dataclasses12
+
+typing14
+<
+6src.orchestration.context._calculate_compression_ratio16
+
+float18
+	
+int20
+2
+,src.orchestration.context._apply_compression22
+
+typing.Coroutine24
+	
+str26
+
+
+list28
+-
+'src.orchestration.context._count_tokens30
+0
+*src.orchestration.context.TokenizableModel32
+0
+*src.orchestration.context.ValidationResult34
+,
+&src.orchestration.context.HandoffState36
+*
+$src.orchestration.context.ErrorIssue38
+1
++src.orchestration.context.inject_trajectory40
+:
+4src.orchestration.context.ErrorContaminationDetector42
+K
+Esrc.orchestration.context.ErrorContaminationDetector.validate_handoff44
+G
+Asrc.orchestration.context.ErrorContaminationDetector._contradicts46
+
+
+bool48
+9
+3src.orchestration.context.TokenizableModel.tokenize50
+
+bytes52
+6
+0src.orchestration.context.CompressionFailedError54
+
+	Exception56
+-
+'src.orchestration.context.fit_to_budget58J
+
+8
+89j¾
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17167 210
+
+19
+19186
+
+21
+21206
+
+23
+23227 210
+
+25
+25246
+
+27
+27266
+
+29
+29286
+
+31
+31307 210
+
+33
+33326 210
+
+35
+35346 210
+
+37
+37366 210
+
+39
+39386 210
+
+41
+41407 210
+
+43
+43426 210
+
+45
+45447 243
+
+47
+47467 243
+
+49
+49486
+
+51
+51507 233
+
+53
+53526
+
+55
+55546 210
+
+57
+57566
+
+59
+59587 210r–
+
+10131*
+8 ()
+
+10151*
+8 (&
+
+17193*
+8° °(!
+
+17214*
+8° °(!
+
+17214*
+8° °(!
+
+23253*
+8½ ½(
+
+23274*
+8½ ½(
+
+23194*
+8½ ½(
+
+23294*
+8½ ½(
+
+23294*
+8½ ½(
+
+31213*
+8£ £(
+
+31274*
+8£ £(
+
+31334*
+8£ £(
+
+41273*
+8 (
+
+41374*
+8 (
+
+41274*
+8 (
+
+41274*
+8 (
+
+41274*
+8 (
+
+41294*
+8 (
+
+45253*
+8Ä Ä(
+
+45374*
+8Ä Ä(
+
+45274*
+8Ä Ä(
+
+47493*
+8ü	 ü(
+
+47274*
+8ü	 ü(
+
+47274*
+8ü	 ü(
+
+51293*
+8ž	 ž(
+
+51534*
+8ž	 ž(
+
+55572*
+8 (
+
+59253*
+8Ü Ü(
+
+59274*
+8Ü Ü(
+
+59214*
+8Ü Ü(
+
+59334*
+8Ü Ü(
+
+59214*
+8Ü Ü(

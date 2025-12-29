@@ -1,0 +1,754 @@
+
+1.0PythonFrontend"1766977697825*py2.Bú-
+
+imports1
+
+extends2
+
+returns3
+
+	has param4
+
+module5
+
+
+class6
+
+function7
+.
+)tests/unit/api/routes/test_completions.py9
+,
+&tests.unit.api.routes.test_completions11
+
+
+__future__12
+
+
+json14
+
+
+time16
+
+collections.abc18
+
+typing20
+
+unittest.mock22
+
+starlette.status24
+
+fastapi26
+#
+fastapi.testclient.TestClient28
+
+fastapi.testclient30
+.
+(src.models.responses.ChatCompletionChunk32
+
+src.models.responses34
+ 
+src.api.routes.completions36
+ 
+src.services.model_manager38
+H
+Btests.unit.api.routes.test_completions.TestCompletionsRouterImport40
+o
+itests.unit.api.routes.test_completions.TestCompletionsRouterImport.test_create_chat_completion_importable42
+
+NoneType44
+k
+etests.unit.api.routes.test_completions.TestCompletionsRouterImport.test_completions_router_importable46
+>
+8tests.unit.api.routes.test_completions.TestModelNotFound48
+^
+Xtests.unit.api.routes.test_completions.TestModelNotFound.test_404_includes_error_message50
+
+unittest.mock.MagicMock52
+
+
+dict54
+`
+Ztests.unit.api.routes.test_completions.TestModelNotFound.test_model_not_loaded_returns_40456
+G
+Atests.unit.api.routes.test_completions.TestNonStreamingCompletion58
+_
+Ytests.unit.api.routes.test_completions.TestNonStreamingCompletion.test_usage_total_is_sum60
+c
+]tests.unit.api.routes.test_completions.TestNonStreamingCompletion.test_completion_returns_20062
+q
+ktests.unit.api.routes.test_completions.TestNonStreamingCompletion.test_completion_object_is_chat_completion64
+j
+dtests.unit.api.routes.test_completions.TestNonStreamingCompletion.test_completion_returns_valid_json66
+m
+gtests.unit.api.routes.test_completions.TestNonStreamingCompletion.test_completion_model_matches_request68
+_
+Ytests.unit.api.routes.test_completions.TestNonStreamingCompletion.test_choice_has_message70
+k
+etests.unit.api.routes.test_completions.TestNonStreamingCompletion.test_completion_has_required_fields72
+f
+`tests.unit.api.routes.test_completions.TestNonStreamingCompletion.test_completion_includes_usage74
+e
+_tests.unit.api.routes.test_completions.TestNonStreamingCompletion.test_choice_has_finish_reason76
+i
+ctests.unit.api.routes.test_completions.TestNonStreamingCompletion.test_completion_has_choices_array78
+F
+@tests.unit.api.routes.test_completions.TestOrchestrationMetadata80
+g
+atests.unit.api.routes.test_completions.TestOrchestrationMetadata.mock_response_with_orchestration82
+k
+etests.unit.api.routes.test_completions.TestOrchestrationMetadata.test_response_includes_orchestration84
+h
+btests.unit.api.routes.test_completions.TestOrchestrationMetadata.test_orchestration_has_confidence86
+b
+\tests.unit.api.routes.test_completions.TestOrchestrationMetadata.test_orchestration_has_mode88
+[
+Utests.unit.api.routes.test_completions.TestOrchestrationMetadata.client_orchestration90
+"
+fastapi.applications.FastAPI92
+]
+Wtests.unit.api.routes.test_completions.TestOrchestrationMetadata.app_with_orchestration94
+i
+ctests.unit.api.routes.test_completions.TestOrchestrationMetadata.test_orchestration_has_models_used96
+d
+^tests.unit.api.routes.test_completions.TestOrchestrationMetadata.test_orchestration_has_rounds98
+C
+<tests.unit.api.routes.test_completions._create_mock_response100
+
+
+str102
+
+
+int104
+4
+-tests.unit.api.routes.test_completions.client106
+E
+>tests.unit.api.routes.test_completions.TestStreamingCompletion108
+`
+Ytests.unit.api.routes.test_completions.TestStreamingCompletion.test_streaming_returns_200110
+W
+Ptests.unit.api.routes.test_completions.TestStreamingCompletion.streaming_request112
+f
+_tests.unit.api.routes.test_completions.TestStreamingCompletion.test_streaming_chunk_object_type114
+c
+\tests.unit.api.routes.test_completions.TestStreamingCompletion.test_streaming_has_sse_format116
+Z
+Stests.unit.api.routes.test_completions.TestStreamingCompletion.mock_stream_provider118
+V
+Otests.unit.api.routes.test_completions.TestStreamingCompletion.client_streaming120
+c
+\tests.unit.api.routes.test_completions.TestStreamingCompletion.test_streaming_ends_with_done122
+j
+ctests.unit.api.routes.test_completions.TestStreamingCompletion.test_streaming_chunks_are_valid_json124
+S
+Ltests.unit.api.routes.test_completions.TestStreamingCompletion.app_streaming126
+a
+Ztests.unit.api.routes.test_completions.TestStreamingCompletion.test_streaming_content_type128
+C
+<tests.unit.api.routes.test_completions.TestRequestValidation130
+c
+\tests.unit.api.routes.test_completions.TestRequestValidation.test_empty_messages_returns_422132
+h
+atests.unit.api.routes.test_completions.TestRequestValidation.test_invalid_temperature_returns_422134
+e
+^tests.unit.api.routes.test_completions.TestRequestValidation.test_missing_messages_returns_422136
+h
+atests.unit.api.routes.test_completions.TestRequestValidation.test_valid_extension_fields_accepted138
+b
+[tests.unit.api.routes.test_completions.TestRequestValidation.test_missing_model_returns_422140
+;
+4tests.unit.api.routes.test_completions.valid_request142
+@
+9tests.unit.api.routes.test_completions.mock_model_manager144
+>
+7tests.unit.api.routes.test_completions.app_with_manager146
+@
+9tests.unit.api.routes.test_completions._create_mock_chunk148
+A
+:tests.unit.api.routes.test_completions.TestInferenceErrors150
+b
+[tests.unit.api.routes.test_completions.TestInferenceErrors.test_inference_error_returns_500152
+`
+Ytests.unit.api.routes.test_completions.TestInferenceErrors.test_500_includes_error_detail154
+@
+9tests.unit.api.routes.test_completions.TestNoModelManager156
+O
+Htests.unit.api.routes.test_completions.TestNoModelManager.app_no_manager158
+R
+Ktests.unit.api.routes.test_completions.TestNoModelManager.client_no_manager160
+a
+Ztests.unit.api.routes.test_completions.TestNoModelManager.test_returns_503_when_no_manager162
+;
+4tests.unit.api.routes.test_completions.mock_provider164J
+
+8
+89j¦
+ 
+10
+10115 *
+8 (
+
+13
+13125
+
+15
+15145
+
+17
+17165
+
+19
+19185
+
+21
+21205
+
+23
+23225
+
+25
+25245
+
+27
+27265
+
+29
+29285
+
+31
+31305
+
+33
+33325
+
+35
+35345
+
+37
+37365
+
+39
+39385
+
+41
+41406 210
+
+43
+43427 241
+
+45
+45446
+
+47
+47467 241
+
+49
+49486 210
+
+51
+51507 249
+
+53
+53526
+
+55
+55546
+
+57
+57567 249
+
+59
+59586 210
+
+61
+61607 259
+
+63
+63627 259
+
+65
+65647 259
+
+67
+67667 259
+
+69
+69687 259
+
+71
+71707 259
+
+73
+73727 259
+
+75
+75747 259
+
+77
+77767 259
+
+79
+79787 259
+
+81
+81806 210
+
+83
+83827 281
+
+85
+85847 281
+
+87
+87867 281
+
+89
+89887 281
+
+91
+91907 281
+
+93
+93926
+
+95
+95947 281
+
+97
+97967 281
+
+99
+99987 281
+
+101
+1011007 210
+
+103
+1031026
+
+105
+1051046
+
+107
+1071067 210
+
+109
+1091086 210
+
+111
+1111107 2109
+
+113
+1131127 2109
+
+115
+1151147 2109
+
+117
+1171167 2109
+
+119
+1191187 2109
+
+121
+1211207 2109
+
+123
+1231227 2109
+
+125
+1251247 2109
+
+127
+1271267 2109
+
+129
+1291287 2109
+
+131
+1311306 210
+
+133
+1331327 2131
+
+135
+1351347 2131
+
+137
+1371367 2131
+
+139
+1391387 2131
+
+141
+1411407 2131
+
+143
+1431427 210
+
+145
+1451447 210
+
+147
+1471467 210
+
+149
+1491487 210
+
+151
+1511506 210
+
+153
+1531527 2151
+
+155
+1551547 2151
+
+157
+1571566 210
+
+159
+1591587 2157
+
+161
+1611607 2157
+
+163
+1631627 2157
+
+165
+1651647 210r±
+
+10131*
+8 (#
+
+10151*
+8
+ 
+(
+
+10171*
+8 (
+
+10191*
+8 (*
+
+10211*
+8 (&
+
+10231*
+8 (/
+
+10251*
+8 ($
+
+10271*
+8 ($
+
+10291*
+8  (*
+
+10311*
+8 (*
+
+10331*
+8& (9
+
+10351*
+8 (9
+
+10371*
+84	 4(6
+
+10371*
+8:	 :(F
+
+10371*
+8Ç Ç(2
+
+10391*
+8	 (C
+
+10391*
+8«	 «(C
+
+10371*
+8Ã	 Ã(6
+
+10371*
+8…	 …(6
+
+10371*
+8‰	 ‰(6
+
+43453*
+88	 8(/
+
+47453*
+82	 2(+
+
+51453*
+8§	 §((
+
+51534*
+8§	 §((
+
+51554*
+8§	 §((
+
+57453*
+8™	 ™(*
+
+57534*
+8™	 ™(*
+
+57554*
+8™	 ™(*
+
+61453*
+8Á	 Á( 
+
+61554*
+8Á	 Á( 
+
+63453*
+8ì	 ì($
+
+63554*
+8ì	 ì($
+
+65453*
+8‹	 ‹(2
+
+65554*
+8‹	 ‹(2
+
+67453*
+8ô	 ô(+
+
+67554*
+8ô	 ô(+
+
+69453*
+8Ë	 Ë(.
+
+69554*
+8Ë	 Ë(.
+
+71453*
+8	 ( 
+
+71554*
+8	 ( 
+
+73453*
+8ı	 ı(,
+
+73554*
+8ı	 ı(,
+
+75453*
+8´	 ´('
+
+75554*
+8´	 ´('
+
+77453*
+8ª	 ª(&
+
+77554*
+8ª	 ª(&
+
+79453*
+8”	 ”(*
+
+79554*
+8”	 ”(*
+
+83533*
+8è	 è()
+
+85453*
+8Ÿ	 Ÿ(-
+
+85554*
+8Ÿ	 Ÿ(-
+
+87453*
+8Î	 Î(*
+
+87554*
+8Î	 Î(*
+
+89453*
+8ª	 ª($
+
+89554*
+8ª	 ª($
+
+91934*
+8›	 ›(
+
+95933*
+8…	 …(
+
+95534*
+8…	 …(
+
+97453*
+8µ	 µ(+
+
+97554*
+8µ	 µ(+
+
+99453*
+8Â	 Â(&
+
+99554*
+8Â	 Â(&
+
+101533*
+8D D(
+
+1011034*
+8D D(
+
+1011034*
+8D D(
+
+1011054*
+8D D(
+
+1011054*
+8D D(
+
+107934*
+8Ğ Ğ(
+
+111453*
+8•	 •(#
+
+111554*
+8•	 •(#
+
+113553*
+8à	 à(
+
+113554*
+8à	 à(
+
+115453*
+8Ï	 Ï()
+
+115554*
+8Ï	 Ï()
+
+117453*
+8©	 ©(&
+
+117554*
+8©	 ©(&
+
+119533*
+8æ	 æ(
+
+121934*
+8‘	 ‘(
+
+123453*
+8µ	 µ(&
+
+123554*
+8µ	 µ(&
+
+125453*
+8¿	 ¿(-
+
+125554*
+8¿	 ¿(-
+
+127933*
+8ƒ	 ƒ(
+
+127534*
+8ƒ	 ƒ(
+
+129453*
+8Ÿ	 Ÿ($
+
+129554*
+8Ÿ	 Ÿ($
+
+133453*
+8ï	 ï((
+
+135453*
+8ù	 ù(-
+
+137453*
+8æ	 æ(*
+
+139453*
+8„	 „(-
+
+139554*
+8„	 „(-
+
+141453*
+8İ	 İ('
+
+143553*
+8Ö Ö(
+
+145533*
+8» »(
+
+145534*
+8» »(
+
+147933*
+8Å Å(
+
+147534*
+8Å Å(
+
+149533*
+8€ €(
+
+1491034*
+8€ €(
+
+1491034*
+8€ €(
+
+153453*
+8æ	 æ()
+
+153534*
+8æ	 æ()
+
+153554*
+8æ	 æ()
+
+155453*
+8ğ	 ğ('
+
+155534*
+8ğ	 ğ('
+
+155554*
+8ğ	 ğ('
+
+159933*
+8Á	 Á(
+
+161934*
+8Ê	 Ê(
+
+163453*
+8Î	 Î()
+
+163554*
+8Î	 Î()
+
+165533*
+8¯ ¯(
