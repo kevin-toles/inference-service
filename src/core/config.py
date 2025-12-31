@@ -22,12 +22,9 @@ from pydantic_settings import BaseSettings
 from src.core.constants import (
     CONTAINER_CONFIG_DIR,
     CONTAINER_MODELS_DIR,
-    DEFAULT_BACKEND,
-    DEFAULT_ENVIRONMENT,
     DEFAULT_GPU_LAYERS,
     DEFAULT_HOST,
     DEFAULT_LOG_LEVEL,
-    DEFAULT_ORCHESTRATION_MODE,
     DEFAULT_PORT,
     DEFAULT_SERVICE_NAME,
 )
@@ -69,7 +66,7 @@ class Settings(BaseSettings):
         description="HTTP server bind address",
     )
     environment: Literal["development", "staging", "production"] = Field(
-        default=DEFAULT_ENVIRONMENT,
+        default="development",
         description="Deployment environment",
     )
     log_level: str = Field(
@@ -93,7 +90,7 @@ class Settings(BaseSettings):
         description="Number of layers to offload to GPU (-1 = all)",
     )
     backend: Literal["llamacpp", "vllm"] = Field(
-        default=DEFAULT_BACKEND,
+        default="llamacpp",
         description="Inference backend to use",
     )
 
@@ -103,7 +100,7 @@ class Settings(BaseSettings):
     orchestration_mode: Literal[
         "single", "critique", "debate", "ensemble", "pipeline"
     ] = Field(
-        default=DEFAULT_ORCHESTRATION_MODE,
+        default="single",
         description="Multi-model orchestration mode",
     )
 

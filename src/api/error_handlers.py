@@ -202,7 +202,7 @@ def build_error_response(
 # =============================================================================
 
 
-async def inference_service_error_handler(
+def inference_service_error_handler(
     _request: Request,
     exc: Exception,
 ) -> JSONResponse:
@@ -219,7 +219,7 @@ async def inference_service_error_handler(
     service_exc = exc if isinstance(exc, InferenceServiceError) else None
     if service_exc is None:
         # Fallback for unexpected cases
-        return await generic_error_handler(_request, exc)
+        return generic_error_handler(_request, exc)
 
     error_type = "non_retriable"
     if isinstance(service_exc, RetriableError):
@@ -234,7 +234,7 @@ async def inference_service_error_handler(
     )
 
 
-async def retriable_error_handler(
+def retriable_error_handler(
     _request: Request,
     exc: Exception,
 ) -> JSONResponse:
@@ -251,7 +251,7 @@ async def retriable_error_handler(
     retriable_exc = exc if isinstance(exc, RetriableError) else None
     if retriable_exc is None:
         # Fallback for unexpected cases
-        return await generic_error_handler(_request, exc)
+        return generic_error_handler(_request, exc)
 
     response = build_error_response(retriable_exc, "retriable")
     status_code = get_status_code_for_error(retriable_exc)
@@ -268,7 +268,7 @@ async def retriable_error_handler(
     )
 
 
-async def non_retriable_error_handler(
+def non_retriable_error_handler(
     _request: Request,
     exc: Exception,
 ) -> JSONResponse:
@@ -285,7 +285,7 @@ async def non_retriable_error_handler(
     non_retriable_exc = exc if isinstance(exc, NonRetriableError) else None
     if non_retriable_exc is None:
         # Fallback for unexpected cases
-        return await generic_error_handler(_request, exc)
+        return generic_error_handler(_request, exc)
 
     response = build_error_response(non_retriable_exc, "non_retriable")
     status_code = get_status_code_for_error(non_retriable_exc)
@@ -296,7 +296,7 @@ async def non_retriable_error_handler(
     )
 
 
-async def validation_error_handler(
+def validation_error_handler(
     _request: Request,
     exc: Exception,
 ) -> JSONResponse:
@@ -313,7 +313,7 @@ async def validation_error_handler(
     validation_exc = exc if isinstance(exc, ValidationError) else None
     if validation_exc is None:
         # Fallback for unexpected cases
-        return await generic_error_handler(_request, exc)
+        return generic_error_handler(_request, exc)
 
     response = build_error_response(validation_exc, "non_retriable")
 

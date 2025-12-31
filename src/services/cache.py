@@ -248,7 +248,7 @@ class HandoffCache(InferenceCache):
             self._locks[key] = asyncio.Lock()
         return self._locks[key]
 
-    async def store(
+    async def store(  # type: ignore[override]
         self,
         state: HandoffState | None = None,
         ttl: int = 3600,
@@ -265,7 +265,7 @@ class HandoffCache(InferenceCache):
         """
         key = kwargs.get("key")
         value = kwargs.get("value")
-        
+
         if state is not None:
             cache_key = f"handoff:{state.request_id}"
             async with self._get_lock(cache_key):
@@ -293,7 +293,7 @@ class HandoffCache(InferenceCache):
             HandoffState if found via request_id, str if via key, None otherwise.
         """
         key = kwargs.get("key")
-        
+
         if request_id is not None:
             cache_key = f"handoff:{request_id}"
             async with self._get_lock(cache_key):
@@ -407,7 +407,7 @@ class CompressionCache(InferenceCache):
         """
         key = kwargs.get("key")
         value = kwargs.get("value")
-        
+
         if key and value:
             self._cache[key] = value
         elif content is not None and target_tokens is not None and compressed:

@@ -432,7 +432,7 @@ def get_model_manager() -> ModelManager:
         models_yaml = config_dir / "models.yaml"
         model_configs: dict[str, Any] = {}
         if models_yaml.exists():
-            with open(models_yaml) as f:
+            with models_yaml.open() as f:
                 data = yaml.safe_load(f) or {}
                 model_configs = data.get("models", {})
 
@@ -440,7 +440,7 @@ def get_model_manager() -> ModelManager:
         presets_yaml = config_dir / "presets.yaml"
         config_presets: dict[str, Any] = {}
         if presets_yaml.exists():
-            with open(presets_yaml) as f:
+            with presets_yaml.open() as f:
                 config_presets = yaml.safe_load(f) or {}
 
         _model_manager = ModelManager(

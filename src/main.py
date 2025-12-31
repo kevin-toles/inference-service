@@ -21,7 +21,7 @@ from src.api.routes.health import router as health_router
 from src.api.routes.models import router as models_router
 from src.core.config import get_settings
 from src.core.logging import configure_logging, get_logger
-from src.services.model_manager import ModelManager, get_model_manager
+from src.services.model_manager import get_model_manager
 
 
 # =============================================================================
