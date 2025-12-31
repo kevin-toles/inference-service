@@ -7,14 +7,10 @@ AC-21.2: Streaming test: SSE chunks received correctly
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import httpx
 import pytest
-
-
-if TYPE_CHECKING:
-    pass
 
 
 pytestmark = [pytest.mark.integration, pytest.mark.asyncio]

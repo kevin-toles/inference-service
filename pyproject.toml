@@ -77,6 +77,10 @@ markers = [
     "unit: Unit tests (fast, no external dependencies)",
     "integration: Integration tests (may require models)",
     "slow: Slow tests (model loading, large inputs)",
+    "d4_preset: D4 preset tests",
+    "d4_critique: D4 critique mode tests",
+    "load_test: Load/stress tests",
+    "connectivity: Model connectivity tests",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning",

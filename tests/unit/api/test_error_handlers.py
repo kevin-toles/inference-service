@@ -285,33 +285,29 @@ class TestErrorHandlerFunctions:
         from unittest.mock import MagicMock
         return MagicMock(spec=["url", "method"])
 
-    @pytest.mark.asyncio
-    async def test_inference_service_error_handler(self, mock_request: Any) -> None:
+    def test_inference_service_error_handler(self, mock_request: Any) -> None:
         """Test base InferenceServiceError handler."""
         error = InferenceServiceError("Test error")
-        response = await inference_service_error_handler(mock_request, error)
+        response = inference_service_error_handler(mock_request, error)
         assert response.status_code == 500
 
-    @pytest.mark.asyncio
-    async def test_retriable_error_handler(self, mock_request: Any) -> None:
+    def test_retriable_error_handler(self, mock_request: Any) -> None:
         """Test RetriableError handler."""
         error = ModelBusyError("Busy", model_id="phi-4", retry_after_ms=2000)
-        response = await retriable_error_handler(mock_request, error)
+        response = retriable_error_handler(mock_request, error)
         assert response.status_code == 503
         assert "Retry-After" in response.headers
 
-    @pytest.mark.asyncio
-    async def test_non_retriable_error_handler(self, mock_request: Any) -> None:
+    def test_non_retriable_error_handler(self, mock_request: Any) -> None:
         """Test NonRetriableError handler."""
         error = ModelNotFoundError("Not found", model_id="gpt-5")
-        response = await non_retriable_error_handler(mock_request, error)
+        response = non_retriable_error_handler(mock_request, error)
         assert response.status_code == 404
 
-    @pytest.mark.asyncio
-    async def test_validation_error_handler(self, mock_request: Any) -> None:
+    def test_validation_error_handler(self, mock_request: Any) -> None:
         """Test ValidationError handler."""
         error = ValidationError("Invalid", field="temperature")
-        response = await validation_error_handler(mock_request, error)
+        response = validation_error_handler(mock_request, error)
         assert response.status_code == 400
 
     def test_generic_error_handler(self, mock_request: Any) -> None:

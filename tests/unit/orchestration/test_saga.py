@@ -28,6 +28,25 @@ from src.orchestration.saga import (
     StepResult,
 )
 
+# =============================================================================
+# Constants (S1192: Avoid duplicated string literals)
+# =============================================================================
+
+TEST_MODEL_PHI4 = "phi-4"
+TEST_MODEL_1 = "model-1"
+TEST_MODEL_2 = "model-2"
+TEST_MODEL_3 = "model-3"
+TEST_MODEL_TEST = "test-model"
+TEST_MODEL_LLAMA = "llama-3.2-3b"
+TEST_MODEL_DEEPSEEK = "deepseek-r1-7b"
+ROLE_SYSTEM = "system"
+ROLE_USER = "user"
+STEP_DRAFT = "draft"
+STEP_REFINE = "refine"
+STEP_VALIDATE = "validate"
+TEST_OUTPUT = "output"
+FINISH_REASON_PARTIAL = "partial"
+
 
 # =============================================================================
 # Fixtures
@@ -38,10 +57,10 @@ from src.orchestration.saga import (
 def sample_request() -> ChatCompletionRequest:
     """Create a sample chat completion request."""
     return ChatCompletionRequest(
-        model="phi-4",
+        model=TEST_MODEL_PHI4,
         messages=[
-            Message(role="system", content="You are a helpful assistant."),
-            Message(role="user", content="Write a function to calculate factorial."),
+            Message(role=ROLE_SYSTEM, content="You are a helpful assistant."),
+            Message(role=ROLE_USER, content="Write a function to calculate factorial."),
         ],
         temperature=0.7,
         max_tokens=500,
@@ -54,7 +73,7 @@ def successful_step_result() -> StepResult:
     return StepResult(
         output="def factorial(n): return 1 if n <= 1 else n * factorial(n-1)",
         is_usable=True,
-        model_id="llama-3.2-3b",
+        model_id=TEST_MODEL_LLAMA,
         usage=Usage(prompt_tokens=30, completion_tokens=25, total_tokens=55),
     )
 
@@ -74,7 +93,7 @@ def refined_step_result() -> StepResult:
             "    return result"
         ),
         is_usable=True,
-        model_id="deepseek-r1-7b",
+        model_id=TEST_MODEL_DEEPSEEK,
         usage=Usage(prompt_tokens=60, completion_tokens=80, total_tokens=140),
     )
 
@@ -93,16 +112,16 @@ class TestSagaStep:
             return StepResult(
                 output="test",
                 is_usable=True,
-                model_id="test-model",
+                model_id=TEST_MODEL_TEST,
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
             )
 
         step = SagaStep(
-            name="draft",
+            name=STEP_DRAFT,
             invoke=invoke_fn,
         )
 
-        assert step.name == "draft"
+        assert step.name == STEP_DRAFT
 
     @pytest.mark.asyncio
     async def test_saga_step_invoke(self) -> None:
@@ -111,11 +130,11 @@ class TestSagaStep:
             return StepResult(
                 output="test output",
                 is_usable=True,
-                model_id="test-model",
+                model_id=TEST_MODEL_TEST,
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
             )
 
-        step = SagaStep(name="draft", invoke=invoke_fn)
+        step = SagaStep(name=STEP_DRAFT, invoke=invoke_fn)
         result = await step.invoke({})
 
         assert result.output == "test output"
@@ -135,20 +154,20 @@ class TestStepResult:
         result = StepResult(
             output="test output",
             is_usable=True,
-            model_id="test-model",
+            model_id=TEST_MODEL_TEST,
             usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
         )
 
         assert result.output == "test output"
         assert result.is_usable is True
-        assert result.model_id == "test-model"
+        assert result.model_id == TEST_MODEL_TEST
 
     def test_step_result_not_usable(self) -> None:
         """Test StepResult with is_usable=False."""
         result = StepResult(
             output="",
             is_usable=False,
-            model_id="test-model",
+            model_id=TEST_MODEL_TEST,
             usage=Usage(prompt_tokens=10, completion_tokens=0, total_tokens=10),
         )
 
@@ -169,15 +188,15 @@ class TestCompletedStep:
             return StepResult(
                 output="test",
                 is_usable=True,
-                model_id="test-model",
+                model_id=TEST_MODEL_TEST,
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
             )
 
-        step = SagaStep(name="draft", invoke=invoke_fn)
+        step = SagaStep(name=STEP_DRAFT, invoke=invoke_fn)
         result = StepResult(
             output="test output",
             is_usable=True,
-            model_id="test-model",
+            model_id=TEST_MODEL_TEST,
             usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
         )
 
@@ -213,9 +232,9 @@ class TestPipelineSagaCompensation:
             nonlocal step1_called
             step1_called = True
             return StepResult(
-                output="draft",
+                output=STEP_DRAFT,
                 is_usable=True,
-                model_id="model-1",
+                model_id=TEST_MODEL_1,
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
             )
 
@@ -225,7 +244,7 @@ class TestPipelineSagaCompensation:
             return StepResult(
                 output="refined",
                 is_usable=True,
-                model_id="model-2",
+                model_id=TEST_MODEL_2,
                 usage=Usage(prompt_tokens=20, completion_tokens=20, total_tokens=40),
             )
 
@@ -235,14 +254,14 @@ class TestPipelineSagaCompensation:
             return StepResult(
                 output="validated",
                 is_usable=True,
-                model_id="model-3",
+                model_id=TEST_MODEL_3,
                 usage=Usage(prompt_tokens=30, completion_tokens=30, total_tokens=60),
             )
 
         saga = PipelineSaga()
-        saga.add_step(SagaStep(name="draft", invoke=step1_invoke))
-        saga.add_step(SagaStep(name="refine", invoke=step2_invoke))
-        saga.add_step(SagaStep(name="validate", invoke=step3_invoke))
+        saga.add_step(SagaStep(name=STEP_DRAFT, invoke=step1_invoke))
+        saga.add_step(SagaStep(name=STEP_REFINE, invoke=step2_invoke))
+        saga.add_step(SagaStep(name=STEP_VALIDATE, invoke=step3_invoke))
 
         result = await saga.execute(sample_request)
 
@@ -259,7 +278,7 @@ class TestPipelineSagaCompensation:
         """Test PipelineSaga tracks completed steps."""
         async def step_invoke(state: dict[str, Any]) -> StepResult:
             return StepResult(
-                output="output",
+                output=TEST_OUTPUT,
                 is_usable=True,
                 model_id="model",
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
@@ -283,7 +302,7 @@ class TestPipelineSagaCompensation:
             return StepResult(
                 output="draft output",
                 is_usable=True,
-                model_id="model-1",
+                model_id=TEST_MODEL_1,
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
             )
 
@@ -291,14 +310,14 @@ class TestPipelineSagaCompensation:
             raise RuntimeError("Step 2 failed")
 
         saga = PipelineSaga()
-        saga.add_step(SagaStep(name="draft", invoke=step1_invoke))
-        saga.add_step(SagaStep(name="refine", invoke=step2_invoke))
+        saga.add_step(SagaStep(name=STEP_DRAFT, invoke=step1_invoke))
+        saga.add_step(SagaStep(name=STEP_REFINE, invoke=step2_invoke))
 
         result = await saga.execute(sample_request)
 
         # Should return partial result from compensation
         assert result is not None
-        assert result.choices[0].finish_reason == "partial"
+        assert result.choices[0].finish_reason == FINISH_REASON_PARTIAL
 
 
 # =============================================================================
@@ -319,7 +338,7 @@ class TestPipelineSagaPartialResults:
             return StepResult(
                 output="draft output",
                 is_usable=True,
-                model_id="model-1",
+                model_id=TEST_MODEL_1,
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
             )
 
@@ -327,7 +346,7 @@ class TestPipelineSagaPartialResults:
             return StepResult(
                 output="refined output",
                 is_usable=True,
-                model_id="model-2",
+                model_id=TEST_MODEL_2,
                 usage=Usage(prompt_tokens=20, completion_tokens=20, total_tokens=40),
             )
 
@@ -335,15 +354,15 @@ class TestPipelineSagaPartialResults:
             raise RuntimeError("Validator failed")
 
         saga = PipelineSaga()
-        saga.add_step(SagaStep(name="draft", invoke=step1_invoke))
-        saga.add_step(SagaStep(name="refine", invoke=step2_invoke))
-        saga.add_step(SagaStep(name="validate", invoke=step3_invoke))
+        saga.add_step(SagaStep(name=STEP_DRAFT, invoke=step1_invoke))
+        saga.add_step(SagaStep(name=STEP_REFINE, invoke=step2_invoke))
+        saga.add_step(SagaStep(name=STEP_VALIDATE, invoke=step3_invoke))
 
         result = await saga.execute(sample_request)
 
         # Should return refiner's output (last successful)
         assert result.choices[0].message.content == "refined output"
-        assert result.choices[0].finish_reason == "partial"
+        assert result.choices[0].finish_reason == FINISH_REASON_PARTIAL
 
     @pytest.mark.asyncio
     async def test_saga_partial_includes_error_info(
@@ -353,9 +372,9 @@ class TestPipelineSagaPartialResults:
         """Test partial result includes error information."""
         async def step1_invoke(state: dict[str, Any]) -> StepResult:
             return StepResult(
-                output="output",
+                output=TEST_OUTPUT,
                 is_usable=True,
-                model_id="model-1",
+                model_id=TEST_MODEL_1,
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
             )
 
@@ -363,8 +382,8 @@ class TestPipelineSagaPartialResults:
             raise RuntimeError("Test error message")
 
         saga = PipelineSaga()
-        saga.add_step(SagaStep(name="draft", invoke=step1_invoke))
-        saga.add_step(SagaStep(name="refine", invoke=step2_invoke))
+        saga.add_step(SagaStep(name=STEP_DRAFT, invoke=step1_invoke))
+        saga.add_step(SagaStep(name=STEP_REFINE, invoke=step2_invoke))
 
         result = await saga.execute(sample_request)
 
@@ -384,7 +403,7 @@ class TestPipelineSagaPartialResults:
             raise RuntimeError("First step failed")
 
         saga = PipelineSaga()
-        saga.add_step(SagaStep(name="draft", invoke=step1_invoke))
+        saga.add_step(SagaStep(name=STEP_DRAFT, invoke=step1_invoke))
 
         with pytest.raises(OrchestrationFailedError, match="Pipeline failed"):
             await saga.execute(sample_request)
@@ -399,7 +418,7 @@ class TestPipelineSagaPartialResults:
             return StepResult(
                 output="usable output",
                 is_usable=True,
-                model_id="model-1",
+                model_id=TEST_MODEL_1,
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
             )
 
@@ -407,7 +426,7 @@ class TestPipelineSagaPartialResults:
             return StepResult(
                 output="",  # Empty, not usable
                 is_usable=False,
-                model_id="model-2",
+                model_id=TEST_MODEL_2,
                 usage=Usage(prompt_tokens=20, completion_tokens=0, total_tokens=20),
             )
 
@@ -443,7 +462,7 @@ class TestPipelineSagaMetadata:
             return StepResult(
                 output="output1",
                 is_usable=True,
-                model_id="model-1",
+                model_id=TEST_MODEL_1,
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
             )
 
@@ -451,7 +470,7 @@ class TestPipelineSagaMetadata:
             return StepResult(
                 output="output2",
                 is_usable=True,
-                model_id="model-2",
+                model_id=TEST_MODEL_2,
                 usage=Usage(prompt_tokens=20, completion_tokens=20, total_tokens=40),
             )
 
@@ -474,7 +493,7 @@ class TestPipelineSagaMetadata:
             return StepResult(
                 output="output1",
                 is_usable=True,
-                model_id="llama-3.2-3b",
+                model_id=TEST_MODEL_LLAMA,
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),
             )
 
@@ -482,18 +501,18 @@ class TestPipelineSagaMetadata:
             return StepResult(
                 output="output2",
                 is_usable=True,
-                model_id="deepseek-r1-7b",
+                model_id=TEST_MODEL_DEEPSEEK,
                 usage=Usage(prompt_tokens=20, completion_tokens=20, total_tokens=40),
             )
 
         saga = PipelineSaga()
-        saga.add_step(SagaStep(name="draft", invoke=step1_invoke))
-        saga.add_step(SagaStep(name="refine", invoke=step2_invoke))
+        saga.add_step(SagaStep(name=STEP_DRAFT, invoke=step1_invoke))
+        saga.add_step(SagaStep(name=STEP_REFINE, invoke=step2_invoke))
 
         result = await saga.execute(sample_request)
 
-        assert "llama-3.2-3b" in result.orchestration.models_used
-        assert "deepseek-r1-7b" in result.orchestration.models_used
+        assert TEST_MODEL_LLAMA in result.orchestration.models_used
+        assert TEST_MODEL_DEEPSEEK in result.orchestration.models_used
 
     @pytest.mark.asyncio
     async def test_saga_tracks_inference_time(
@@ -503,7 +522,7 @@ class TestPipelineSagaMetadata:
         """Test PipelineSaga tracks total inference time."""
         async def step_invoke(state: dict[str, Any]) -> StepResult:
             return StepResult(
-                output="output",
+                output=TEST_OUTPUT,
                 is_usable=True,
                 model_id="model",
                 usage=Usage(prompt_tokens=10, completion_tokens=10, total_tokens=20),

@@ -28,6 +28,21 @@ from src.orchestration.orchestrator import (
 )
 from src.providers.base import InferenceProvider, ModelMetadata
 
+# =============================================================================
+# Constants (S1192: Avoid duplicated string literals)
+# =============================================================================
+
+TEST_MODEL_PHI4 = "phi-4"
+TEST_MODEL_LLAMA = "llama-3.2-3b"
+TEST_RESPONSE_ID = "chatcmpl-123"
+MODE_SINGLE = "single"
+MODE_CRITIQUE = "critique"
+MODE_DEBATE = "debate"
+ROLE_SYSTEM = "system"
+ROLE_USER = "user"
+ROLE_ASSISTANT = "assistant"
+FINISH_REASON_STOP = "stop"
+
 
 # =============================================================================
 # Fixtures
@@ -39,7 +54,7 @@ def mock_provider() -> MagicMock:
     """Create a mock InferenceProvider."""
     provider = MagicMock(spec=InferenceProvider)
     provider.model_info = ModelMetadata(
-        model_id="phi-4",
+        model_id=TEST_MODEL_PHI4,
         context_length=16384,
         roles=["primary", "thinker"],
         memory_mb=8000,
@@ -53,10 +68,10 @@ def mock_provider() -> MagicMock:
 def sample_request() -> ChatCompletionRequest:
     """Create a sample chat completion request."""
     return ChatCompletionRequest(
-        model="phi-4",
+        model=TEST_MODEL_PHI4,
         messages=[
-            Message(role="system", content="You are a helpful assistant."),
-            Message(role="user", content="Hello!"),
+            Message(role=ROLE_SYSTEM, content="You are a helpful assistant."),
+            Message(role=ROLE_USER, content="Hello!"),
         ],
     )
 
@@ -65,17 +80,17 @@ def sample_request() -> ChatCompletionRequest:
 def sample_response() -> ChatCompletionResponse:
     """Create a sample chat completion response."""
     return ChatCompletionResponse(
-        id="chatcmpl-123",
+        id=TEST_RESPONSE_ID,
         created=int(time.time()),
-        model="phi-4",
+        model=TEST_MODEL_PHI4,
         choices=[
             Choice(
                 index=0,
                 message=ChoiceMessage(
-                    role="assistant",
+                    role=ROLE_ASSISTANT,
                     content="Hello! How can I help?",
                 ),
-                finish_reason="stop",
+                finish_reason=FINISH_REASON_STOP,
             )
         ],
         usage=Usage(
@@ -91,26 +106,26 @@ def sample_chunks() -> list[ChatCompletionChunk]:
     """Create sample streaming chunks."""
     return [
         ChatCompletionChunk(
-            id="chatcmpl-123",
+            id=TEST_RESPONSE_ID,
             created=int(time.time()),
-            model="phi-4",
+            model=TEST_MODEL_PHI4,
             choices=[
                 ChunkChoice(
                     index=0,
-                    delta=ChunkDelta(role="assistant"),
+                    delta=ChunkDelta(role=ROLE_ASSISTANT),
                     finish_reason=None,
                 )
             ],
         ),
         ChatCompletionChunk(
-            id="chatcmpl-123",
+            id=TEST_RESPONSE_ID,
             created=int(time.time()),
-            model="phi-4",
+            model=TEST_MODEL_PHI4,
             choices=[
                 ChunkChoice(
                     index=0,
                     delta=ChunkDelta(content="Hello"),
-                    finish_reason="stop",
+                    finish_reason=FINISH_REASON_STOP,
                 )
             ],
         ),
@@ -127,15 +142,15 @@ class TestOrchestrationModeEnum:
 
     def test_orchestration_mode_single_value(self) -> None:
         """Test SINGLE mode has correct value."""
-        assert OrchestrationMode.SINGLE.value == "single"
+        assert OrchestrationMode.SINGLE.value == MODE_SINGLE
 
     def test_orchestration_mode_critique_value(self) -> None:
         """Test CRITIQUE mode has correct value."""
-        assert OrchestrationMode.CRITIQUE.value == "critique"
+        assert OrchestrationMode.CRITIQUE.value == MODE_CRITIQUE
 
     def test_orchestration_mode_debate_value(self) -> None:
         """Test DEBATE mode has correct value."""
-        assert OrchestrationMode.DEBATE.value == "debate"
+        assert OrchestrationMode.DEBATE.value == MODE_DEBATE
 
     def test_orchestration_mode_ensemble_value(self) -> None:
         """Test ENSEMBLE mode has correct value."""
@@ -147,12 +162,12 @@ class TestOrchestrationModeEnum:
 
     def test_orchestration_mode_from_string(self) -> None:
         """Test OrchestrationMode can be created from string."""
-        assert OrchestrationMode("single") == OrchestrationMode.SINGLE
-        assert OrchestrationMode("critique") == OrchestrationMode.CRITIQUE
+        assert OrchestrationMode(MODE_SINGLE) == OrchestrationMode.SINGLE
+        assert OrchestrationMode(MODE_CRITIQUE) == OrchestrationMode.CRITIQUE
 
     def test_orchestration_mode_all_values(self) -> None:
         """Test all expected modes are present."""
-        expected_modes = {"single", "critique", "debate", "ensemble", "pipeline"}
+        expected_modes = {MODE_SINGLE, MODE_CRITIQUE, MODE_DEBATE, "ensemble", "pipeline"}
         actual_modes = {mode.value for mode in OrchestrationMode}
         assert actual_modes == expected_modes
 
@@ -185,7 +200,7 @@ class TestOrchestratorInit:
         self, mock_provider: MagicMock
     ) -> None:
         """Test Orchestrator can be initialized with mode as string."""
-        orchestrator = Orchestrator(provider=mock_provider, mode="single")
+        orchestrator = Orchestrator(provider=mock_provider, mode=MODE_SINGLE)
 
         assert orchestrator.mode == OrchestrationMode.SINGLE
 
@@ -213,12 +228,12 @@ class TestOrchestratorDispatch:
         """Test Orchestrator(mode='single') dispatches to SingleMode."""
         mock_provider.generate = AsyncMock(return_value=sample_response)
 
-        orchestrator = Orchestrator(provider=mock_provider, mode="single")
+        orchestrator = Orchestrator(provider=mock_provider, mode=MODE_SINGLE)
         result = await orchestrator.execute(sample_request)
 
         # Verify SingleMode was used
         assert result.orchestration is not None
-        assert result.orchestration.mode == "single"
+        assert result.orchestration.mode == MODE_SINGLE
         mock_provider.generate.assert_called_once()
 
     @pytest.mark.asyncio
@@ -231,7 +246,7 @@ class TestOrchestratorDispatch:
         """Test Orchestrator returns valid response in single mode."""
         mock_provider.generate = AsyncMock(return_value=sample_response)
 
-        orchestrator = Orchestrator(provider=mock_provider, mode="single")
+        orchestrator = Orchestrator(provider=mock_provider, mode=MODE_SINGLE)
         result = await orchestrator.execute(sample_request)
 
         assert result.choices[0].message.content == "Hello! How can I help?"
@@ -245,12 +260,12 @@ class TestOrchestratorDispatch:
     ) -> None:
         """Test Orchestrator raises error for unsupported mode."""
         # critique/debate/etc. modes are not yet implemented
-        orchestrator = Orchestrator(provider=mock_provider, mode="critique")
+        orchestrator = Orchestrator(provider=mock_provider, mode=MODE_CRITIQUE)
 
         with pytest.raises(UnsupportedModeError) as exc_info:
             await orchestrator.execute(sample_request)
 
-        assert "critique" in str(exc_info.value)
+        assert MODE_CRITIQUE in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_orchestrator_models_used_list(
@@ -262,11 +277,11 @@ class TestOrchestratorDispatch:
         """Test Orchestrator response includes models_used list."""
         mock_provider.generate = AsyncMock(return_value=sample_response)
 
-        orchestrator = Orchestrator(provider=mock_provider, mode="single")
+        orchestrator = Orchestrator(provider=mock_provider, mode=MODE_SINGLE)
         result = await orchestrator.execute(sample_request)
 
         assert result.orchestration is not None
-        assert "phi-4" in result.orchestration.models_used
+        assert TEST_MODEL_PHI4 in result.orchestration.models_used
 
 
 class TestOrchestratorStreaming:
@@ -289,7 +304,7 @@ class TestOrchestratorStreaming:
 
         mock_provider.stream = mock_stream
 
-        orchestrator = Orchestrator(provider=mock_provider, mode="single")
+        orchestrator = Orchestrator(provider=mock_provider, mode=MODE_SINGLE)
         chunks_received = []
 
         async for chunk in orchestrator.stream(sample_request):
@@ -304,7 +319,7 @@ class TestOrchestratorStreaming:
         sample_request: ChatCompletionRequest,
     ) -> None:
         """Test Orchestrator stream raises error for unsupported mode."""
-        orchestrator = Orchestrator(provider=mock_provider, mode="debate")
+        orchestrator = Orchestrator(provider=mock_provider, mode=MODE_DEBATE)
 
         with pytest.raises(UnsupportedModeError):
             async for _ in orchestrator.stream(sample_request):
@@ -330,7 +345,7 @@ class TestOrchestratorEdgeCases:
             side_effect=RuntimeError("Provider error")
         )
 
-        orchestrator = Orchestrator(provider=mock_provider, mode="single")
+        orchestrator = Orchestrator(provider=mock_provider, mode=MODE_SINGLE)
 
         with pytest.raises(RuntimeError, match="Provider error"):
             await orchestrator.execute(sample_request)
@@ -350,7 +365,7 @@ class TestOrchestratorEdgeCases:
         """Test Orchestrator works with different providers."""
         provider = MagicMock(spec=InferenceProvider)
         provider.model_info = ModelMetadata(
-            model_id="llama-3.2-3b",
+            model_id=TEST_MODEL_LLAMA,
             context_length=8192,
             roles=["fast"],
             memory_mb=4000,
@@ -361,15 +376,15 @@ class TestOrchestratorEdgeCases:
             return_value=ChatCompletionResponse(
                 id="chatcmpl-456",
                 created=int(time.time()),
-                model="llama-3.2-3b",
+                model=TEST_MODEL_LLAMA,
                 choices=[
                     Choice(
                         index=0,
                         message=ChoiceMessage(
-                            role="assistant",
+                            role=ROLE_ASSISTANT,
                             content="Quick response",
                         ),
-                        finish_reason="stop",
+                        finish_reason=FINISH_REASON_STOP,
                     )
                 ],
                 usage=Usage(
@@ -380,11 +395,11 @@ class TestOrchestratorEdgeCases:
             )
         )
 
-        orchestrator = Orchestrator(provider=provider, mode="single")
+        orchestrator = Orchestrator(provider=provider, mode=MODE_SINGLE)
         result = await orchestrator.execute(sample_request)
 
         assert result.orchestration is not None
-        assert result.orchestration.models_used == ["llama-3.2-3b"]
+        assert result.orchestration.models_used == [TEST_MODEL_LLAMA]
 
 
 class TestUnsupportedModeError:
@@ -392,12 +407,12 @@ class TestUnsupportedModeError:
 
     def test_unsupported_mode_error_message(self) -> None:
         """Test UnsupportedModeError has informative message."""
-        error = UnsupportedModeError("critique")
+        error = UnsupportedModeError(MODE_CRITIQUE)
 
-        assert "critique" in str(error)
+        assert MODE_CRITIQUE in str(error)
 
     def test_unsupported_mode_error_is_exception(self) -> None:
         """Test UnsupportedModeError inherits from Exception."""
-        error = UnsupportedModeError("debate")
+        error = UnsupportedModeError(MODE_DEBATE)
 
         assert isinstance(error, Exception)

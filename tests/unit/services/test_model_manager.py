@@ -43,28 +43,28 @@ def mock_model_configs() -> dict[str, Any]:
     return {
         MODEL_PHI4: {
             "name": "Microsoft Phi-4",
-            "file": "phi-4-Q4_K_S.gguf",
+            "file": "phi-4/phi-4-Q4_K_S.gguf",
             "size_gb": 8.4,
             "context_length": 16384,
             "roles": [ROLE_PRIMARY, ROLE_THINKER, ROLE_CODER],
         },
         MODEL_DEEPSEEK: {
             "name": "DeepSeek R1 Distill 7B",
-            "file": "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf",
+            "file": "deepseek-r1-7b/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf",
             "size_gb": 4.7,
             "context_length": 32768,
             "roles": [ROLE_THINKER],
         },
         MODEL_QWEN: {
             "name": "Qwen 2.5 7B Instruct",
-            "file": "qwen2.5-7b-instruct-q4_k_m.gguf",
+            "file": "qwen2.5-7b/qwen2.5-7b-instruct-q4_k_m.gguf",
             "size_gb": 4.5,
             "context_length": 32768,
             "roles": [ROLE_CODER, ROLE_PRIMARY],
         },
         MODEL_LLAMA: {
             "name": "Llama 3.2 3B Instruct",
-            "file": "llama-3.2-3b-instruct-q4_k_m.gguf",
+            "file": "llama-3.2-3b/llama-3.2-3b-instruct-q4_k_m.gguf",
             "size_gb": 2.0,
             "context_length": 8192,
             "roles": [ROLE_FAST],
@@ -101,11 +101,18 @@ def mock_config_presets() -> dict[str, Any]:
 
 @pytest.fixture
 def models_dir(tmp_path: Path) -> Path:
-    """Create a temporary models directory with mock files."""
+    """Create a temporary models directory with mock files.
+    
+    Creates nested directory structure matching production config:
+    models/
+      phi-4/phi-4-Q4_K_S.gguf
+      deepseek-r1-7b/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf
+      ...
+    """
     models = tmp_path / "models"
     models.mkdir()
 
-    # Create mock model directories and files
+    # Create mock model directories and files (nested structure)
     for model_id, filename in [
         (MODEL_PHI4, "phi-4-Q4_K_S.gguf"),
         (MODEL_DEEPSEEK, "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf"),

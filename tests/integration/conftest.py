@@ -47,6 +47,17 @@ INFERENCE_API_KEY = os.getenv("INFERENCE_API_KEY", "")
 # Model timeout for large models (e.g., phi-4, phi-3-medium-128k)
 MODEL_LOAD_TIMEOUT = float(os.getenv("MODEL_LOAD_TIMEOUT", "300.0"))
 
+# =============================================================================
+# Constants (S1192: Avoid duplicated string literals)
+# =============================================================================
+
+TEST_MODEL_LLAMA = "llama-3.2-3b"
+TEST_MODEL_PHI4 = "phi-4"
+TEST_CONTENT_TYPE_JSON = "application/json"
+AUTH_HEADER_BEARER = "Bearer"
+ROLE_USER = "user"
+ROLE_SYSTEM = "system"
+
 
 # =============================================================================
 # Markers
@@ -97,9 +108,9 @@ def inference_base_url() -> str:
 @pytest.fixture(scope="session")
 def api_headers() -> dict[str, str]:
     """Return API headers including optional auth for secured deployments."""
-    headers: dict[str, str] = {"Content-Type": "application/json"}
+    headers: dict[str, str] = {"Content-Type": TEST_CONTENT_TYPE_JSON}
     if INFERENCE_API_KEY:
-        headers["Authorization"] = f"Bearer {INFERENCE_API_KEY}"
+        headers["Authorization"] = f"{AUTH_HEADER_BEARER} {INFERENCE_API_KEY}"
     return headers
 
 
@@ -114,7 +125,7 @@ async def async_client() -> AsyncGenerator[httpx.AsyncClient, None]:
     """Create an async HTTP client for the test session (portable)."""
     headers: dict[str, str] = {}
     if INFERENCE_API_KEY:
-        headers["Authorization"] = f"Bearer {INFERENCE_API_KEY}"
+        headers["Authorization"] = f"{AUTH_HEADER_BEARER} {INFERENCE_API_KEY}"
 
     async with httpx.AsyncClient(
         base_url=INFERENCE_BASE_URL,
@@ -139,7 +150,7 @@ async def client() -> AsyncGenerator[httpx.AsyncClient, None]:
     """Create a per-test async HTTP client (portable)."""
     headers: dict[str, str] = {}
     if INFERENCE_API_KEY:
-        headers["Authorization"] = f"Bearer {INFERENCE_API_KEY}"
+        headers["Authorization"] = f"{AUTH_HEADER_BEARER} {INFERENCE_API_KEY}"
 
     async with httpx.AsyncClient(
         base_url=INFERENCE_BASE_URL,
@@ -225,14 +236,14 @@ def chat_request_factory() -> Any:
         @staticmethod
         def simple(
             message: str = "Hello, how are you?",
-            model: str = "llama-3.2-3b",
+            model: str = TEST_MODEL_LLAMA,
             max_tokens: int = 100,
         ) -> dict[str, Any]:
             """Create a simple chat request."""
             return {
                 "model": model,
                 "messages": [
-                    {"role": "user", "content": message}
+                    {"role": ROLE_USER, "content": message}
                 ],
                 "max_tokens": max_tokens,
                 "stream": False,
@@ -242,15 +253,15 @@ def chat_request_factory() -> Any:
         def with_system(
             system: str,
             message: str,
-            model: str = "llama-3.2-3b",
+            model: str = TEST_MODEL_LLAMA,
             max_tokens: int = 100,
         ) -> dict[str, Any]:
             """Create a chat request with system message."""
             return {
                 "model": model,
                 "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": message},
+                    {"role": ROLE_SYSTEM, "content": system},
+                    {"role": ROLE_USER, "content": message},
                 ],
                 "max_tokens": max_tokens,
                 "stream": False,
@@ -259,14 +270,14 @@ def chat_request_factory() -> Any:
         @staticmethod
         def streaming(
             message: str = "Count from 1 to 5",
-            model: str = "llama-3.2-3b",
+            model: str = TEST_MODEL_LLAMA,
             max_tokens: int = 100,
         ) -> dict[str, Any]:
             """Create a streaming chat request."""
             return {
                 "model": model,
                 "messages": [
-                    {"role": "user", "content": message}
+                    {"role": ROLE_USER, "content": message}
                 ],
                 "max_tokens": max_tokens,
                 "stream": True,
@@ -276,14 +287,14 @@ def chat_request_factory() -> Any:
         def orchestrated(
             message: str,
             mode: str = "critique",
-            model: str = "phi-4",
+            model: str = TEST_MODEL_PHI4,
             max_tokens: int = 200,
         ) -> dict[str, Any]:
             """Create an orchestrated chat request."""
             return {
                 "model": model,
                 "messages": [
-                    {"role": "user", "content": message}
+                    {"role": ROLE_USER, "content": message}
                 ],
                 "max_tokens": max_tokens,
                 "stream": False,
@@ -293,15 +304,15 @@ def chat_request_factory() -> Any:
         @staticmethod
         def code_task(
             message: str,
-            model: str = "phi-4",
+            model: str = TEST_MODEL_PHI4,
             max_tokens: int = 500,
         ) -> dict[str, Any]:
             """Create a code generation request."""
             return {
                 "model": model,
                 "messages": [
-                    {"role": "system", "content": "You are a helpful coding assistant."},
-                    {"role": "user", "content": message},
+                    {"role": ROLE_SYSTEM, "content": "You are a helpful coding assistant."},
+                    {"role": ROLE_USER, "content": message},
                 ],
                 "max_tokens": max_tokens,
                 "stream": False,

@@ -5,6 +5,23 @@
 # Reference: docs/ARCHITECTURE.md → Docker Health Check
 # ==============================================================================
 #
+# ⚠️ IMPORTANT: Docker on macOS Performance Warning
+# Docker Desktop runs in a Linux VM which CANNOT access Apple's Metal GPU.
+# This means inference runs on CPU only (~50-100x slower than native).
+#
+# For Mac development, use ./run_native.sh instead for Metal acceleration.
+# Docker is recommended for:
+#   - Linux server deployment (with CUDA profile)
+#   - CI/CD pipelines
+#   - Reproducible builds
+#   - Integration testing (where speed isn't critical)
+#
+# Performance Comparison:
+#   Native (Metal): 30-100 tokens/second, "Hello" in <1 second
+#   Docker (CPU):   0.04 tokens/second, "Hello" in 3-4 minutes
+#
+# ==============================================================================
+#
 # Usage:
 #   docker-compose -f docker/docker-compose.yml up -d          # Start service
 #   docker-compose -f docker/docker-compose.yml up --build     # Rebuild and start

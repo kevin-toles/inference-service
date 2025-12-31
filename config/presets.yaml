@@ -75,6 +75,23 @@ single:
     description: "High-capacity code generation"
     hardware: "Server (24GB+ VRAM)"
 
+  S9:
+    name: "Qwen3 8B Solo"
+    models: [qwen3-8b]
+    total_size_gb: 4.7
+    orchestration_mode: single
+    description: "General-purpose Qwen3, good at code"
+    hardware: "Mac 16GB (light)"
+
+  S10:
+    name: "Qwen3 Coder 30B MoE Solo"
+    models: [qwen3-coder-30b-a3b]
+    total_size_gb: 14.0
+    orchestration_mode: single
+    description: "MoE code specialist - 30.5B total, 3.3B active per token"
+    hardware: "Mac 16GB (full) - MoE enables efficient inference"
+    notes: "Despite 14GB size, MoE architecture only activates 3.3B params per token"
+
 # =============================================================================
 # Dual (D) - 2 Models
 # =============================================================================
@@ -121,6 +138,17 @@ dual:
       qwen2.5-7b: generator
       deepseek-r1-7b: critic
     description: "Code generation with chain-of-thought critique"
+    hardware: "Mac 16GB (comfortable)"
+
+  D4v2:
+    name: "Thinking + Code (Qwen3)"
+    models: [deepseek-r1-7b, qwen3-8b]
+    total_size_gb: 9.4
+    orchestration_mode: critique
+    roles:
+      qwen3-8b: generator
+      deepseek-r1-7b: critic
+    description: "Qwen3-based code generation with chain-of-thought critique - upgraded from D4"
     hardware: "Mac 16GB (comfortable)"
 
   D5:

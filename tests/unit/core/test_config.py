@@ -318,11 +318,11 @@ class TestSettingsOrchestration:
         assert settings.orchestration_mode == "single"
 
     def test_orchestration_mode_validates(self) -> None:
-        """Orchestration mode must be valid."""
+        """Orchestration mode must be valid Literal value."""
         from src.core.config import Settings
 
         env = {**SKIP_VALIDATION_ENV, "INFERENCE_ORCHESTRATION_MODE": "invalid_mode"}
         with patch.dict(os.environ, env, clear=True):
-        settings1 = get_settings()
-        settings2 = get_settings()
-        assert settings1 is settings2
+            with pytest.raises(ValidationError) as exc_info:
+                Settings()
+        assert "orchestration_mode" in str(exc_info.value).lower()

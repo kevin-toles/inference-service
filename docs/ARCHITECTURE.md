@@ -1,8 +1,8 @@
 # Inference Service Architecture
 
-> **Version:** 1.3.0  
-> **Last Updated:** 2025-12-27  
-> **Status:** Design Phase (Validated)
+> **Version:** 1.4.0  
+> **Last Updated:** 2025-12-31  
+> **Status:** Implementation Phase
 
 ## Table of Contents
 
@@ -153,18 +153,16 @@ inference-service/
 └── README.md
 ```
 
-### ai-models Repository
+### ai-models Repository (Storage Only)
+
+> **⚠️ Configuration Ownership**: inference-service is the **single source of truth** for all model configuration. The ai-models repo is **storage-only** - it contains the actual .gguf files and download scripts, but NO configuration files.
 
 ```
 ai-models/
 ├── .gitignore                   # Ignores *.gguf, *.safetensors, etc.
 ├── README.md
-├── config/
-│   ├── models.yaml              # Model registry (metadata)
-│   └── configs.yaml             # 33 configuration presets
 ├── scripts/
-│   ├── download_models.py       # Hugging Face download helper
-│   └── verify_models.py         # SHA256 verification
+│   └── download_models.py       # Hugging Face download helper (self-contained)
 └── models/                      # GITIGNORED - actual model files
     ├── phi-4/
     │   └── phi-4-Q4_K_S.gguf
@@ -172,6 +170,10 @@ ai-models/
     │   └── DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf
     ├── qwen2.5-7b/
     │   └── qwen2.5-7b-instruct-q4_k_m.gguf
+    ├── qwen3-8b/                                        # NEW
+    │   └── Qwen3-8B-Q4_K_M.gguf
+    ├── qwen3-coder-30b-a3b/                             # NEW (MoE)
+    │   └── Qwen3-Coder-30B-A3B-Instruct-Q3_K_M.gguf
     ├── llama-3.2-3b/
     │   └── llama-3.2-3b-instruct-q4_k_m.gguf
     ├── phi-3-medium-128k/
@@ -183,6 +185,13 @@ ai-models/
     └── granite-20b-code/
         └── granite-20b-code-instruct.Q4_K_M.gguf
 ```
+
+### Configuration Ownership Summary
+
+| Repo | Contains | Does NOT Contain |
+|------|----------|------------------|
+| **inference-service** | `models.yaml` (metadata, gpu_layers, context_length, roles), `presets.yaml` (35+ presets) | Model files |
+| **ai-models** | `.gguf` model files, download scripts | Configuration files |
 
 ---
 
@@ -478,6 +487,8 @@ GET /v1/models
 |-------|--------------|-----------------|----------|
 | `llama-3.2-3b` | `fast` | `primary` | Quick drafts, simple queries |
 | `qwen2.5-7b` | `coder` | `primary` | Code generation, technical tasks |
+| `qwen3-8b` | `coder` | `primary` | Code generation, D4v2 preset with deepseek |
+| `qwen3-coder-30b-a3b` | `coder` | `primary`, `thinker` | Standalone MoE code generation (3.3B active) |
 | `deepseek-r1-7b` | `thinker` | `primary` | Chain-of-thought, complex reasoning |
 | `granite-8b-code-128k` | `coder` | `longctx` | Full-file code analysis, 128K context |
 | `phi-4` | `primary` | `thinker`, `coder` | General reasoning, summarization |
@@ -526,12 +537,16 @@ Context window management is critical for multi-model orchestration. Key insight
 |-------|---------|---------------|-----------------|
 | llama-3.2-3b | 8K | ~6K after system | ~4K output |
 | qwen2.5-7b | 32K | ~28K after system | ~16K output |
+| qwen3-8b | 32K | ~28K after system | ~16K output |
+| qwen3-coder-30b-a3b | 32K* | ~28K after system | ~16K output |
 | deepseek-r1-7b | 32K | ~28K after system | ~16K output |
 | granite-8b-code-128k | 128K | ~120K after system | ~64K output |
 | phi-4 | 16K | ~14K after system | ~8K output |
 | phi-3-medium-128k | 128K | ~120K after system | ~64K output |
 | gpt-oss-20b | 32K | ~28K after system | ~16K output |
 | granite-20b-code | 8K | ~6K after system | ~4K output |
+
+> *Note: qwen3-coder-30b-a3b supports 256K native context (extendable to 1M), reduced to 32K for safe Mac 16GB operation.
 
 ### Context Budget Allocation
 

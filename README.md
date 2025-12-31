@@ -65,6 +65,41 @@ cp .env.example .env
 
 ### Running the Service
 
+#### Option 1: Native Mode (Mac - Recommended for Development)
+
+**50-100x faster** than Docker on Mac - uses Metal GPU acceleration.
+
+```bash
+# Start with Metal acceleration (default D4 preset)
+./run_native.sh
+
+# Or with a specific preset
+./run_native.sh S1
+```
+
+**Performance comparison:**
+
+| Mode | Tokens/sec | "Hello" Response |
+|------|------------|------------------|
+| Native (Metal) | 30-100 tok/s | <1 second |
+| Docker (CPU) | 0.04 tok/s | 3-4 minutes |
+
+#### Option 2: Docker Mode (CI/CD, Linux Servers)
+
+For deployment to Linux servers or CI/CD pipelines:
+
+```bash
+# Start with Docker
+docker-compose -f docker/docker-compose.yml up -d
+
+# Or with CUDA GPU support
+docker-compose -f docker/docker-compose.yml --profile cuda up -d
+```
+
+> ⚠️ **Note:** Docker on macOS runs in a Linux VM which **cannot access Metal GPU**. Docker containers on Mac will use CPU-only inference (~50-100x slower). Use native mode for Mac development.
+
+#### Option 3: Manual Uvicorn
+
 ```bash
 # Start with default configuration
 uvicorn src.main:app --host 0.0.0.0 --port 8085 --reload

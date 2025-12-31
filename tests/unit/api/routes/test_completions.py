@@ -187,8 +187,8 @@ def mock_provider() -> MagicMock:
 def mock_model_manager(mock_provider: MagicMock) -> MagicMock:
     """Create mock ModelManager."""
     manager = MagicMock()
-    # get_provider is async, so use AsyncMock
-    manager.get_provider = AsyncMock(return_value=mock_provider)
+    # get_provider is NOT async in the actual code (completions.py line 156)
+    manager.get_provider.return_value = mock_provider
     manager.get_loaded_models.return_value = [MODEL_PHI4]
     return manager
 
@@ -655,7 +655,8 @@ class TestOrchestrationMetadata:
         provider.generate = AsyncMock(return_value=mock_response_with_orchestration)
 
         manager = MagicMock()
-        manager.get_provider = AsyncMock(return_value=provider)
+        # get_provider is NOT async in the actual code (completions.py line 156)
+        manager.get_provider.return_value = provider
         manager.get_loaded_models.return_value = [MODEL_PHI4, MODEL_DEEPSEEK]
 
         app = FastAPI()

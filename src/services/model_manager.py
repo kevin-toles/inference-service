@@ -240,11 +240,17 @@ class ModelManager:
                 raise ModelNotAvailableError(msg)
 
             # Create and load provider
+            # GPU layers priority: per-model config > global env > default (-1)
+            # Values: -1 = all GPU (Metal), 0 = CPU only, N = hybrid (N layers on GPU)
+            from src.core.config import get_settings
+            global_gpu_layers = get_settings().gpu_layers
+            model_gpu_layers = config.get("gpu_layers", global_gpu_layers)
+            
             provider = LlamaCppProvider(
                 model_path=model_path,
                 model_id=model_id,
                 context_length=config.get("context_length", 2048),
-                n_gpu_layers=-1,  # Metal acceleration on Mac (AP-5.5)
+                n_gpu_layers=model_gpu_layers,  # AC-5.5: per-model GPU layer control
             )
             await provider.load()
 

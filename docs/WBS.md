@@ -828,7 +828,25 @@ D4:
     qwen2.5-7b: generator     # Creates initial code/response
     deepseek-r1-7b: critic    # Chain-of-thought critique
   hardware: "Mac 16GB (comfortable)"
+
+# D4v2 - Upgraded with Qwen3 (added 2025-12-31)
+D4v2:
+  name: "Thinking + Code (Qwen3)"
+  models: [deepseek-r1-7b, qwen3-8b]
+  total_size_gb: 9.4
+  orchestration_mode: critique
+  roles:
+    qwen3-8b: generator       # Qwen3-based code generation
+    deepseek-r1-7b: critic    # Chain-of-thought critique
+  hardware: "Mac 16GB (comfortable)"
 ```
+
+### Qwen3 Model Options (Added 2025-12-31)
+
+| Model | Size | Type | Use Case |
+|-------|------|------|----------|
+| qwen3-8b | 4.7GB | Dense | D4v2 preset - pair with deepseek for critique mode |
+| qwen3-coder-30b-a3b | 14GB | MoE | S10 standalone - 3.3B active params per token |
 
 ### Model Connectivity Tests
 

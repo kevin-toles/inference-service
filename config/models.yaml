@@ -13,7 +13,7 @@ models:
     description: "General reasoning, summarization, coding"
     file: "phi-4/phi-4-Q4_K_S.gguf"
     size_gb: 8.4
-    context_length: 16384
+    context_length: 4096  # Reduced - full 16K context needs more RAM
     quantization: "Q4_K_S"
     source:
       repo: "microsoft/phi-4-gguf"
@@ -22,7 +22,9 @@ models:
       - primary
       - thinker
       - coder
-    recommended_gpu_layers: -1  # All layers on GPU
+    # GPU layers: -1=all GPU (Metal), 0=CPU only, N=hybrid (N layers on GPU)
+    # phi-4 has 40 layers. Optimal for 16GB Mac: 35 GPU + 5 CPU = best speed
+    gpu_layers: 35  # Optimal hybrid: 35/40 layers on GPU (~26s vs 57s CPU-only)
 
   deepseek-r1-7b:
     name: "DeepSeek R1 Distill 7B"
@@ -36,7 +38,7 @@ models:
       filename: "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf"
     roles:
       - thinker
-    recommended_gpu_layers: -1
+    gpu_layers: -1  # All layers on GPU (Metal)
 
   qwen2.5-7b:
     name: "Qwen 2.5 7B Instruct"
@@ -52,7 +54,7 @@ models:
       - coder
       - primary
       - fast
-    recommended_gpu_layers: -1
+    gpu_layers: -1  # All layers on GPU (Metal)
 
   llama-3.2-3b:
     name: "Llama 3.2 3B Instruct"
@@ -66,14 +68,14 @@ models:
       filename: "llama-3.2-3b-instruct-q4_k_m.gguf"
     roles:
       - fast
-    recommended_gpu_layers: -1
+    gpu_layers: -1  # All layers on GPU (Metal)
 
   phi-3-medium-128k:
     name: "Phi-3 Medium 128K Instruct"
     description: "Long context processing (128K), document analysis"
     file: "phi-3-medium-128k/Phi-3-medium-128k-instruct-Q4_K_M.gguf"
     size_gb: 8.6
-    context_length: 131072
+    context_length: 8192  # Reduced - full 128K needs 32GB+ RAM
     quantization: "Q4_K_M"
     source:
       repo: "bartowski/Phi-3-medium-128k-instruct-GGUF"
@@ -81,7 +83,8 @@ models:
     roles:
       - longctx
       - thinker
-    recommended_gpu_layers: -1
+    gpu_layers: 0  # CPU-only - 8.6GB model needs CPU mode on 16GB Mac
+    notes: "Full 128K context requires 32GB+ RAM"
 
   gpt-oss-20b:
     name: "GPT-OSS 20B"
@@ -96,15 +99,15 @@ models:
     roles:
       - primary
       - thinker
-    recommended_gpu_layers: -1
-    notes: "Requires >16GB RAM/VRAM - server deployment only"
+    gpu_layers: -1  # All layers on GPU (requires 24GB+ VRAM)
+    notes: "Requires >24GB RAM/VRAM - server deployment only"
 
   granite-8b-code-128k:
     name: "IBM Granite 8B Code Instruct 128K"
     description: "Code-focused model with 128K context for full-file analysis"
     file: "granite-8b-code-128k/granite-8b-code-instruct-128k.Q4_K_M.gguf"
     size_gb: 4.5
-    context_length: 131072
+    context_length: 8192  # Reduced - full 128K needs 32GB+ RAM
     quantization: "Q4_K_M"
     source:
       repo: "mradermacher/granite-8b-code-instruct-128k-GGUF"
@@ -112,7 +115,8 @@ models:
     roles:
       - coder
       - longctx
-    recommended_gpu_layers: -1
+    gpu_layers: -1  # Fits in GPU at reduced context
+    notes: "Full 128K context requires 32GB+ RAM"
 
   granite-20b-code:
     name: "IBM Granite 20B Code Instruct"
@@ -127,8 +131,8 @@ models:
     roles:
       - coder
       - thinker
-    recommended_gpu_layers: -1
-    notes: "Requires >16GB RAM/VRAM - server deployment only"
+    gpu_layers: -1  # All layers on GPU (requires 24GB+ VRAM)
+    notes: "Requires >24GB RAM/VRAM - server deployment only"
 
 # =============================================================================
 # Role Definitions
