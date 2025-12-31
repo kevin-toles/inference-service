@@ -546,6 +546,8 @@ ALL_MODELS = [
     {"id": "llama-3.2-3b", "size_gb": 2.0, "purpose": "Fast"},
     {"id": "phi-3-medium-128k", "size_gb": 8.6, "purpose": "Long Context"},
     {"id": "granite-8b-code-128k", "size_gb": 4.5, "purpose": "Code Analysis"},
+    {"id": "qwen3-8b", "size_gb": 4.9, "purpose": "Balanced Reasoning"},
+    {"id": "qwen3-coder-30b", "size_gb": 14.2, "purpose": "Advanced Coding"},
 ]
 
 

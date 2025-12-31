@@ -134,6 +134,41 @@ models:
     gpu_layers: -1  # All layers on GPU (requires 24GB+ VRAM)
     notes: "Requires >24GB RAM/VRAM - server deployment only"
 
+  # =========================================================================
+  # Qwen3 Models (New - December 2025)
+  # =========================================================================
+  qwen3-8b:
+    name: "Qwen3 8B"
+    description: "Alibaba Qwen3 8B - balanced reasoning and instruction following"
+    file: "qwen3-8b/Qwen3-8B-Q4_K_M.gguf"
+    size_gb: 4.9
+    context_length: 4096  # Reduced - full 32K needs more RAM
+    quantization: "Q4_K_M"
+    source:
+      repo: "unsloth/Qwen3-8B-GGUF"
+      filename: "Qwen3-8B-Q4_K_M.gguf"
+    roles:
+      - primary
+      - thinker
+      - fast
+    gpu_layers: 28  # Hybrid: 28 layers on GPU for 16GB Mac
+
+  qwen3-coder-30b:
+    name: "Qwen3 Coder 30B A3B Instruct"
+    description: "Alibaba Qwen3 Coder 30B - advanced code generation and analysis"
+    file: "qwen3-coder-30b-a3b/Qwen3-Coder-30B-A3B-Instruct-Q3_K_M.gguf"
+    size_gb: 14.2
+    context_length: 4096  # Reduced - full 32K requires 48GB+ RAM
+    quantization: "Q3_K_M"
+    source:
+      repo: "unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF"
+      filename: "Qwen3-Coder-30B-A3B-Instruct-Q3_K_M.gguf"
+    roles:
+      - coder
+      - thinker
+    gpu_layers: 0  # CPU only - 14GB model needs CPU mode on 16GB Mac
+    notes: "Requires >24GB RAM/VRAM for GPU - CPU mode on consumer hardware"
+
 # =============================================================================
 # Role Definitions
 # =============================================================================

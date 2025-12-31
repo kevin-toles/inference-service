@@ -309,6 +309,35 @@ class TestIndividualModels:
         assert response["choices"][0]["message"]["content"].strip()
         assert response["usage"]["total_tokens"] > 0
 
+    @pytest.mark.asyncio
+    async def test_qwen3_8b_connectivity(self, client: httpx.AsyncClient) -> None:
+        """Test qwen3-8b responds to prompts (new Qwen3 model)."""
+        model_id = "qwen3-8b"
+        if not await check_model_available(client, model_id):
+            pytest.skip(f"Model {model_id} not available")
+        if not await load_model(client, model_id):
+            pytest.skip(f"Could not load {model_id}")
+
+        response = await send_hello_prompt(client, model_id)
+        assert response["choices"][0]["message"]["content"].strip()
+        assert response["usage"]["total_tokens"] > 0
+
+    @pytest.mark.asyncio
+    @pytest.mark.slow
+    async def test_qwen3_coder_30b_connectivity(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        """Test qwen3-coder-30b responds to prompts (large model - slow)."""
+        model_id = "qwen3-coder-30b"
+        if not await check_model_available(client, model_id):
+            pytest.skip(f"Model {model_id} not available")
+        if not await load_model(client, model_id):
+            pytest.skip(f"Could not load {model_id}")
+
+        response = await send_hello_prompt(client, model_id, request_timeout=180.0)
+        assert response["choices"][0]["message"]["content"].strip()
+        assert response["usage"]["total_tokens"] > 0
+
 
 # =============================================================================
 # Deployment Summary Test
