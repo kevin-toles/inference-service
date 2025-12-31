@@ -5,6 +5,7 @@ Patterns applied:
 - configure_logging() called ONCE in lifespan startup
 - Health endpoints for K8s probes (/health, /health/ready)
 - Docs disabled in production
+- Auto-load default preset on startup (INFERENCE_DEFAULT_PRESET env var)
 
 Reference: WBS-INF2 AC-2.3, WBS-INF7
 """
@@ -20,6 +21,7 @@ from src.api.routes.health import router as health_router
 from src.api.routes.models import router as models_router
 from src.core.config import get_settings
 from src.core.logging import configure_logging, get_logger
+from src.services.model_manager import ModelManager, get_model_manager
 
 
 # =============================================================================
@@ -67,6 +69,44 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     app.state.initialized = True
     app.state.environment = settings.environment
     app.state.service_name = settings.service_name
+
+    # =========================================================================
+    # Auto-load default preset if configured
+    # =========================================================================
+    # Initialize model manager and store in app state for route access
+    model_manager = get_model_manager()
+    app.state.model_manager = model_manager
+
+    if settings.default_preset:
+        logger.info(
+            "Auto-loading default preset on startup",
+            preset=settings.default_preset,
+        )
+        try:
+            result = await model_manager.load_preset(settings.default_preset)
+            logger.info(
+                "Default preset loaded successfully",
+                preset=result.preset_id,
+                models=result.models_loaded,
+                memory_gb=result.total_memory_gb,
+                orchestration_mode=result.orchestration_mode,
+            )
+            app.state.current_preset = result.preset_id
+            app.state.models_loaded = result.models_loaded
+        except Exception as e:
+            logger.error(
+                "Failed to load default preset - service will start without models",
+                preset=settings.default_preset,
+                error=str(e),
+            )
+            app.state.current_preset = None
+            app.state.models_loaded = []
+    else:
+        logger.info(
+            "No default preset configured - set INFERENCE_DEFAULT_PRESET to auto-load models"
+        )
+        app.state.current_preset = None
+        app.state.models_loaded = []
 
     yield
 

@@ -13,10 +13,24 @@ Reference: WBS-INF2 AC-2.1, AC-2.4
 """
 
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings
+
+from src.core.constants import (
+    CONTAINER_CONFIG_DIR,
+    CONTAINER_MODELS_DIR,
+    DEFAULT_BACKEND,
+    DEFAULT_ENVIRONMENT,
+    DEFAULT_GPU_LAYERS,
+    DEFAULT_HOST,
+    DEFAULT_LOG_LEVEL,
+    DEFAULT_ORCHESTRATION_MODE,
+    DEFAULT_PORT,
+    DEFAULT_SERVICE_NAME,
+)
 
 
 class Settings(BaseSettings):
@@ -41,25 +55,25 @@ class Settings(BaseSettings):
     # Core Settings
     # =========================================================================
     service_name: str = Field(
-        default="inference-service",
+        default=DEFAULT_SERVICE_NAME,
         description="Service name for identification",
     )
     port: int = Field(
-        default=8085,
+        default=DEFAULT_PORT,
         ge=1,
         le=65535,
         description="HTTP server port",
     )
     host: str = Field(
-        default="0.0.0.0",
+        default=DEFAULT_HOST,
         description="HTTP server bind address",
     )
     environment: Literal["development", "staging", "production"] = Field(
-        default="development",
+        default=DEFAULT_ENVIRONMENT,
         description="Deployment environment",
     )
     log_level: str = Field(
-        default="INFO",
+        default=DEFAULT_LOG_LEVEL,
         description="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
     )
 
@@ -67,15 +81,19 @@ class Settings(BaseSettings):
     # Model Configuration
     # =========================================================================
     models_dir: str = Field(
-        default="/models",
+        default=CONTAINER_MODELS_DIR,
         description="Path to directory containing GGUF model files",
     )
+    config_dir: str = Field(
+        default=CONTAINER_CONFIG_DIR,
+        description="Path to directory containing config files (models.yaml, presets.yaml)",
+    )
     gpu_layers: int = Field(
-        default=-1,
+        default=DEFAULT_GPU_LAYERS,
         description="Number of layers to offload to GPU (-1 = all)",
     )
     backend: Literal["llamacpp", "vllm"] = Field(
-        default="llamacpp",
+        default=DEFAULT_BACKEND,
         description="Inference backend to use",
     )
 
@@ -85,8 +103,24 @@ class Settings(BaseSettings):
     orchestration_mode: Literal[
         "single", "critique", "debate", "ensemble", "pipeline"
     ] = Field(
-        default="single",
+        default=DEFAULT_ORCHESTRATION_MODE,
         description="Multi-model orchestration mode",
+    )
+
+    # =========================================================================
+    # Auto-Load Preset on Startup
+    # =========================================================================
+    default_preset: str | None = Field(
+        default=None,
+        description="Preset to auto-load on startup (e.g., 'D4', 'S1'). If not set, no models are loaded.",
+    )
+
+    # =========================================================================
+    # Testing/Development Options
+    # =========================================================================
+    skip_path_validation: bool = Field(
+        default=False,
+        description="Skip path existence validation (for testing only)",
     )
 
     # =========================================================================
@@ -121,6 +155,49 @@ class Settings(BaseSettings):
             msg = f"log_level must be one of {valid_levels}, got '{v}'"
             raise ValueError(msg)
         return normalized
+
+    @model_validator(mode="after")
+    def validate_paths_exist(self) -> "Settings":
+        """Validate that configured paths exist.
+
+        This helps catch misconfiguration early during startup rather than
+        failing silently later when trying to load models.
+
+        Skipped when skip_path_validation=True (for testing).
+
+        Returns:
+            Self if validation passes.
+
+        Raises:
+            ValueError: If models_dir or config_dir does not exist.
+        """
+        # Allow skipping for tests
+        if self.skip_path_validation:
+            return self
+
+        models_path = Path(self.models_dir)
+        config_path = Path(self.config_dir)
+
+        # Collect all path errors for a single, helpful error message
+        errors: list[str] = []
+
+        if not models_path.exists():
+            errors.append(
+                f"models_dir '{self.models_dir}' does not exist. "
+                f"Set INFERENCE_MODELS_DIR or mount volume to '{self.models_dir}'"
+            )
+
+        if not config_path.exists():
+            errors.append(
+                f"config_dir '{self.config_dir}' does not exist. "
+                f"Set INFERENCE_CONFIG_DIR or mount volume to '{self.config_dir}'"
+            )
+
+        if errors:
+            msg = "Path configuration error(s):\n  - " + "\n  - ".join(errors)
+            raise ValueError(msg)
+
+        return self
 
 
 @lru_cache

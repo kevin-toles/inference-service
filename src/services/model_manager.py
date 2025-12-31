@@ -398,5 +398,55 @@ class ModelManager:
         if not filename:
             return None
 
-        model_path: Path = self.models_dir / model_id / filename
+        # filename can include subdirectory (e.g., "deepseek-r1-7b/model.gguf")
+        model_path: Path = self.models_dir / filename
         return model_path
+
+
+# =============================================================================
+# Singleton Instance
+# =============================================================================
+
+_model_manager: ModelManager | None = None
+
+
+def get_model_manager() -> ModelManager:
+    """Get singleton ModelManager instance.
+
+    Auto-initializes from config files on first call.
+
+    Returns:
+        The shared ModelManager instance.
+    """
+    global _model_manager
+    if _model_manager is None:
+        import yaml
+
+        from src.core.config import get_settings
+
+        settings = get_settings()
+        models_dir = Path(settings.models_dir)
+        config_dir = Path(settings.config_dir)
+
+        # Load model configs
+        models_yaml = config_dir / "models.yaml"
+        model_configs: dict[str, Any] = {}
+        if models_yaml.exists():
+            with open(models_yaml) as f:
+                data = yaml.safe_load(f) or {}
+                model_configs = data.get("models", {})
+
+        # Load presets
+        presets_yaml = config_dir / "presets.yaml"
+        config_presets: dict[str, Any] = {}
+        if presets_yaml.exists():
+            with open(presets_yaml) as f:
+                config_presets = yaml.safe_load(f) or {}
+
+        _model_manager = ModelManager(
+            models_dir=models_dir,
+            model_configs=model_configs,
+            config_presets=config_presets,
+            memory_limit_gb=16.0,  # Default, override via settings if needed
+        )
+    return _model_manager

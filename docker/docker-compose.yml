@@ -19,6 +19,10 @@
 # GPU Support (requires nvidia-docker):
 #   docker-compose -f docker/docker-compose.yml --profile cuda up -d
 #
+# Environment Variables (set in .env file or export):
+#   MODELS_PATH      - Host path to models directory (default: ../models)
+#   INFERENCE_DEFAULT_PRESET - Preset to auto-load on startup (default: D4)
+#
 # ==============================================================================
 
 services:
@@ -33,22 +37,42 @@ services:
     ports:
       - "8085:8085"
     environment:
-      # Service configuration
+      # =======================================================================
+      # Core Service Configuration
+      # These map directly to src/core/config.py Settings class fields
+      # All env vars use INFERENCE_ prefix (config.py: env_prefix = "INFERENCE_")
+      # =======================================================================
       INFERENCE_PORT: "8085"
       INFERENCE_LOG_LEVEL: "INFO"
-      INFERENCE_WORKERS: "1"
-      # Model configuration
-      INFERENCE_MODEL_DIR: "/app/models"
-      INFERENCE_DEFAULT_MODEL: "llama-3.2-3b"
-      INFERENCE_N_GPU_LAYERS: "0"
-      INFERENCE_N_CTX: "4096"
-      # Orchestration
-      INFERENCE_CONFIG_PRESET: "D1"
+      INFERENCE_ENVIRONMENT: "development"
+      
+      # =======================================================================
+      # Path Configuration
+      # MUST match the volume mount targets below
+      # Defaults defined in src/core/constants.py
+      # =======================================================================
+      # INFERENCE_MODELS_DIR: Uses default from constants.py (/app/models)
+      # INFERENCE_CONFIG_DIR: Uses default from constants.py (/app/config)
+      
+      # =======================================================================
+      # Model/Inference Configuration
+      # =======================================================================
+      INFERENCE_GPU_LAYERS: "0"  # CPU only (use -1 for Metal/CUDA)
+      INFERENCE_BACKEND: "llamacpp"
       INFERENCE_ORCHESTRATION_MODE: "single"
+      
+      # =======================================================================
+      # Auto-Load Preset on Startup
+      # See config/presets.yaml for available presets
+      # Options: S1-S8 (single), D1-D15 (dual), T1-T13 (triple), Q1-Q7 (quad)
+      # D4 = deepseek-r1-7b + qwen2.5-7b in critique mode
+      # =======================================================================
+      INFERENCE_DEFAULT_PRESET: "${INFERENCE_DEFAULT_PRESET:-D4}"
     volumes:
-      # Mount local models directory
+      # Mount local models directory → container /app/models
+      # Host path set via MODELS_PATH env var or defaults to ../models
       - ${MODELS_PATH:-../models}:/app/models:ro
-      # Mount config for hot reload
+      # Mount config for hot reload → container /app/config
       - ../config:/app/config:ro
     # Health check per ARCHITECTURE.md specification
     healthcheck:
@@ -82,18 +106,18 @@ services:
     ports:
       - "8085:8085"
     environment:
-      # Service configuration
+      # Core Service Configuration
       INFERENCE_PORT: "8085"
       INFERENCE_LOG_LEVEL: "INFO"
-      INFERENCE_WORKERS: "1"
-      # Model configuration - GPU enabled
-      INFERENCE_MODEL_DIR: "/app/models"
-      INFERENCE_DEFAULT_MODEL: "llama-3.2-3b"
-      INFERENCE_N_GPU_LAYERS: "-1"
-      INFERENCE_N_CTX: "8192"
-      # Orchestration
-      INFERENCE_CONFIG_PRESET: "D1"
+      INFERENCE_ENVIRONMENT: "development"
+      
+      # Model/Inference Configuration - GPU enabled
+      INFERENCE_GPU_LAYERS: "-1"  # All layers on GPU
+      INFERENCE_BACKEND: "llamacpp"
       INFERENCE_ORCHESTRATION_MODE: "single"
+      
+      # Auto-load preset
+      INFERENCE_DEFAULT_PRESET: "${INFERENCE_DEFAULT_PRESET:-D4}"
     volumes:
       # Mount local models directory
       - ${MODELS_PATH:-../models}:/app/models:ro

@@ -67,9 +67,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     INFERENCE_WORKERS=1
 
 # Install runtime dependencies
+# libgomp1 is required by llama-cpp-python for OpenMP parallelism
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 

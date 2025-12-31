@@ -1,0 +1,453 @@
+# =============================================================================
+# Model Configuration Presets
+# =============================================================================
+# 33 configurations for different hardware and use cases.
+# Set INFERENCE_CONFIG=<config_id> to use a preset.
+# =============================================================================
+
+version: "1.0.0"
+
+# =============================================================================
+# Single (S) - 1 Model
+# =============================================================================
+single:
+  S1:
+    name: "Phi-4 Solo"
+    models: [phi-4]
+    total_size_gb: 8.4
+    orchestration_mode: single
+    description: "General reasoning, summarization"
+    hardware: "Mac 16GB (safe)"
+
+  S2:
+    name: "DeepSeek Solo"
+    models: [deepseek-r1-7b]
+    total_size_gb: 4.7
+    orchestration_mode: single
+    description: "Chain-of-thought reasoning"
+    hardware: "Mac 16GB (light)"
+
+  S3:
+    name: "Qwen Solo"
+    models: [qwen2.5-7b]
+    total_size_gb: 4.5
+    orchestration_mode: single
+    description: "Code generation"
+    hardware: "Mac 16GB (light)"
+
+  S4:
+    name: "Llama Fast Solo"
+    models: [llama-3.2-3b]
+    total_size_gb: 2.0
+    orchestration_mode: single
+    description: "Fast simple queries"
+    hardware: "Mac 16GB (minimal)"
+
+  S5:
+    name: "Phi-3 Long Context Solo"
+    models: [phi-3-medium-128k]
+    total_size_gb: 8.6
+    orchestration_mode: single
+    description: "Long document analysis (128K context)"
+    hardware: "Mac 16GB (safe)"
+
+  S6:
+    name: "Granite 8B Code 128K Solo"
+    models: [granite-8b-code-128k]
+    total_size_gb: 4.5
+    orchestration_mode: single
+    description: "Full-file code analysis (128K context)"
+    hardware: "Mac 16GB (comfortable)"
+
+  S7:
+    name: "GPT-OSS 20B Solo (Server Only)"
+    models: [gpt-oss-20b]
+    total_size_gb: 11.6
+    orchestration_mode: single
+    description: "High-capacity general reasoning"
+    hardware: "Server (24GB+ VRAM)"
+
+  S8:
+    name: "Granite 20B Code Solo (Server Only)"
+    models: [granite-20b-code]
+    total_size_gb: 12.8
+    orchestration_mode: single
+    description: "High-capacity code generation"
+    hardware: "Server (24GB+ VRAM)"
+
+# =============================================================================
+# Dual (D) - 2 Models
+# =============================================================================
+dual:
+  D1:
+    name: "Quality + Speed"
+    models: [phi-4, llama-3.2-3b]
+    total_size_gb: 10.4
+    orchestration_mode: pipeline
+    roles:
+      llama-3.2-3b: drafter
+      phi-4: validator
+    description: "Fast drafts, quality validation"
+    hardware: "Mac 16GB (comfortable)"
+
+  D2:
+    name: "Reasoning + Code"
+    models: [phi-4, qwen2.5-7b]
+    total_size_gb: 12.9
+    orchestration_mode: critique
+    roles:
+      phi-4: generator
+      qwen2.5-7b: critic
+    description: "General reasoning with code critique"
+    hardware: "Mac 16GB (medium)"
+
+  D3:
+    name: "Reasoning Debate"
+    models: [phi-4, deepseek-r1-7b]
+    total_size_gb: 13.1
+    orchestration_mode: debate
+    roles:
+      phi-4: [generator, reconciler]
+      deepseek-r1-7b: generator
+    description: "Two reasoners debate, phi-4 reconciles"
+    hardware: "Mac 16GB (medium)"
+
+  D4:
+    name: "Thinking + Code"
+    models: [deepseek-r1-7b, qwen2.5-7b]
+    total_size_gb: 9.2
+    orchestration_mode: critique
+    roles:
+      qwen2.5-7b: generator
+      deepseek-r1-7b: critic
+    description: "Code generation with chain-of-thought critique"
+    hardware: "Mac 16GB (comfortable)"
+
+  D5:
+    name: "Code + Fast (Lightweight)"
+    models: [qwen2.5-7b, llama-3.2-3b]
+    total_size_gb: 6.5
+    orchestration_mode: pipeline
+    roles:
+      llama-3.2-3b: drafter
+      qwen2.5-7b: refiner
+    description: "Fast drafts, code refinement"
+    hardware: "Mac 16GB (light)"
+
+  D6:
+    name: "Long Context + Fast"
+    models: [phi-3-medium-128k, llama-3.2-3b]
+    total_size_gb: 9.5
+    orchestration_mode: pipeline
+    roles:
+      llama-3.2-3b: drafter
+      phi-3-medium-128k: expander
+    description: "Quick drafts, long context expansion"
+    hardware: "Mac 16GB (comfortable)"
+
+  D7:
+    name: "Thinking + Fast"
+    models: [deepseek-r1-7b, llama-3.2-3b]
+    total_size_gb: 6.7
+    orchestration_mode: critique
+    roles:
+      llama-3.2-3b: generator
+      deepseek-r1-7b: critic
+    description: "Fast generation with thinking critique"
+    hardware: "Mac 16GB (light)"
+
+  D8:
+    name: "General + Long Context"
+    models: [phi-4, phi-3-medium-128k]
+    total_size_gb: 15.9
+    orchestration_mode: critique
+    roles:
+      phi-3-medium-128k: generator
+      phi-4: critic
+    description: "Long document generation, general critique"
+    hardware: "Mac 16GB (full)"
+
+  D9:
+    name: "Long Context + Code"
+    models: [phi-3-medium-128k, qwen2.5-7b]
+    total_size_gb: 12.0
+    orchestration_mode: critique
+    roles:
+      phi-3-medium-128k: generator
+      qwen2.5-7b: critic
+    description: "Long document analysis with code review"
+    hardware: "Mac 16GB (medium)"
+
+  D10:
+    name: "Long Context Debate"
+    models: [phi-3-medium-128k, deepseek-r1-7b]
+    total_size_gb: 12.2
+    orchestration_mode: debate
+    roles:
+      phi-3-medium-128k: [generator, reconciler]
+      deepseek-r1-7b: generator
+    description: "Long document debate"
+    hardware: "Mac 16GB (medium)"
+
+# =============================================================================
+# Triple (T) - 3 Models
+# =============================================================================
+triple:
+  T1:
+    name: "Pipeline: Draft → Code → Validate"
+    models: [phi-4, qwen2.5-7b, llama-3.2-3b]
+    total_size_gb: 14.9
+    orchestration_mode: pipeline
+    roles:
+      llama-3.2-3b: drafter
+      qwen2.5-7b: refiner
+      phi-4: validator
+    description: "Full pipeline for code tasks"
+    hardware: "Mac 16GB (full)"
+
+  T2:
+    name: "Reasoning Ensemble"
+    models: [phi-4, deepseek-r1-7b, llama-3.2-3b]
+    total_size_gb: 15.1
+    orchestration_mode: ensemble
+    roles:
+      phi-4: [voter, synthesizer]
+      deepseek-r1-7b: voter
+      llama-3.2-3b: voter
+    description: "Three-way voting, phi-4 synthesizes"
+    hardware: "Mac 16GB (full)"
+
+  T3:
+    name: "Pipeline: Think → Code → Draft"
+    models: [deepseek-r1-7b, qwen2.5-7b, llama-3.2-3b]
+    total_size_gb: 11.2
+    orchestration_mode: pipeline
+    roles:
+      llama-3.2-3b: drafter
+      qwen2.5-7b: refiner
+      deepseek-r1-7b: validator
+    description: "Lightweight pipeline (no phi-4)"
+    hardware: "Mac 16GB (medium)"
+
+  T4:
+    name: "Full Reasoning Debate"
+    models: [phi-4, deepseek-r1-7b, qwen2.5-7b]
+    total_size_gb: 17.6
+    orchestration_mode: debate
+    roles:
+      phi-4: [debater, reconciler]
+      deepseek-r1-7b: debater
+      qwen2.5-7b: debater
+    description: "Three-way debate, high quality"
+    hardware: "Server / Mac 16GB (tight)"
+
+  T5:
+    name: "Long Context Pipeline"
+    models: [phi-3-medium-128k, qwen2.5-7b, llama-3.2-3b]
+    total_size_gb: 14.0
+    orchestration_mode: pipeline
+    roles:
+      llama-3.2-3b: drafter
+      qwen2.5-7b: refiner
+      phi-3-medium-128k: expander
+    description: "Documents with code support"
+    hardware: "Mac 16GB (full)"
+
+  T6:
+    name: "General + Long + Fast"
+    models: [phi-4, phi-3-medium-128k, llama-3.2-3b]
+    total_size_gb: 17.9
+    orchestration_mode: pipeline
+    roles:
+      llama-3.2-3b: drafter
+      phi-4: refiner
+      phi-3-medium-128k: expander
+    description: "Versatile pipeline"
+    hardware: "Server / Mac 16GB (tight)"
+
+  T7:
+    name: "General + Long + Code Ensemble"
+    models: [phi-4, phi-3-medium-128k, qwen2.5-7b]
+    total_size_gb: 20.4
+    orchestration_mode: ensemble
+    roles:
+      phi-4: [voter, synthesizer]
+      phi-3-medium-128k: voter
+      qwen2.5-7b: voter
+    description: "Three capabilities voting"
+    hardware: "Server"
+
+  T8:
+    name: "Reasoning Trio Debate"
+    models: [phi-4, phi-3-medium-128k, deepseek-r1-7b]
+    total_size_gb: 20.6
+    orchestration_mode: debate
+    roles:
+      phi-4: [debater, reconciler]
+      phi-3-medium-128k: debater
+      deepseek-r1-7b: debater
+    description: "Deep reasoning debate"
+    hardware: "Server"
+
+  T9:
+    name: "Long + Think + Code Ensemble"
+    models: [phi-3-medium-128k, deepseek-r1-7b, qwen2.5-7b]
+    total_size_gb: 16.7
+    orchestration_mode: ensemble
+    roles:
+      phi-3-medium-128k: [voter, synthesizer]
+      deepseek-r1-7b: voter
+      qwen2.5-7b: voter
+    description: "Specialist ensemble (no general)"
+    hardware: "Server / Mac 16GB (tight)"
+
+  T10:
+    name: "Long Context Think Pipeline"
+    models: [phi-3-medium-128k, deepseek-r1-7b, llama-3.2-3b]
+    total_size_gb: 14.2
+    orchestration_mode: pipeline
+    roles:
+      llama-3.2-3b: drafter
+      deepseek-r1-7b: refiner
+      phi-3-medium-128k: expander
+    description: "Documents with deep thinking"
+    hardware: "Mac 16GB (full)"
+
+# =============================================================================
+# Quad (Q) - 4 Models
+# =============================================================================
+quad:
+  Q1:
+    name: "Full Capability (No Long)"
+    models: [phi-4, deepseek-r1-7b, qwen2.5-7b, llama-3.2-3b]
+    total_size_gb: 19.6
+    orchestration_mode: ensemble
+    roles:
+      phi-4: [voter, synthesizer]
+      deepseek-r1-7b: voter
+      qwen2.5-7b: voter
+      llama-3.2-3b: voter
+    description: "Four-way consensus"
+    hardware: "Server"
+
+  Q2:
+    name: "Full Pipeline + Long"
+    models: [phi-4, phi-3-medium-128k, qwen2.5-7b, llama-3.2-3b]
+    total_size_gb: 22.4
+    orchestration_mode: pipeline
+    roles:
+      llama-3.2-3b: drafter
+      qwen2.5-7b: refiner
+      phi-4: validator
+      phi-3-medium-128k: expander
+    description: "Complete pipeline with long context"
+    hardware: "Server"
+
+  Q3:
+    name: "General + Long + Think + Fast Ensemble"
+    models: [phi-4, phi-3-medium-128k, deepseek-r1-7b, llama-3.2-3b]
+    total_size_gb: 22.6
+    orchestration_mode: ensemble
+    roles:
+      phi-4: [voter, synthesizer]
+      phi-3-medium-128k: voter
+      deepseek-r1-7b: voter
+      llama-3.2-3b: voter
+    description: "Four capabilities ensemble"
+    hardware: "Server"
+
+  Q4:
+    name: "Full Reasoning Debate (No Fast)"
+    models: [phi-4, phi-3-medium-128k, deepseek-r1-7b, qwen2.5-7b]
+    total_size_gb: 25.1
+    orchestration_mode: debate
+    roles:
+      phi-4: [debater, reconciler]
+      phi-3-medium-128k: debater
+      deepseek-r1-7b: debater
+      qwen2.5-7b: debater
+    description: "Four-way deep debate"
+    hardware: "Server"
+
+  Q5:
+    name: "Specialist Ensemble (No Phi-4)"
+    models: [phi-3-medium-128k, deepseek-r1-7b, qwen2.5-7b, llama-3.2-3b]
+    total_size_gb: 18.7
+    orchestration_mode: ensemble
+    roles:
+      phi-3-medium-128k: [voter, synthesizer]
+      deepseek-r1-7b: voter
+      qwen2.5-7b: voter
+      llama-3.2-3b: voter
+    description: "Four specialists, phi-3 synthesizes"
+    hardware: "Server"
+
+# =============================================================================
+# Quint (P) - 5 Models (All)
+# =============================================================================
+quint:
+  P1:
+    name: "Maximum Ensemble"
+    models: [phi-4, phi-3-medium-128k, deepseek-r1-7b, qwen2.5-7b, llama-3.2-3b]
+    total_size_gb: 27.1
+    orchestration_mode: ensemble
+    roles:
+      phi-4: [voter, synthesizer]
+      phi-3-medium-128k: voter
+      deepseek-r1-7b: voter
+      qwen2.5-7b: voter
+      llama-3.2-3b: voter
+    description: "Five-way maximum consensus"
+    hardware: "Server (48GB+ VRAM)"
+
+  P2:
+    name: "Full Pipeline"
+    models: [phi-4, phi-3-medium-128k, deepseek-r1-7b, qwen2.5-7b, llama-3.2-3b]
+    total_size_gb: 27.1
+    orchestration_mode: pipeline
+    roles:
+      llama-3.2-3b: drafter
+      qwen2.5-7b: coder
+      deepseek-r1-7b: thinker
+      phi-4: validator
+      phi-3-medium-128k: expander
+    description: "Full five-stage pipeline"
+    hardware: "Server (48GB+ VRAM)"
+
+  P3:
+    name: "Maximum Debate"
+    models: [phi-4, phi-3-medium-128k, deepseek-r1-7b, qwen2.5-7b, llama-3.2-3b]
+    total_size_gb: 27.1
+    orchestration_mode: debate
+    roles:
+      phi-4: [debater, reconciler]
+      phi-3-medium-128k: debater
+      deepseek-r1-7b: debater
+      qwen2.5-7b: debater
+      llama-3.2-3b: debater
+    description: "Five-way debate, maximum scrutiny"
+    hardware: "Server (48GB+ VRAM)"
+
+# =============================================================================
+# Hardware Recommendations
+# =============================================================================
+hardware_recommendations:
+  mac_16gb_light:
+    description: "Mac 16GB with other apps running"
+    configs: [S1, S2, S4, D5, D7]
+    max_total_gb: 8
+
+  mac_16gb_medium:
+    description: "Mac 16GB with VS Code + service"
+    configs: [D1, D2, D4, D9, D10]
+    max_total_gb: 13
+
+  mac_16gb_full:
+    description: "Mac 16GB dedicated to inference"
+    configs: [T1, T3, T5, T10]
+    max_total_gb: 15
+
+  server:
+    description: "Server with 48GB+ VRAM"
+    configs: [S6, T4, T6, T7, T8, T9, Q1, Q2, Q3, Q4, Q5, P1, P2, P3]
+    max_total_gb: 72

@@ -55,11 +55,9 @@ def test_env_vars() -> dict[str, str]:
         "INFERENCE_HOST": "127.0.0.1",
         "INFERENCE_LOG_LEVEL": "DEBUG",
         "INFERENCE_MODELS_DIR": "/tmp/test-models",
-        "INFERENCE_CONFIG": "S1",
+        "INFERENCE_CONFIG_DIR": "/tmp/test-config",
         "INFERENCE_ORCHESTRATION_MODE": "single",
-        "INFERENCE_MAX_CONCURRENT_REQUESTS": "5",
-        "INFERENCE_REQUEST_TIMEOUT": "30",
-        "INFERENCE_CACHE_ENABLED": "false",
+        "INFERENCE_SKIP_PATH_VALIDATION": "true",  # Skip path checks in tests
     }
 
 

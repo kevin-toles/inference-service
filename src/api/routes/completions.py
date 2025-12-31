@@ -82,7 +82,7 @@ async def _stream_response(
     manager = _get_model_manager(request)
 
     try:
-        provider = await manager.get_provider(completion_request.model)
+        provider = manager.get_provider(completion_request.model)
     except Exception as e:
         # Re-raise as HTTP exception for error handling
         raise HTTPException(
@@ -154,7 +154,7 @@ async def create_chat_completion(
 
     # Get the provider for the requested model
     try:
-        provider = await manager.get_provider(completion_request.model)
+        provider = manager.get_provider(completion_request.model)
     except Exception as e:
         # Import here to avoid circular imports
         from src.services.model_manager import ModelNotLoadedError

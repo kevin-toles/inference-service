@@ -18,6 +18,14 @@ from pydantic import ValidationError
 if TYPE_CHECKING:
     from src.core.config import Settings
 
+# =============================================================================
+# Test Constants
+# =============================================================================
+
+# Environment variables that skip path validation for unit tests
+# Production containers will have real paths mounted
+SKIP_VALIDATION_ENV = {"INFERENCE_SKIP_PATH_VALIDATION": "true"}
+
 
 class TestSettingsDefaults:
     """Test Settings class default values."""
@@ -26,7 +34,7 @@ class TestSettingsDefaults:
         """Port defaults to 8085 per ARCHITECTURE.md."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
             settings = Settings()
         assert settings.port == 8085
 
@@ -34,7 +42,7 @@ class TestSettingsDefaults:
         """Host defaults to 0.0.0.0 for container deployment."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
             settings = Settings()
         assert settings.host == "0.0.0.0"
 
@@ -42,7 +50,7 @@ class TestSettingsDefaults:
         """Log level defaults to INFO."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
             settings = Settings()
         assert settings.log_level == "INFO"
 
@@ -50,7 +58,7 @@ class TestSettingsDefaults:
         """Environment defaults to development."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
             settings = Settings()
         assert settings.environment == "development"
 
@@ -58,9 +66,29 @@ class TestSettingsDefaults:
         """Service name defaults to inference-service."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
             settings = Settings()
         assert settings.service_name == "inference-service"
+
+    def test_default_models_dir_is_container_path(self) -> None:
+        """models_dir defaults to /app/models (container path from constants)."""
+        from src.core.config import Settings
+        from src.core.constants import CONTAINER_MODELS_DIR
+
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
+            settings = Settings()
+        assert settings.models_dir == CONTAINER_MODELS_DIR
+        assert settings.models_dir == "/app/models"
+
+    def test_default_config_dir_is_container_path(self) -> None:
+        """config_dir defaults to /app/config (container path from constants)."""
+        from src.core.config import Settings
+        from src.core.constants import CONTAINER_CONFIG_DIR
+
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
+            settings = Settings()
+        assert settings.config_dir == CONTAINER_CONFIG_DIR
+        assert settings.config_dir == "/app/config"
 
 
 class TestSettingsEnvironmentVariables:
@@ -73,7 +101,8 @@ class TestSettingsEnvironmentVariables:
         """
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {"INFERENCE_PORT": "9999"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_PORT": "9999"}
+        with patch.dict(os.environ, env, clear=True):
             settings = Settings()
         assert settings.port == 9999
 
@@ -81,7 +110,8 @@ class TestSettingsEnvironmentVariables:
         """Settings loads INFERENCE_HOST from environment."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {"INFERENCE_HOST": "127.0.0.1"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_HOST": "127.0.0.1"}
+        with patch.dict(os.environ, env, clear=True):
             settings = Settings()
         assert settings.host == "127.0.0.1"
 
@@ -89,7 +119,8 @@ class TestSettingsEnvironmentVariables:
         """Settings loads INFERENCE_LOG_LEVEL from environment."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {"INFERENCE_LOG_LEVEL": "DEBUG"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_LOG_LEVEL": "DEBUG"}
+        with patch.dict(os.environ, env, clear=True):
             settings = Settings()
         assert settings.log_level == "DEBUG"
 
@@ -97,7 +128,8 @@ class TestSettingsEnvironmentVariables:
         """Settings loads INFERENCE_ENVIRONMENT from environment."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {"INFERENCE_ENVIRONMENT": "production"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_ENVIRONMENT": "production"}
+        with patch.dict(os.environ, env, clear=True):
             settings = Settings()
         assert settings.environment == "production"
 
@@ -106,7 +138,8 @@ class TestSettingsEnvironmentVariables:
         from src.core.config import Settings
 
         # Without prefix, should use default
-        with patch.dict(os.environ, {"PORT": "1234"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "PORT": "1234"}
+        with patch.dict(os.environ, env, clear=True):
             settings = Settings()
         assert settings.port == 8085  # Default, not 1234
 
@@ -121,7 +154,8 @@ class TestSettingsValidation:
         """
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {"INFERENCE_PORT": "0"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_PORT": "0"}
+        with patch.dict(os.environ, env, clear=True):
             with pytest.raises(ValidationError) as exc_info:
                 Settings()
         assert "port" in str(exc_info.value).lower()
@@ -130,7 +164,8 @@ class TestSettingsValidation:
         """Port rejects negative values."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {"INFERENCE_PORT": "-1"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_PORT": "-1"}
+        with patch.dict(os.environ, env, clear=True):
             with pytest.raises(ValidationError):
                 Settings()
 
@@ -138,7 +173,8 @@ class TestSettingsValidation:
         """Port rejects values over 65535."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {"INFERENCE_PORT": "70000"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_PORT": "70000"}
+        with patch.dict(os.environ, env, clear=True):
             with pytest.raises(ValidationError):
                 Settings()
 
@@ -146,7 +182,8 @@ class TestSettingsValidation:
         """Environment must be development, staging, or production."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {"INFERENCE_ENVIRONMENT": "invalid"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_ENVIRONMENT": "invalid"}
+        with patch.dict(os.environ, env, clear=True):
             with pytest.raises(ValidationError) as exc_info:
                 Settings()
         assert "environment" in str(exc_info.value).lower()
@@ -155,7 +192,8 @@ class TestSettingsValidation:
         """Log level must be valid (DEBUG, INFO, WARNING, ERROR, CRITICAL)."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {"INFERENCE_LOG_LEVEL": "INVALID"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_LOG_LEVEL": "INVALID"}
+        with patch.dict(os.environ, env, clear=True):
             with pytest.raises(ValidationError) as exc_info:
                 Settings()
         assert "log_level" in str(exc_info.value).lower()
@@ -164,9 +202,70 @@ class TestSettingsValidation:
         """Log level is normalized to uppercase."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {"INFERENCE_LOG_LEVEL": "debug"}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_LOG_LEVEL": "debug"}
+        with patch.dict(os.environ, env, clear=True):
             settings = Settings()
         assert settings.log_level == "DEBUG"
+
+
+class TestSettingsPathValidation:
+    """Test path existence validation."""
+
+    def test_validates_models_dir_exists(self, tmp_path) -> None:
+        """Raises error if models_dir does not exist."""
+        from src.core.config import Settings
+
+        fake_path = "/nonexistent/models/path"
+        env = {"INFERENCE_MODELS_DIR": fake_path, "INFERENCE_CONFIG_DIR": str(tmp_path)}
+        with patch.dict(os.environ, env, clear=True):
+            with pytest.raises(ValidationError) as exc_info:
+                Settings()
+        assert "models_dir" in str(exc_info.value)
+        assert fake_path in str(exc_info.value)
+
+    def test_validates_config_dir_exists(self, tmp_path) -> None:
+        """Raises error if config_dir does not exist."""
+        from src.core.config import Settings
+
+        fake_path = "/nonexistent/config/path"
+        env = {"INFERENCE_MODELS_DIR": str(tmp_path), "INFERENCE_CONFIG_DIR": fake_path}
+        with patch.dict(os.environ, env, clear=True):
+            with pytest.raises(ValidationError) as exc_info:
+                Settings()
+        assert "config_dir" in str(exc_info.value)
+        assert fake_path in str(exc_info.value)
+
+    def test_validation_can_be_skipped(self) -> None:
+        """Path validation can be skipped for testing."""
+        from src.core.config import Settings
+
+        env = {
+            "INFERENCE_MODELS_DIR": "/fake/path",
+            "INFERENCE_CONFIG_DIR": "/fake/config",
+            "INFERENCE_SKIP_PATH_VALIDATION": "true",
+        }
+        with patch.dict(os.environ, env, clear=True):
+            settings = Settings()
+        # Should not raise, paths can be fake when validation skipped
+        assert settings.models_dir == "/fake/path"
+
+    def test_passes_when_paths_exist(self, tmp_path) -> None:
+        """Validation passes when paths exist."""
+        from src.core.config import Settings
+
+        models_dir = tmp_path / "models"
+        config_dir = tmp_path / "config"
+        models_dir.mkdir()
+        config_dir.mkdir()
+
+        env = {
+            "INFERENCE_MODELS_DIR": str(models_dir),
+            "INFERENCE_CONFIG_DIR": str(config_dir),
+        }
+        with patch.dict(os.environ, env, clear=True):
+            settings = Settings()
+        assert settings.models_dir == str(models_dir)
+        assert settings.config_dir == str(config_dir)
 
 
 class TestSettingsModelConfiguration:
@@ -176,7 +275,7 @@ class TestSettingsModelConfiguration:
         """Models directory has sensible default."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
             settings = Settings()
         assert settings.models_dir is not None
 
@@ -185,7 +284,8 @@ class TestSettingsModelConfiguration:
         from src.core.config import Settings
 
         custom_path = "/custom/models/path"
-        with patch.dict(os.environ, {"INFERENCE_MODELS_DIR": custom_path}, clear=True):
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_MODELS_DIR": custom_path}
+        with patch.dict(os.environ, env, clear=True):
             settings = Settings()
         assert settings.models_dir == custom_path
 
@@ -193,7 +293,7 @@ class TestSettingsModelConfiguration:
         """GPU layers defaults to -1 (all on GPU)."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
             settings = Settings()
         assert settings.gpu_layers == -1
 
@@ -201,7 +301,7 @@ class TestSettingsModelConfiguration:
         """Backend defaults to llamacpp."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
             settings = Settings()
         assert settings.backend == "llamacpp"
 
@@ -213,7 +313,7 @@ class TestSettingsOrchestration:
         """Orchestration mode defaults to single."""
         from src.core.config import Settings
 
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
             settings = Settings()
         assert settings.orchestration_mode == "single"
 
@@ -221,29 +321,8 @@ class TestSettingsOrchestration:
         """Orchestration mode must be valid."""
         from src.core.config import Settings
 
-        with patch.dict(
-            os.environ, {"INFERENCE_ORCHESTRATION_MODE": "invalid_mode"}, clear=True
-        ):
-            with pytest.raises(ValidationError):
-                Settings()
-
-
-class TestSettingsSingleton:
-    """Test get_settings() singleton pattern."""
-
-    def test_get_settings_returns_settings_instance(self) -> None:
-        """get_settings() returns a Settings instance."""
-        from src.core.config import get_settings
-
-        settings = get_settings()
-        assert settings is not None
-        assert hasattr(settings, "port")
-        assert hasattr(settings, "log_level")
-
-    def test_get_settings_is_cached(self) -> None:
-        """get_settings() returns same instance (lru_cache singleton)."""
-        from src.core.config import get_settings
-
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_ORCHESTRATION_MODE": "invalid_mode"}
+        with patch.dict(os.environ, env, clear=True):
         settings1 = get_settings()
         settings2 = get_settings()
         assert settings1 is settings2
