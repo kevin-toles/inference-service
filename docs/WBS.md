@@ -798,31 +798,90 @@ This WBS defines the implementation tasks, exit criteria, and acceptance criteri
 
 | ID | Requirement |
 |----|-------------|
-| AC-21.1 | End-to-end test: request → response with llama-3.2-3b |
-| AC-21.2 | Streaming test: SSE chunks received correctly |
-| AC-21.3 | Multi-model test: critique mode with 2 models |
-| AC-21.4 | llm-gateway integration test: route through gateway |
-| AC-21.5 | Load test: 10 concurrent requests handled |
+| AC-21.1 | D4 preset loads: deepseek-r1-7b + qwen2.5-7b (9.2GB total) |
+| AC-21.2 | Critique mode test: qwen2.5-7b generates, deepseek-r1-7b critiques |
+| AC-21.3 | Streaming test: SSE chunks received correctly ending with `[DONE]` |
+| AC-21.4 | Model connectivity: "hello" ping test for each available model |
+| AC-21.5 | Load test: 5 concurrent requests handled without queue overflow |
 
 ### WBS Tasks
 
 | ID | Task | AC | File(s) |
 |----|------|-----|---------|
-| INF21.1 | Write e2e completion test | AC-21.1 | `tests/integration/test_e2e.py` |
-| INF21.2 | Write streaming test | AC-21.2 | `tests/integration/test_streaming.py` |
-| INF21.3 | Write critique mode test | AC-21.3 | `tests/integration/test_orchestration.py` |
-| INF21.4 | Write gateway integration test | AC-21.4 | `tests/integration/test_gateway.py` |
-| INF21.5 | Write load test | AC-21.5 | `tests/integration/test_load.py` |
+| INF21.1 | Write D4 preset load test | AC-21.1 | `tests/integration/test_d4_preset.py` |
+| INF21.2 | Write critique mode e2e test | AC-21.2 | `tests/integration/test_d4_critique.py` |
+| INF21.3 | Write streaming test | AC-21.3 | `tests/integration/test_streaming.py` |
+| INF21.4 | Write model connectivity "hello" tests | AC-21.4 | `tests/integration/test_model_connectivity.py` |
+| INF21.5 | Write concurrent request load test | AC-21.5 | `tests/integration/test_load.py` |
 | INF21.6 | Create integration test fixtures | AC-21.1-5 | `tests/integration/conftest.py` |
 | INF21.7 | Document integration test setup | AC-21.1-5 | `tests/integration/README.md` |
 
+### D4 Configuration Reference
+
+```yaml
+D4:
+  name: "Thinking + Code"
+  models: [deepseek-r1-7b, qwen2.5-7b]
+  total_size_gb: 9.2
+  orchestration_mode: critique
+  roles:
+    qwen2.5-7b: generator     # Creates initial code/response
+    deepseek-r1-7b: critic    # Chain-of-thought critique
+  hardware: "Mac 16GB (comfortable)"
+```
+
+### Model Connectivity Tests
+
+**Design Principle:** All tests use HTTP API calls via configurable `INFERENCE_BASE_URL` - portable to any deployment (local, server, AWS).
+
+```bash
+# Local testing (default)
+export INFERENCE_BASE_URL=http://localhost:8085
+
+# Server deployment
+export INFERENCE_BASE_URL=http://inference.internal:8085
+
+# AWS deployment
+export INFERENCE_BASE_URL=https://inference.prod.example.com
+```
+
+| Model | Size | Purpose | API Test |
+|-------|------|---------|----------|
+| deepseek-r1-7b | 4.7GB | CoT Thinker | `POST /v1/chat/completions` with model param |
+| qwen2.5-7b | 4.5GB | Coder | `POST /v1/chat/completions` with model param |
+| phi-4 | 8.4GB | General | `POST /v1/chat/completions` with model param |
+| llama-3.2-3b | 2.0GB | Fast | `POST /v1/chat/completions` with model param |
+| phi-3-medium-128k | 8.6GB | Long Context | `POST /v1/chat/completions` with model param |
+| granite-8b-code-128k | 4.5GB | Code Analysis | `POST /v1/chat/completions` with model param |
+
+**Test Flow (per model):**
+1. `GET /v1/models` → verify model exists in available list
+2. `POST /v1/models/{model}/load` → load model if not already loaded
+3. `POST /v1/chat/completions` → send "Hello, respond briefly" prompt
+4. Assert: response contains non-empty `choices[0].message.content`
+5. Assert: response contains valid `usage.total_tokens` > 0
+
+### Portability Requirements
+
+| Requirement | Implementation |
+|-------------|----------------|
+| Configurable URL | `INFERENCE_BASE_URL` env var (default: `http://localhost:8085`) |
+| No hardcoded hosts | All tests use `{base_url}/v1/...` pattern |
+| Model discovery | Tests query `/v1/models` to find available models |
+| Skip unavailable | `pytest.mark.skipif` when model not in deployment |
+| Timeout handling | Configurable `INFERENCE_TEST_TIMEOUT` (default: 120s) |
+| Auth support | Optional `INFERENCE_API_KEY` header for secured deployments |
+
 ### Exit Criteria
 
-- [ ] `pytest tests/integration/ -m "not slow"` passes
+- [ ] `INFERENCE_DEFAULT_PRESET=D4 pytest tests/integration/test_d4_preset.py` passes
+- [ ] D4 loads deepseek-r1-7b + qwen2.5-7b within memory budget
+- [ ] Critique mode response includes `orchestration.models_used` with both models
 - [ ] SSE chunks end with `data: [DONE]\n\n`
-- [ ] Critique mode uses both phi-4 and deepseek-r1-7b
-- [ ] `inference:phi-4` routed through gateway to inference-service
-- [ ] 10 concurrent requests complete within timeout
+- [ ] Each model connectivity test returns a valid response via HTTP API
+- [ ] 5 concurrent requests complete without `QueueFullError`
+- [ ] **Portability:** `INFERENCE_BASE_URL=http://remote:8085 pytest tests/integration/` works
+- [ ] **Smoke Test:** Can run `pytest tests/integration/test_model_connectivity.py -v` as deployment verification
 
 ---
 

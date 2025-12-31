@@ -30,13 +30,22 @@ import pytest
 
 
 # =============================================================================
-# Configuration
+# Configuration - PORTABLE across deployments (local, server, AWS)
 # =============================================================================
 
-INFERENCE_SERVICE_URL = os.getenv("INFERENCE_SERVICE_URL", "http://localhost:8085")
+# Primary URL configuration - use INFERENCE_BASE_URL for portability
+INFERENCE_BASE_URL = os.getenv("INFERENCE_BASE_URL", "http://localhost:8085")
+# Backward compatibility alias
+INFERENCE_SERVICE_URL = os.getenv("INFERENCE_SERVICE_URL", INFERENCE_BASE_URL)
 LLM_GATEWAY_URL = os.getenv("LLM_GATEWAY_URL", "http://localhost:8080")
-DEFAULT_TIMEOUT = float(os.getenv("INTEGRATION_TEST_TIMEOUT", "120.0"))
+DEFAULT_TIMEOUT = float(os.getenv("INFERENCE_TEST_TIMEOUT", "120.0"))
 STREAM_TIMEOUT = float(os.getenv("STREAM_TEST_TIMEOUT", "180.0"))
+
+# Optional API key for secured deployments (AWS, production)
+INFERENCE_API_KEY = os.getenv("INFERENCE_API_KEY", "")
+
+# Model timeout for large models (e.g., phi-4, phi-3-medium-128k)
+MODEL_LOAD_TIMEOUT = float(os.getenv("MODEL_LOAD_TIMEOUT", "300.0"))
 
 
 # =============================================================================
@@ -75,8 +84,23 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 
 @pytest.fixture(scope="session")
 def inference_service_url() -> str:
-    """Return the inference service URL."""
-    return INFERENCE_SERVICE_URL
+    """Return the inference service URL (portable via INFERENCE_BASE_URL)."""
+    return INFERENCE_BASE_URL
+
+
+@pytest.fixture(scope="session")
+def inference_base_url() -> str:
+    """Return the inference base URL for portable tests."""
+    return INFERENCE_BASE_URL
+
+
+@pytest.fixture(scope="session")
+def api_headers() -> dict[str, str]:
+    """Return API headers including optional auth for secured deployments."""
+    headers: dict[str, str] = {"Content-Type": "application/json"}
+    if INFERENCE_API_KEY:
+        headers["Authorization"] = f"Bearer {INFERENCE_API_KEY}"
+    return headers
 
 
 @pytest.fixture(scope="session")
@@ -87,10 +111,15 @@ def gateway_url() -> str:
 
 @pytest.fixture(scope="session")
 async def async_client() -> AsyncGenerator[httpx.AsyncClient, None]:
-    """Create an async HTTP client for the test session."""
+    """Create an async HTTP client for the test session (portable)."""
+    headers: dict[str, str] = {}
+    if INFERENCE_API_KEY:
+        headers["Authorization"] = f"Bearer {INFERENCE_API_KEY}"
+
     async with httpx.AsyncClient(
-        base_url=INFERENCE_SERVICE_URL,
+        base_url=INFERENCE_BASE_URL,
         timeout=httpx.Timeout(DEFAULT_TIMEOUT),
+        headers=headers,
     ) as client:
         yield client
 
@@ -107,10 +136,15 @@ async def gateway_client() -> AsyncGenerator[httpx.AsyncClient, None]:
 
 @pytest.fixture(scope="function")
 async def client() -> AsyncGenerator[httpx.AsyncClient, None]:
-    """Create a per-test async HTTP client."""
+    """Create a per-test async HTTP client (portable)."""
+    headers: dict[str, str] = {}
+    if INFERENCE_API_KEY:
+        headers["Authorization"] = f"Bearer {INFERENCE_API_KEY}"
+
     async with httpx.AsyncClient(
-        base_url=INFERENCE_SERVICE_URL,
+        base_url=INFERENCE_BASE_URL,
         timeout=httpx.Timeout(DEFAULT_TIMEOUT),
+        headers=headers,
     ) as client:
         yield client
 
@@ -451,3 +485,82 @@ def expected_models() -> list[str]:
         "deepseek-r1-7b",
         "qwen2.5-7b",
     ]
+
+
+# =============================================================================
+# Model Discovery & Connectivity (Portable)
+# =============================================================================
+
+
+@pytest.fixture(scope="session")
+async def available_models(async_client: httpx.AsyncClient) -> list[str]:
+    """Discover available models from the API - works on any deployment."""
+    try:
+        response = await async_client.get("/v1/models")
+        if response.status_code == 200:
+            data = response.json()
+            models = data.get("data", [])
+            return [m.get("id", "") for m in models if m.get("id")]
+    except httpx.ConnectError:
+        pass
+    return []
+
+
+@pytest.fixture(scope="session")
+async def loaded_models(async_client: httpx.AsyncClient) -> list[str]:
+    """Get list of currently loaded models."""
+    try:
+        response = await async_client.get("/v1/models")
+        if response.status_code == 200:
+            data = response.json()
+            models = data.get("data", [])
+            return [
+                m.get("id", "")
+                for m in models
+                if m.get("id") and m.get("status") == "loaded"
+            ]
+    except httpx.ConnectError:
+        pass
+    return []
+
+
+# =============================================================================
+# All Known Models for Connectivity Testing
+# =============================================================================
+
+ALL_MODELS = [
+    {"id": "deepseek-r1-7b", "size_gb": 4.7, "purpose": "CoT Thinker"},
+    {"id": "qwen2.5-7b", "size_gb": 4.5, "purpose": "Coder"},
+    {"id": "phi-4", "size_gb": 8.4, "purpose": "General"},
+    {"id": "llama-3.2-3b", "size_gb": 2.0, "purpose": "Fast"},
+    {"id": "phi-3-medium-128k", "size_gb": 8.6, "purpose": "Long Context"},
+    {"id": "granite-8b-code-128k", "size_gb": 4.5, "purpose": "Code Analysis"},
+]
+
+
+@pytest.fixture
+def all_models() -> list[dict[str, Any]]:
+    """Return all known models with metadata."""
+    return ALL_MODELS
+
+
+# =============================================================================
+# D4 Preset Configuration
+# =============================================================================
+
+D4_PRESET = {
+    "name": "Thinking + Code",
+    "models": ["deepseek-r1-7b", "qwen2.5-7b"],
+    "total_size_gb": 9.2,
+    "orchestration_mode": "critique",
+    "roles": {
+        "qwen2.5-7b": "generator",
+        "deepseek-r1-7b": "critic",
+    },
+}
+
+
+@pytest.fixture
+def d4_preset() -> dict[str, Any]:
+    """Return D4 preset configuration."""
+    return D4_PRESET
