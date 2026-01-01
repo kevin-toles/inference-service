@@ -1,44 +1,27 @@
 # ==============================================================================
 # Inference Service - Docker Compose
 # ==============================================================================
-# Local development and testing configuration
-# Reference: docs/ARCHITECTURE.md → Docker Health Check
+# Role: LINE COOK - LLM inference with GPU acceleration
+# Port: 8085
+# Reference: ai-platform-data/docs/NETWORK_ARCHITECTURE.md
 # ==============================================================================
 #
-# ⚠️ IMPORTANT: Docker on macOS Performance Warning
-# Docker Desktop runs in a Linux VM which CANNOT access Apple's Metal GPU.
-# This means inference runs on CPU only (~50-100x slower than native).
-#
-# For Mac development, use ./run_native.sh instead for Metal acceleration.
-# Docker is recommended for:
-#   - Linux server deployment (with CUDA profile)
-#   - CI/CD pipelines
-#   - Reproducible builds
-#   - Integration testing (where speed isn't critical)
+# ⚠️ PERFORMANCE NOTE:
+# Docker on macOS runs in a Linux VM which CANNOT access Apple's Metal GPU.
+# Use the Platform Control Panel to toggle between Docker and Native mode.
 #
 # Performance Comparison:
-#   Native (Metal): 30-100 tokens/second, "Hello" in <1 second
-#   Docker (CPU):   0.04 tokens/second, "Hello" in 3-4 minutes
+#   Native (Metal): 30-100 tokens/second
+#   Docker (CPU):   0.04 tokens/second (~1000x slower)
+#   Docker (CUDA):  30-100 tokens/second (Linux with NVIDIA GPU)
 #
 # ==============================================================================
 #
 # Usage:
-#   docker-compose -f docker/docker-compose.yml up -d          # Start service
-#   docker-compose -f docker/docker-compose.yml up --build     # Rebuild and start
-#   docker-compose -f docker/docker-compose.yml logs -f        # Follow logs
-#   docker-compose -f docker/docker-compose.yml down           # Stop service
-#   docker-compose -f docker/docker-compose.yml ps             # Check status
-#
-# Health Verification:
-#   curl http://localhost:8085/health         # Liveness check
-#   curl http://localhost:8085/health/ready   # Readiness check
-#
-# GPU Support (requires nvidia-docker):
-#   docker-compose -f docker/docker-compose.yml --profile cuda up -d
-#
-# Environment Variables (set in .env file or export):
-#   MODELS_PATH      - Host path to models directory (default: ../models)
-#   INFERENCE_DEFAULT_PRESET - Preset to auto-load on startup (default: D4)
+#   docker-compose up -d                    # Start CPU version
+#   docker-compose --profile cuda up -d     # Start with NVIDIA GPU
+#   docker-compose logs -f                  # Follow logs
+#   docker-compose down                     # Stop service
 #
 # ==============================================================================
 
@@ -54,54 +37,30 @@ services:
     ports:
       - "8085:8085"
     environment:
-      # =======================================================================
       # Core Service Configuration
-      # These map directly to src/core/config.py Settings class fields
-      # All env vars use INFERENCE_ prefix (config.py: env_prefix = "INFERENCE_")
-      # =======================================================================
       INFERENCE_PORT: "8085"
       INFERENCE_LOG_LEVEL: "INFO"
       INFERENCE_ENVIRONMENT: "development"
       
-      # =======================================================================
-      # Path Configuration
-      # MUST match the volume mount targets below
-      # Defaults defined in src/core/constants.py
-      # =======================================================================
-      # INFERENCE_MODELS_DIR: Uses default from constants.py (/app/models)
-      # INFERENCE_CONFIG_DIR: Uses default from constants.py (/app/config)
-      
-      # =======================================================================
       # Model/Inference Configuration
-      # =======================================================================
-      INFERENCE_GPU_LAYERS: "0"  # CPU only (use -1 for Metal/CUDA)
+      INFERENCE_GPU_LAYERS: "0"  # CPU only (use -1 for CUDA)
       INFERENCE_BACKEND: "llamacpp"
       INFERENCE_ORCHESTRATION_MODE: "single"
       
-      # =======================================================================
-      # Auto-Load Preset on Startup
-      # See config/presets.yaml for available presets
-      # Options: S1-S8 (single), D1-D15 (dual), T1-T13 (triple), Q1-Q7 (quad)
-      # D4 = deepseek-r1-7b + qwen2.5-7b in critique mode
-      # =======================================================================
+      # Auto-load preset on startup
       INFERENCE_DEFAULT_PRESET: "${INFERENCE_DEFAULT_PRESET:-D4}"
     volumes:
-      # Mount local models directory → container /app/models
-      # Host path set via MODELS_PATH env var or defaults to ../models
       - ${MODELS_PATH:-../models}:/app/models:ro
-      # Mount config for hot reload → container /app/config
       - ../config:/app/config:ro
-    # Health check per ARCHITECTURE.md specification
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
       interval: 60s
       timeout: 30s
       retries: 3
       start_period: 120s
-    restart: unless-stopped
+    restart: "no"  # CHANGED: Prevent Docker Desktop auto-start - use native mode
     networks:
-      - inference-network
-    # Resource limits for model inference
+      - ai-platform-network
     deploy:
       resources:
         limits:
@@ -119,38 +78,29 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.cuda
-    container_name: inference-service-cuda
+    container_name: inference-service
     ports:
       - "8085:8085"
     environment:
-      # Core Service Configuration
       INFERENCE_PORT: "8085"
       INFERENCE_LOG_LEVEL: "INFO"
       INFERENCE_ENVIRONMENT: "development"
-      
-      # Model/Inference Configuration - GPU enabled
       INFERENCE_GPU_LAYERS: "-1"  # All layers on GPU
       INFERENCE_BACKEND: "llamacpp"
       INFERENCE_ORCHESTRATION_MODE: "single"
-      
-      # Auto-load preset
       INFERENCE_DEFAULT_PRESET: "${INFERENCE_DEFAULT_PRESET:-D4}"
     volumes:
-      # Mount local models directory
       - ${MODELS_PATH:-../models}:/app/models:ro
-      # Mount config for hot reload
       - ../config:/app/config:ro
-    # Health check per ARCHITECTURE.md specification
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
       interval: 60s
       timeout: 30s
       retries: 3
       start_period: 120s
-    restart: unless-stopped
+    restart: "no"  # CHANGED: Prevent Docker Desktop auto-start - use native mode
     networks:
-      - inference-network
-    # NVIDIA GPU runtime
+      - ai-platform-network
     deploy:
       resources:
         reservations:
@@ -159,11 +109,10 @@ services:
               count: 1
               capabilities: [gpu]
 
+# ==============================================================================
+# Networks - Tiered network architecture
+# ==============================================================================
 networks:
-  inference-network:
-    driver: bridge
-    name: inference-network
-
-volumes:
-  models-data:
-    driver: local
+  ai-platform-network:
+    name: ai-platform-network
+    external: true

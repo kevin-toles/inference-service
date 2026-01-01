@@ -284,22 +284,41 @@ class ModelManager:
             self.current_memory_gb = max(0.0, self.current_memory_gb)
 
     def get_provider(self, model_id: str) -> LlamaCppProvider:
-        """Get the provider for a loaded model.
+        """Get the provider for a model with graceful degradation.
+
+        Implements graceful degradation pattern:
+        1. If requested model is loaded, use it
+        2. If not loaded, fall back to any loaded model
+        3. If nothing loaded, raise clear error
 
         Args:
-            model_id: The model identifier.
+            model_id: The requested model identifier.
 
         Returns:
-            The LlamaCppProvider instance for the model.
+            The LlamaCppProvider instance (requested or fallback).
 
         Raises:
-            ModelNotLoadedError: If model is not currently loaded.
+            ModelNotLoadedError: If no models are currently loaded.
         """
-        if model_id not in self._loaded_models:
-            msg = f"Model '{model_id}' is not loaded"
-            raise ModelNotLoadedError(msg)
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        # Best case: requested model is loaded
+        if model_id in self._loaded_models:
+            return self._loaded_models[model_id]
 
-        return self._loaded_models[model_id]
+        # Graceful degradation: use any loaded model
+        loaded = self.get_loaded_models()
+        if loaded:
+            fallback_model = loaded[0]
+            logger.warning(
+                f"Graceful degradation: '{model_id}' not loaded, using '{fallback_model}'"
+            )
+            return self._loaded_models[fallback_model]
+
+        # No models loaded - clear error
+        msg = f"Model '{model_id}' is not loaded and no fallback models available"
+        raise ModelNotLoadedError(msg)
 
     # =========================================================================
     # Preset Loading
