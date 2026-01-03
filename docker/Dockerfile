@@ -85,14 +85,12 @@ COPY --from=builder /opt/venv /opt/venv
 # Set working directory
 WORKDIR /app
 
-# Copy application code with correct ownership (read-only for security)
-COPY --chown=appuser:appgroup src/ ./src/
-COPY --chown=appuser:appgroup config/ ./config/
+# Copy application code with correct ownership and read-only permissions
+COPY --chown=appuser:appgroup --chmod=555 src/ ./src/
+COPY --chown=appuser:appgroup --chmod=555 config/ ./config/
 
-# Set permissions and create models directory (merged for layer optimization)
-RUN chmod -R a-w ./src/ ./config/ && \
-    mkdir -p /app/models && \
-    chown appuser:appgroup /app/models
+# Create models directory for volume mounting
+RUN mkdir -p /app/models && chown appuser:appgroup /app/models
 
 # Switch to non-root user
 USER appuser
