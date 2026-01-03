@@ -205,7 +205,7 @@ class TestModelManagerInit:
             memory_limit_gb=16.0,
         )
 
-        assert manager.memory_limit_gb == 16.0
+        assert manager.memory_limit_gb == pytest.approx(16.0)
 
     def test_init_registers_available_models(
         self, models_dir: Path, mock_model_configs: dict[str, Any]
@@ -471,7 +471,7 @@ class TestModelManagerMemory:
             assert manager.current_memory_gb == pytest.approx(8.4, rel=0.1)
 
             await manager.unload_model(MODEL_PHI4)
-            assert manager.current_memory_gb == 0.0
+            assert manager.current_memory_gb == pytest.approx(0.0)
 
 
 # =============================================================================
@@ -530,6 +530,7 @@ class TestModelManagerConcurrency:
 
             # Concurrent access to different models
             async def access_model(model_id: str) -> bool:
+                await asyncio.sleep(0)  # Satisfy async requirement
                 provider = manager.get_provider(model_id)
                 return provider is not None
 

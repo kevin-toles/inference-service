@@ -296,37 +296,11 @@ class TestCritiqueModeFlow:
         revised_response: ChatCompletionResponse,
     ) -> None:
         """Test CritiqueMode follows Generator → Critic → Revise order."""
-        call_order: list[str] = []
-
-        async def track_generator(*args: object, **kwargs: object) -> ChatCompletionResponse:
-            if generator_provider.generate.call_count == 0:
-                call_order.append("generate")
-                return generation_response
-            call_order.append("revise")
-            return revised_response
-
-        async def track_critic(*args: object, **kwargs: object) -> ChatCompletionResponse:
-            call_order.append("critique")
-            return critique_response_with_issues
-
+        # Track call order via side_effect behavior
         generator_provider.generate = AsyncMock(
             side_effect=[generation_response, revised_response]
         )
         critic_provider.generate = AsyncMock(return_value=critique_response_with_issues)
-
-        # Use side_effect to track call order
-        original_gen = generator_provider.generate
-        original_crit = critic_provider.generate
-
-        async def gen_side_effect(*a: object, **k: object) -> ChatCompletionResponse:
-            result = await original_gen(*a, **k)
-            call_order.append("generator" if len(call_order) == 0 else "revise")
-            return result
-
-        async def crit_side_effect(*a: object, **k: object) -> ChatCompletionResponse:
-            result = await original_crit(*a, **k)
-            call_order.append("critique")
-            return result
 
         generator_provider.generate.side_effect = [generation_response, revised_response]
         critic_provider.generate.return_value = critique_response_with_issues
@@ -747,7 +721,7 @@ class TestCritiqueModeMetadata:
         result = await mode.execute(sample_request)
 
         assert result.orchestration is not None
-        assert result.orchestration.final_score == 1.0
+        assert result.orchestration.final_score == pytest.approx(1.0)
 
     @pytest.mark.asyncio
     async def test_critique_mode_lower_score_when_issues_remain(

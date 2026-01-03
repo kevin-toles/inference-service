@@ -287,9 +287,9 @@ class TestPriorityStrategy:
         result2 = await priority_queue.dequeue()
         result3 = await priority_queue.dequeue()
 
-        assert result1.request_id == "req-high"  # priority=3
-        assert result2.request_id == "req-normal"  # priority=2
-        assert result3.request_id == "req-low"  # priority=1
+        assert result1.request_id == "req-high"
+        assert result2.request_id == "req-normal"
+        assert result3.request_id == "req-low"
 
     @pytest.mark.asyncio
     async def test_same_priority_maintains_fifo_order(
@@ -374,7 +374,7 @@ class TestRejectWhenFull:
     ) -> None:
         """QueueFullError should be raised when reject_when_full=True (Exit Criteria)."""
         # Fill the queue to max_concurrent
-        for i in range(3):
+        for _ in range(3):
             await reject_queue.acquire_slot()
 
         # Next acquire should raise QueueFullError
@@ -406,10 +406,8 @@ class TestRejectWhenFull:
             await asyncio.wait_for(acquired.wait(), timeout=0.1)
 
         task.cancel()
-        try:
+        with pytest.raises(asyncio.CancelledError):
             await task
-        except asyncio.CancelledError:
-            pass
 
     def test_queue_full_error_is_exception(self) -> None:
         """QueueFullError should be a proper exception."""
@@ -571,6 +569,7 @@ class TestQueueManagerWithCallback:
         processed: list[str] = []
 
         async def handler(item: RequestItem) -> str:
+            await asyncio.sleep(0)  # Yield control to event loop
             processed.append(item.request_id)
             return f"processed-{item.request_id}"
 
@@ -589,7 +588,7 @@ class TestQueueManagerStatistics:
     @pytest.mark.asyncio
     async def test_total_processed_count(self, fifo_queue: QueueManager) -> None:
         """Track total number of processed requests."""
-        for i in range(5):
+        for _ in range(5):
             await fifo_queue.acquire_slot()
             fifo_queue.release_slot()
 
@@ -599,17 +598,17 @@ class TestQueueManagerStatistics:
     async def test_queue_utilization(self, fifo_queue: QueueManager) -> None:
         """Calculate queue utilization percentage."""
         # No active requests
-        assert fifo_queue.utilization == 0.0
+        assert fifo_queue.utilization == pytest.approx(0.0)
 
         # Half capacity
         for _ in range(5):
             await fifo_queue.acquire_slot()
-        assert fifo_queue.utilization == 0.5
+        assert fifo_queue.utilization == pytest.approx(0.5)
 
         # Full capacity
         for _ in range(5):
             await fifo_queue.acquire_slot()
-        assert fifo_queue.utilization == 1.0
+        assert fifo_queue.utilization == pytest.approx(1.0)
 
 
 class TestQueueManagerClear:

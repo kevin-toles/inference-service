@@ -7,6 +7,7 @@ Tests for:
 Reference: ARCHITECTURE.md → Error Handling → Saga Compensation Pattern
 """
 
+import asyncio
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -109,6 +110,7 @@ class TestSagaStep:
     def test_saga_step_creation(self) -> None:
         """Test SagaStep can be created."""
         async def invoke_fn(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="test",
                 is_usable=True,
@@ -127,6 +129,7 @@ class TestSagaStep:
     async def test_saga_step_invoke(self) -> None:
         """Test SagaStep invoke works."""
         async def invoke_fn(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="test output",
                 is_usable=True,
@@ -185,6 +188,7 @@ class TestCompletedStep:
     def test_completed_step_creation(self) -> None:
         """Test CompletedStep can be created."""
         async def invoke_fn(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="test",
                 is_usable=True,
@@ -230,6 +234,7 @@ class TestPipelineSagaCompensation:
 
         async def step1_invoke(state: dict[str, Any]) -> StepResult:
             nonlocal step1_called
+            await asyncio.sleep(0)  # Yield control to event loop
             step1_called = True
             return StepResult(
                 output=STEP_DRAFT,
@@ -240,6 +245,7 @@ class TestPipelineSagaCompensation:
 
         async def step2_invoke(state: dict[str, Any]) -> StepResult:
             nonlocal step2_called
+            await asyncio.sleep(0)  # Yield control to event loop
             step2_called = True
             return StepResult(
                 output="refined",
@@ -250,6 +256,7 @@ class TestPipelineSagaCompensation:
 
         async def step3_invoke(state: dict[str, Any]) -> StepResult:
             nonlocal step3_called
+            await asyncio.sleep(0)  # Yield control to event loop
             step3_called = True
             return StepResult(
                 output="validated",
@@ -277,6 +284,7 @@ class TestPipelineSagaCompensation:
     ) -> None:
         """Test PipelineSaga tracks completed steps."""
         async def step_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output=TEST_OUTPUT,
                 is_usable=True,
@@ -299,6 +307,7 @@ class TestPipelineSagaCompensation:
     ) -> None:
         """Test PipelineSaga calls _compensate on error."""
         async def step1_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="draft output",
                 is_usable=True,
@@ -335,6 +344,7 @@ class TestPipelineSagaPartialResults:
     ) -> None:
         """Test PipelineSaga returns last successful step's output."""
         async def step1_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="draft output",
                 is_usable=True,
@@ -343,6 +353,7 @@ class TestPipelineSagaPartialResults:
             )
 
         async def step2_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="refined output",
                 is_usable=True,
@@ -371,6 +382,7 @@ class TestPipelineSagaPartialResults:
     ) -> None:
         """Test partial result includes error information."""
         async def step1_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output=TEST_OUTPUT,
                 is_usable=True,
@@ -415,6 +427,7 @@ class TestPipelineSagaPartialResults:
     ) -> None:
         """Test PipelineSaga skips non-usable results in compensation."""
         async def step1_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="usable output",
                 is_usable=True,
@@ -423,6 +436,7 @@ class TestPipelineSagaPartialResults:
             )
 
         async def step2_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="",  # Empty, not usable
                 is_usable=False,
@@ -459,6 +473,7 @@ class TestPipelineSagaMetadata:
     ) -> None:
         """Test PipelineSaga aggregates usage stats."""
         async def step1_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="output1",
                 is_usable=True,
@@ -467,6 +482,7 @@ class TestPipelineSagaMetadata:
             )
 
         async def step2_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="output2",
                 is_usable=True,
@@ -490,6 +506,7 @@ class TestPipelineSagaMetadata:
     ) -> None:
         """Test PipelineSaga collects all models used."""
         async def step1_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="output1",
                 is_usable=True,
@@ -498,6 +515,7 @@ class TestPipelineSagaMetadata:
             )
 
         async def step2_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output="output2",
                 is_usable=True,
@@ -521,6 +539,7 @@ class TestPipelineSagaMetadata:
     ) -> None:
         """Test PipelineSaga tracks total inference time."""
         async def step_invoke(state: dict[str, Any]) -> StepResult:
+            await asyncio.sleep(0)  # Yield control to event loop
             return StepResult(
                 output=TEST_OUTPUT,
                 is_usable=True,

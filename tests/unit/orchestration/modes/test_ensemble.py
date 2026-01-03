@@ -161,6 +161,7 @@ class TestEnsembleModeParallelGeneration:
                 call_times.append((f"{model_id}_end", time.perf_counter()))
                 return create_mock_response(model_id, f"Response from {model_id}")
 
+            await asyncio.sleep(0)  # Satisfy async requirement
             return delayed_generate
 
         providers = []
@@ -295,7 +296,7 @@ class TestEnsembleModeConsensus:
         result = await mode.execute(sample_request)
 
         assert result.orchestration is not None
-        assert result.orchestration.agreement_score == 1.0
+        assert result.orchestration.agreement_score == pytest.approx(1.0)
 
     async def test_ensemble_mode_lower_consensus_for_disagreement(
         self,
@@ -323,7 +324,7 @@ class TestEnsembleModeConsensus:
 
         responses = ["Paris is the capital.", "Paris is the capital.", "Paris is the capital."]
         consensus = calculate_pairwise_consensus(responses)
-        assert consensus == 1.0
+        assert consensus == pytest.approx(1.0)
 
     def test_calculate_pairwise_consensus_partial(self) -> None:
         """Partially agreeing responses should have medium consensus."""
@@ -352,21 +353,21 @@ class TestEnsembleModeConsensus:
 
         responses = ["The answer is Paris.", "The answer is Paris."]
         consensus = calculate_pairwise_consensus(responses)
-        assert consensus == 1.0
+        assert consensus == pytest.approx(1.0)
 
     def test_calculate_pairwise_consensus_empty_list(self) -> None:
         """Empty list should return 1.0 (vacuous truth)."""
         from src.orchestration.modes.ensemble import calculate_pairwise_consensus
 
         consensus = calculate_pairwise_consensus([])
-        assert consensus == 1.0
+        assert consensus == pytest.approx(1.0)
 
     def test_calculate_pairwise_consensus_single_response(self) -> None:
         """Single response should return 1.0."""
         from src.orchestration.modes.ensemble import calculate_pairwise_consensus
 
         consensus = calculate_pairwise_consensus(["Only one response"])
-        assert consensus == 1.0
+        assert consensus == pytest.approx(1.0)
 
 
 # =============================================================================
@@ -703,7 +704,7 @@ class TestEnsembleModeProperties:
             min_agreement=0.8,
         )
 
-        assert mode.min_agreement == 0.8
+        assert mode.min_agreement == pytest.approx(0.8)
 
     def test_ensemble_mode_default_min_agreement(
         self,
@@ -718,7 +719,7 @@ class TestEnsembleModeProperties:
             synthesizer=mock_synthesizer,
         )
 
-        assert mode.min_agreement == 0.7
+        assert mode.min_agreement == pytest.approx(0.7)
 
     def test_ensemble_mode_participant_model_ids(
         self,

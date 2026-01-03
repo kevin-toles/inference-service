@@ -322,8 +322,8 @@ class TestOrchestratorStreaming:
         orchestrator = Orchestrator(provider=mock_provider, mode=MODE_DEBATE)
 
         with pytest.raises(UnsupportedModeError):
-            async for _ in orchestrator.stream(sample_request):
-                pass
+            async for _chunk in orchestrator.stream(sample_request):
+                pass  # Consume stream to trigger exception
 
 
 # =============================================================================

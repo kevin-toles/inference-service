@@ -290,7 +290,7 @@ class TestIndividualModels:
         if not await load_model(client, model_id):
             pytest.skip(f"Could not load {model_id}")
 
-        response = await send_hello_prompt(client, model_id, timeout=180.0)
+        response = await send_hello_prompt(client, model_id, request_timeout=180.0)
         assert response["choices"][0]["message"]["content"].strip()
         assert response["usage"]["total_tokens"] > 0
 
@@ -375,4 +375,4 @@ class TestDeploymentSummary:
         print(f"{'='*60}\n")
 
         # This test always passes - it's just for info
-        assert True
+        # Verified by reaching this point without exceptions

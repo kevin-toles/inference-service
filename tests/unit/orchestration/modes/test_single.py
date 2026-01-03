@@ -372,7 +372,7 @@ class TestSingleModeStreaming:
         mode = SingleMode(provider=mock_provider)
 
         async for _ in mode.stream(sample_request):
-            pass
+            pass  # Consume stream to verify request forwarding
 
         assert received_request is sample_request
 
@@ -385,10 +385,13 @@ class TestSingleModeStreaming:
         """Test SingleMode stream handles empty stream gracefully."""
 
         async def mock_stream(
-            request: ChatCompletionRequest,
+            request: ChatCompletionRequest,  # noqa: ARG001
         ) -> AsyncIterator[ChatCompletionChunk]:
-            return
-            yield  # Make it a generator
+            # Empty generator pattern for testing empty streams
+            for _ in []:
+                yield ChatCompletionChunk(  # pragma: no cover
+                    id="", choices=[], model="", created=0, object=""
+                )
 
         mock_provider.stream = mock_stream
 
@@ -459,10 +462,14 @@ class TestSingleModeEdgeCases:
         """Test SingleMode stream propagates provider errors."""
 
         async def error_stream(
-            request: ChatCompletionRequest,
+            request: ChatCompletionRequest,  # noqa: ARG001
         ) -> AsyncIterator[ChatCompletionChunk]:
+            # First yield nothing, then raise
+            for _ in []:
+                yield ChatCompletionChunk(  # pragma: no cover
+                    id="", choices=[], model="", created=0, object=""
+                )
             raise RuntimeError("Stream error")
-            yield  # Make it a generator
 
         mock_provider.stream = error_stream
 
@@ -470,7 +477,7 @@ class TestSingleModeEdgeCases:
 
         with pytest.raises(RuntimeError, match="Stream error"):
             async for _ in mode.stream(sample_request):
-                pass
+                pass  # Error expected before iteration completes
 
     @pytest.mark.asyncio
     async def test_single_mode_with_different_model(

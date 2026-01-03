@@ -53,10 +53,13 @@ MODEL_LOAD_TIMEOUT = float(os.getenv("MODEL_LOAD_TIMEOUT", "300.0"))
 
 TEST_MODEL_LLAMA = "llama-3.2-3b"
 TEST_MODEL_PHI4 = "phi-4"
+TEST_MODEL_QWEN = "qwen2.5-7b"
 TEST_CONTENT_TYPE_JSON = "application/json"
 AUTH_HEADER_BEARER = "Bearer"
 ROLE_USER = "user"
 ROLE_SYSTEM = "system"
+SSE_DONE_MARKER = "[DONE]"
+SSE_DATA_PREFIX = "data: "
 
 
 # =============================================================================
@@ -408,50 +411,57 @@ def sse_parser() -> Any:
         """Parse SSE stream responses."""
 
         @staticmethod
+        def _parse_data_content(data: str) -> dict[str, Any] | str | None:
+            """Parse the data content from an SSE data line."""
+            import json
+            if data == SSE_DONE_MARKER:
+                return SSE_DONE_MARKER
+            try:
+                result: dict[str, Any] = json.loads(data)
+                return result
+            except json.JSONDecodeError:
+                return None
+
+        @staticmethod
+        def _is_ignorable_line(line: str) -> bool:
+            """Check if line should be ignored."""
+            return not line or line.startswith(":")
+
+        @staticmethod
         def parse_line(line: str) -> dict[str, Any] | str | None:
             """Parse a single SSE line.
 
             Returns:
                 - dict for JSON data
-                - "[DONE]" for stream end
+                - SSE_DONE_MARKER for stream end
                 - None for empty/comment lines
             """
             line = line.strip()
-
-            if not line or line.startswith(":"):
+            if SSEParser._is_ignorable_line(line):
                 return None
-
-            if line.startswith("data: "):
-                data = line[6:]  # Remove "data: " prefix
-                if data == "[DONE]":
-                    return "[DONE]"
-                try:
-                    import json
-                    result: dict[str, Any] = json.loads(data)
-                    return result
-                except json.JSONDecodeError:
-                    return None
-
+            if line.startswith(SSE_DATA_PREFIX):
+                data = line[len(SSE_DATA_PREFIX):]
+                return SSEParser._parse_data_content(data)
             return None
 
         @staticmethod
         def parse_stream(content: str) -> list[dict[str, Any] | str]:
             """Parse entire SSE stream content."""
-            import json
-
             results: list[dict[str, Any] | str] = []
             for line in content.split("\n"):
-                line = line.strip()
-                if not line or line.startswith(":"):
-                    continue
-                if line.startswith("data: "):
-                    data = line[6:]
-                    if data == "[DONE]":
-                        results.append("[DONE]")
-                    else:
-                        with contextlib.suppress(json.JSONDecodeError):
-                            results.append(json.loads(data))
+                parsed = SSEParser.parse_line(line)
+                if parsed is not None:
+                    results.append(parsed)
             return results
+
+        @staticmethod
+        def _extract_chunk_content(chunk: dict[str, Any]) -> str:
+            """Extract content from a single chunk dict."""
+            choices = chunk.get("choices", [])
+            if choices:
+                delta = choices[0].get("delta", {})
+                return delta.get("content", "")
+            return ""
 
         @staticmethod
         def extract_content(chunks: list[dict[str, Any] | str]) -> str:
@@ -459,12 +469,9 @@ def sse_parser() -> Any:
             content_parts: list[str] = []
             for chunk in chunks:
                 if isinstance(chunk, dict):
-                    choices = chunk.get("choices", [])
-                    if choices:
-                        delta = choices[0].get("delta", {})
-                        content = delta.get("content", "")
-                        if content:
-                            content_parts.append(content)
+                    content = SSEParser._extract_chunk_content(chunk)
+                    if content:
+                        content_parts.append(content)
             return "".join(content_parts)
 
     return SSEParser
@@ -491,10 +498,10 @@ def sample_prompts() -> dict[str, str]:
 def expected_models() -> list[str]:
     """List of expected available models."""
     return [
-        "llama-3.2-3b",
-        "phi-4",
+        TEST_MODEL_LLAMA,
+        TEST_MODEL_PHI4,
         "deepseek-r1-7b",
-        "qwen2.5-7b",
+        TEST_MODEL_QWEN,
     ]
 
 
@@ -541,7 +548,7 @@ async def loaded_models(async_client: httpx.AsyncClient) -> list[str]:
 
 ALL_MODELS = [
     {"id": "deepseek-r1-7b", "size_gb": 4.7, "purpose": "CoT Thinker"},
-    {"id": "qwen2.5-7b", "size_gb": 4.5, "purpose": "Coder"},
+    {"id": TEST_MODEL_QWEN, "size_gb": 4.5, "purpose": "Coder"},
     {"id": "phi-4", "size_gb": 8.4, "purpose": "General"},
     {"id": "llama-3.2-3b", "size_gb": 2.0, "purpose": "Fast"},
     {"id": "phi-3-medium-128k", "size_gb": 8.6, "purpose": "Long Context"},
@@ -563,11 +570,11 @@ def all_models() -> list[dict[str, Any]]:
 
 D4_PRESET = {
     "name": "Thinking + Code",
-    "models": ["deepseek-r1-7b", "qwen2.5-7b"],
+    "models": ["deepseek-r1-7b", TEST_MODEL_QWEN],
     "total_size_gb": 9.2,
     "orchestration_mode": "critique",
     "roles": {
-        "qwen2.5-7b": "generator",
+        TEST_MODEL_QWEN: "generator",
         "deepseek-r1-7b": "critic",
     },
 }

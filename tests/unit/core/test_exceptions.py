@@ -150,7 +150,7 @@ class TestModelLoadingError:
     def test_has_progress_attribute(self) -> None:
         """ModelLoadingError should support progress attribute."""
         error = ModelLoadingError("loading", model_id="phi-4", progress=0.75)
-        assert error.progress == 0.75
+        assert error.progress == pytest.approx(0.75)
 
 
 class TestTemporaryResourceError:
@@ -246,7 +246,7 @@ class TestCompressionFailedError:
     def test_has_target_ratio_attribute(self) -> None:
         """CompressionFailedError should support target_ratio attribute."""
         error = CompressionFailedError("Failed", target_ratio=0.5)
-        assert error.target_ratio == 0.5
+        assert error.target_ratio == pytest.approx(0.5)
 
 
 class TestHandoffStateInvalidError:
@@ -338,7 +338,7 @@ class TestValidationError:
     def test_has_value_attribute(self) -> None:
         """ValidationError should have value attribute."""
         error = ValidationError("Out of range", field="temperature", value=2.5)
-        assert error.value == 2.5
+        assert error.value == pytest.approx(2.5)
 
 
 class TestConfigurationError:

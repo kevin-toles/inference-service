@@ -144,14 +144,11 @@ class TestConcurrentRequests:
 
         # Analyze results
         successes = 0
-        failures = 0
         for result in results:
             if isinstance(result, Exception):
-                failures += 1
+                pass  # Count as failure by not incrementing successes
             elif isinstance(result, tuple) and result[1] == 200:
                 successes += 1
-            else:
-                failures += 1
 
         # At least 80% should succeed
         success_rate = successes / num_requests

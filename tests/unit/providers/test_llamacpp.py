@@ -531,8 +531,8 @@ class TestLlamaCppProviderGenerate:
             mock_instance = mock_llama_class.return_value
             call_kwargs = mock_instance.create_chat_completion.call_args.kwargs
             assert call_kwargs.get("max_tokens") == 256
-            assert call_kwargs.get("temperature") == 0.5
-            assert call_kwargs.get("top_p") == 0.9
+            assert call_kwargs.get("temperature") == pytest.approx(0.5)
+            assert call_kwargs.get("top_p") == pytest.approx(0.9)
 
 
 # =============================================================================
@@ -634,7 +634,7 @@ class TestLlamaCppProviderStream:
 
         with pytest.raises(LlamaCppInferenceError):
             async for _ in provider.stream(sample_request):
-                pass
+                pass  # Error expected when model not loaded
 
     @pytest.mark.asyncio
     async def test_stream_uses_stream_parameter(
@@ -655,7 +655,7 @@ class TestLlamaCppProviderStream:
             await provider.load()
 
             async for _ in provider.stream(sample_request):
-                pass
+                pass  # Consume stream to verify parameters
 
             mock_instance = mock_llama_streaming.return_value
             call_kwargs = mock_instance.create_chat_completion.call_args.kwargs

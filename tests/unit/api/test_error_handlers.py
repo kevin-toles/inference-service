@@ -353,7 +353,7 @@ class TestErrorDetailsExtraction:
         response = client.get("/test/validation")
         details = response.json()["error"]["details"]
         assert details["field"] == "temperature"
-        assert details["value"] == 2.5
+        assert details["value"] == pytest.approx(2.5)
 
 
 # =============================================================================

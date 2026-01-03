@@ -350,7 +350,7 @@ class TestDebateModeComparison:
 
         # Identical responses should have 100% agreement
         assert result.orchestration is not None
-        assert result.orchestration.agreement_score == 1.0
+        assert result.orchestration.agreement_score == pytest.approx(1.0)
 
     async def test_debate_mode_low_agreement_for_different_responses(
         self,
@@ -419,7 +419,7 @@ class TestDebateModeComparison:
         text_b = "The capital of France is Paris."
 
         agreement = calculate_agreement(text_a, text_b)
-        assert agreement == 1.0
+        assert agreement == pytest.approx(1.0)
 
     def test_calculate_agreement_completely_different(self) -> None:
         """Completely different strings should have low agreement."""
@@ -449,21 +449,21 @@ class TestDebateModeComparison:
         text_b = "paris is the capital"
 
         agreement = calculate_agreement(text_a, text_b)
-        assert agreement == 1.0
+        assert agreement == pytest.approx(1.0)
 
     def test_calculate_agreement_empty_strings(self) -> None:
         """Empty strings should have agreement of 1.0 (vacuous truth)."""
         from src.orchestration.modes.debate import calculate_agreement
 
         agreement = calculate_agreement("", "")
-        assert agreement == 1.0
+        assert agreement == pytest.approx(1.0)
 
     def test_calculate_agreement_one_empty(self) -> None:
         """One empty string should have 0 agreement."""
         from src.orchestration.modes.debate import calculate_agreement
 
         agreement = calculate_agreement("Some text", "")
-        assert agreement == 0.0
+        assert agreement == pytest.approx(0.0)
 
 
 # =============================================================================
