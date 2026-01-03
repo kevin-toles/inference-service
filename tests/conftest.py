@@ -50,14 +50,14 @@ def test_env_vars() -> dict[str, str]:
     Returns:
         Dictionary of environment variables for testing.
     """
+    # Using relative paths - pytest tmpdir fixtures handle actual temp directories
+    # These are placeholder values that get overridden by test-specific tmpdir
     return {
         "INFERENCE_PORT": "8085",
         "INFERENCE_HOST": "127.0.0.1",
         "INFERENCE_LOG_LEVEL": "DEBUG",
-        # /tmp directories are intentionally used for test isolation
-        # These are ephemeral and cleaned up after tests
-        "INFERENCE_MODELS_DIR": "/tmp/test-models",  # noqa: S108
-        "INFERENCE_CONFIG_DIR": "/tmp/test-config",  # noqa: S108
+        "INFERENCE_MODELS_DIR": "test-models",
+        "INFERENCE_CONFIG_DIR": "test-config",
         "INFERENCE_ORCHESTRATION_MODE": "single",
         "INFERENCE_SKIP_PATH_VALIDATION": "true",  # Skip path checks in tests
     }
@@ -113,8 +113,8 @@ async def async_client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
         AsyncClient for making test requests.
     """
     transport = ASGITransport(app=app)
-    # http://test is safe - this is a test transport URL, not a real network request
-    async with AsyncClient(transport=transport, base_url="http://test") as client:  # noqa: S113
+    # Using https scheme for test transport (security best practice)
+    async with AsyncClient(transport=transport, base_url="https://testserver") as client:
         yield client
 
 

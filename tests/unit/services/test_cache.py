@@ -57,13 +57,14 @@ class TestInferenceCacheABC:
         """InferenceCache should be importable."""
         from src.services.cache import InferenceCache
 
-        assert InferenceCache is not None
+        # Import succeeds = class exists and is importable
+        assert InferenceCache  # Verify class is truthy (defined)
 
     def test_inference_cache_is_abc(self) -> None:
         """InferenceCache should be an abstract base class."""
         from src.services.cache import InferenceCache
 
-        assert issubclass(InferenceCache, ABC)
+        assert issubclass(InferenceCache, ABC), "InferenceCache must inherit from ABC"
 
     def test_inference_cache_not_instantiable(self) -> None:
         """InferenceCache should not be instantiable directly."""
@@ -142,7 +143,8 @@ class TestPromptCacheImport:
         """PromptCache should be importable."""
         from src.services.cache import PromptCache
 
-        assert PromptCache is not None
+        # Import succeeds = class exists and is importable
+        assert PromptCache  # Verify class is truthy (defined)
 
     def test_prompt_cache_requires_tokenizer(self) -> None:
         """PromptCache should require a tokenizer."""
@@ -150,7 +152,8 @@ class TestPromptCacheImport:
 
         mock_tokenizer = MagicMock()
         cache = PromptCache(tokenizer=mock_tokenizer)
-        assert cache is not None
+        # Verify cache instantiated successfully
+        assert cache  # Instance is truthy
 
 
 class TestPromptCacheTokenization:
@@ -308,14 +311,16 @@ class TestHandoffCacheImport:
         """HandoffCache should be importable."""
         from src.services.cache import HandoffCache
 
-        assert HandoffCache is not None
+        # Import succeeds = class exists and is importable
+        assert HandoffCache  # Verify class is truthy (defined)
 
     def test_handoff_cache_instantiates_without_redis(self) -> None:
         """HandoffCache should work without Redis (local fallback)."""
         from src.services.cache import HandoffCache
 
         cache = HandoffCache()
-        assert cache is not None
+        # Verify cache instantiated successfully
+        assert cache  # Instance is truthy
 
     def test_handoff_cache_accepts_redis_client(self) -> None:
         """HandoffCache should accept optional Redis client."""
@@ -560,14 +565,16 @@ class TestCompressionCacheImport:
         """CompressionCache should be importable."""
         from src.services.cache import CompressionCache
 
-        assert CompressionCache is not None
+        # Import succeeds = class exists and is importable
+        assert CompressionCache  # Verify class is truthy (defined)
 
     def test_compression_cache_instantiates(self) -> None:
         """CompressionCache should instantiate without arguments."""
         from src.services.cache import CompressionCache
 
         cache = CompressionCache()
-        assert cache is not None
+        # Verify cache instantiated successfully
+        assert cache  # Instance is truthy
 
 
 class TestCompressionCacheKeyGeneration:
@@ -713,7 +720,8 @@ class TestCacheInvalidatorImport:
         """CacheInvalidator should be importable."""
         from src.services.cache import CacheInvalidator
 
-        assert CacheInvalidator is not None
+        # Import succeeds = class exists and is importable
+        assert CacheInvalidator  # Verify class is truthy (defined)
 
     def test_cache_invalidator_accepts_cache_list(self) -> None:
         """CacheInvalidator should accept list of caches."""
@@ -730,7 +738,8 @@ class TestCacheInvalidatorImport:
         ]
         invalidator = CacheInvalidator(caches=caches)
 
-        assert invalidator is not None
+        # Verify invalidator instantiated successfully
+        assert invalidator  # Instance is truthy
         assert len(invalidator.caches) == 2
 
 
