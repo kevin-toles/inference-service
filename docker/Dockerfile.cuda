@@ -94,9 +94,10 @@ COPY --from=builder /opt/venv /opt/venv
 # Set working directory
 WORKDIR /app
 
-# Copy application code with correct ownership
+# Copy application code with correct ownership (read-only for security)
 COPY --chown=appuser:appgroup src/ ./src/
 COPY --chown=appuser:appgroup config/ ./config/
+RUN chmod -R a-w ./src/ ./config/
 
 # Create models directory for mounting
 RUN mkdir -p /app/models && chown appuser:appgroup /app/models

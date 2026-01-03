@@ -54,8 +54,10 @@ def test_env_vars() -> dict[str, str]:
         "INFERENCE_PORT": "8085",
         "INFERENCE_HOST": "127.0.0.1",
         "INFERENCE_LOG_LEVEL": "DEBUG",
-        "INFERENCE_MODELS_DIR": "/tmp/test-models",
-        "INFERENCE_CONFIG_DIR": "/tmp/test-config",
+        # /tmp directories are intentionally used for test isolation
+        # These are ephemeral and cleaned up after tests
+        "INFERENCE_MODELS_DIR": "/tmp/test-models",  # noqa: S108
+        "INFERENCE_CONFIG_DIR": "/tmp/test-config",  # noqa: S108
         "INFERENCE_ORCHESTRATION_MODE": "single",
         "INFERENCE_SKIP_PATH_VALIDATION": "true",  # Skip path checks in tests
     }
@@ -111,7 +113,8 @@ async def async_client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
         AsyncClient for making test requests.
     """
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
+    # http://test is safe - this is a test transport URL, not a real network request
+    async with AsyncClient(transport=transport, base_url="http://test") as client:  # noqa: S113
         yield client
 
 

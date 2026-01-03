@@ -152,7 +152,8 @@ class PromptCache(InferenceCache):
         Returns:
             List of token IDs.
         """
-        key = hashlib.md5(text.encode()).hexdigest()
+        # MD5 is safe here - used only for cache key generation, not security
+        key = hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()
         if key not in self._cache:
             self._cache[key] = self._tokenizer.tokenize(text.encode())
         return self._cache[key]
@@ -359,7 +360,8 @@ class CompressionCache(InferenceCache):
         Returns:
             Cache key string.
         """
-        content_hash = hashlib.md5(content.encode()).hexdigest()
+        # MD5 is safe here - used only for cache key generation, not security
+        content_hash = hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()
         return f"{content_hash}:{target_tokens}"
 
     def get(

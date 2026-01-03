@@ -212,7 +212,8 @@ class TestPromptCacheTokenization:
         cache.get_tokenized("Test text")
 
         # Verify hash is used (internal detail)
-        expected_key = hashlib.md5("Test text".encode()).hexdigest()
+        # MD5 is safe here - used only for cache key verification in tests
+        expected_key = hashlib.md5("Test text".encode(), usedforsecurity=False).hexdigest()
         assert expected_key in cache._cache
 
 
