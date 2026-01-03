@@ -69,8 +69,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Install runtime dependencies
 # libgomp1 is required by llama-cpp-python for OpenMP parallelism
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
     ca-certificates \
+    curl \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
@@ -102,11 +102,11 @@ USER appuser
 # Health check using /health endpoint
 # Reference: docs/ARCHITECTURE.md → Docker Health Check
 HEALTHCHECK --interval=60s --timeout=30s --start-period=120s --retries=3 \
-    CMD curl -f http://localhost:${INFERENCE_PORT}/health || exit 1
+    CMD curl -f "http://localhost:${INFERENCE_PORT}/health" || exit 1
 
 # Expose port (documentation)
 EXPOSE 8085
 
 # Default command - single worker for model inference
 # llama-cpp-python is not multi-process safe, use 1 worker
-CMD uvicorn src.main:app --host 0.0.0.0 --port ${INFERENCE_PORT:-8085} --workers ${INFERENCE_WORKERS:-1}
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port \"${INFERENCE_PORT:-8085}\" --workers \"${INFERENCE_WORKERS:-1}\""]

@@ -20,14 +20,14 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 # Install Python and build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.11 \
-    python3.11-venv \
-    python3.11-dev \
-    python3-pip \
     build-essential \
     cmake \
     curl \
     git \
+    python3-pip \
+    python3.11 \
+    python3.11-dev \
+    python3.11-venv \
     && rm -rf /var/lib/apt/lists/*
 
 # Create virtual environment
@@ -58,16 +58,14 @@ LABEL org.opencontainers.image.title="inference-service-cuda" \
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Security: Run as non-root user
+# Security: Run as non-root user and install Python runtime
 RUN groupadd --gid 1000 appgroup && \
-    useradd --uid 1000 --gid appgroup --shell /bin/bash --create-home appuser
-
-# Install Python runtime
-RUN apt-get update && apt-get install -y --no-install-recommends \
+    useradd --uid 1000 --gid appgroup --shell /bin/bash --create-home appuser && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
     python3.11 \
     python3.11-venv \
-    curl \
-    ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean \
     && ln -sf /usr/bin/python3.11 /usr/bin/python
@@ -113,7 +111,7 @@ USER appuser
 # Health check using /health endpoint
 # Reference: docs/ARCHITECTURE.md → Docker Health Check
 HEALTHCHECK --interval=60s --timeout=30s --start-period=120s --retries=3 \
-    CMD curl -f http://localhost:${INFERENCE_PORT}/health || exit 1
+    CMD curl -f "http://localhost:${INFERENCE_PORT}/health" || exit 1
 
 # Expose port (documentation)
 EXPOSE 8085
@@ -123,4 +121,4 @@ ENV NVIDIA_VISIBLE_DEVICES=all \
     NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 # Default command - single worker for model inference
-CMD uvicorn src.main:app --host 0.0.0.0 --port ${INFERENCE_PORT:-8085} --workers ${INFERENCE_WORKERS:-1}
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port \"${INFERENCE_PORT:-8085}\" --workers \"${INFERENCE_WORKERS:-1}\""]
