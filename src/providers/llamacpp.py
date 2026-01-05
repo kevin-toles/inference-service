@@ -162,6 +162,12 @@ class LlamaCppProvider(InferenceProvider):
         self._model: LlamaType | None = None
         self._is_loaded = False
 
+        # Inference lock to serialize concurrent requests
+        # llama-cpp-python is NOT thread-safe for concurrent llama_decode() calls
+        # Reference: Python Cookbook 3rd Ed, Ch12.4 "Locking Critical Sections"
+        # WBS-FIX: Prevents SIGABRT from concurrent batch_allocr corruption
+        self._inference_lock = asyncio.Lock()
+
         # Validate model path exists
         if not self._model_path.exists():
             raise LlamaCppModelNotFoundError(
@@ -320,21 +326,24 @@ class LlamaCppProvider(InferenceProvider):
             )
 
         try:
-            # Convert messages to format expected by llama-cpp-python
-            messages = self._convert_messages(request.messages)
+            # Acquire inference lock to serialize concurrent requests
+            # llama-cpp-python C++ backend crashes with concurrent llama_decode()
+            async with self._inference_lock:
+                # Convert messages to format expected by llama-cpp-python
+                messages = self._convert_messages(request.messages)
 
-            # Build generation kwargs
-            gen_kwargs = self._build_generation_kwargs(request)
+                # Build generation kwargs
+                gen_kwargs = self._build_generation_kwargs(request)
 
-            # Run synchronous generation in thread pool
-            result = await asyncio.to_thread(
-                self._model.create_chat_completion,
-                messages=messages,  # type: ignore[arg-type]
-                **gen_kwargs,
-            )
+                # Run synchronous generation in thread pool
+                result = await asyncio.to_thread(
+                    self._model.create_chat_completion,
+                    messages=messages,  # type: ignore[arg-type]
+                    **gen_kwargs,
+                )
 
-            # Parse response
-            return self._parse_completion_response(result)  # type: ignore[arg-type]
+                # Parse response
+                return self._parse_completion_response(result)  # type: ignore[arg-type]
 
         except LlamaCppInferenceError:
             raise
@@ -365,24 +374,27 @@ class LlamaCppProvider(InferenceProvider):
             )
 
         try:
-            # Convert messages
-            messages = self._convert_messages(request.messages)
+            # Acquire inference lock for ENTIRE streaming session
+            # llama-cpp-python C++ backend crashes with concurrent llama_decode()
+            async with self._inference_lock:
+                # Convert messages
+                messages = self._convert_messages(request.messages)
 
-            # Build generation kwargs with stream=True
-            gen_kwargs = self._build_generation_kwargs(request)
-            gen_kwargs["stream"] = True
+                # Build generation kwargs with stream=True
+                gen_kwargs = self._build_generation_kwargs(request)
+                gen_kwargs["stream"] = True
 
-            # Get streaming iterator (synchronous)
-            # Run initial setup in thread pool
-            stream_iter = await asyncio.to_thread(
-                self._model.create_chat_completion,
-                messages=messages,  # type: ignore[arg-type]
-                **gen_kwargs,
-            )
+                # Get streaming iterator (synchronous)
+                # Run initial setup in thread pool
+                stream_iter = await asyncio.to_thread(
+                    self._model.create_chat_completion,
+                    messages=messages,  # type: ignore[arg-type]
+                    **gen_kwargs,
+                )
 
-            # Iterate over chunks
-            for chunk in stream_iter:
-                yield self._parse_streaming_chunk(chunk)  # type: ignore[arg-type]
+                # Iterate over chunks (while holding lock)
+                for chunk in stream_iter:
+                    yield self._parse_streaming_chunk(chunk)  # type: ignore[arg-type]
 
         except LlamaCppInferenceError:
             raise

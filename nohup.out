@@ -1,0 +1,247 @@
+INFO:     Started server process [73223]
+INFO:     Waiting for application startup.
+{"logger": "src.main", "service": "inference-service", "version": "0.1.0", "environment": "development", "port": 8085, "event": "Application starting", "level": "info", "timestamp": "2026-01-04T21:10:16.461592Z"}
+{"logger": "src.main", "event": "No default preset configured - set INFERENCE_DEFAULT_PRESET to auto-load models", "level": "info", "timestamp": "2026-01-04T21:10:16.508364Z"}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8085 (Press CTRL+C to quit)
+INFO:     127.0.0.1:60031 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60038 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60146 - "GET /v1/models HTTP/1.1" 200 OK
+llama_context: n_ctx_per_seq (8192) < n_ctx_train (131072) -- the full capacity of the model will not be utilized
+ggml_metal_init: skipping kernel_get_rows_bf16                     (not supported)
+ggml_metal_init: skipping kernel_set_rows_bf16                     (not supported)
+ggml_metal_init: skipping kernel_mul_mv_bf16_f32                   (not supported)
+ggml_metal_init: skipping kernel_mul_mv_bf16_f32_c4                (not supported)
+ggml_metal_init: skipping kernel_mul_mv_bf16_f32_1row              (not supported)
+ggml_metal_init: skipping kernel_mul_mv_bf16_f32_l4                (not supported)
+ggml_metal_init: skipping kernel_mul_mv_bf16_bf16                  (not supported)
+ggml_metal_init: skipping kernel_mul_mv_id_bf16_f32                (not supported)
+ggml_metal_init: skipping kernel_mul_mm_bf16_f32                   (not supported)
+ggml_metal_init: skipping kernel_mul_mm_id_bf16_f16                (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h64           (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h80           (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h96           (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h112          (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h128          (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h192          (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_hk192_hv128   (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h256          (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_hk576_hv512   (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_h64       (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_h96       (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_h128      (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_h192      (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_hk192_hv128 (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_h256      (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_hk576_hv512 (not supported)
+ggml_metal_init: skipping kernel_cpy_f32_bf16                      (not supported)
+ggml_metal_init: skipping kernel_cpy_bf16_f32                      (not supported)
+ggml_metal_init: skipping kernel_cpy_bf16_bf16                     (not supported)
+INFO:     127.0.0.1:60194 - "POST /v1/models/llama-3.2-3b/load HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60218 - "POST /v1/models/llama-3.2-3b/unload HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60930 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52990 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53078 - "GET /v1/models HTTP/1.1" 200 OK
+llama_context: n_ctx_per_seq (4096) < n_ctx_train (16384) -- the full capacity of the model will not be utilized
+ggml_metal_init: skipping kernel_get_rows_bf16                     (not supported)
+ggml_metal_init: skipping kernel_set_rows_bf16                     (not supported)
+ggml_metal_init: skipping kernel_mul_mv_bf16_f32                   (not supported)
+ggml_metal_init: skipping kernel_mul_mv_bf16_f32_c4                (not supported)
+ggml_metal_init: skipping kernel_mul_mv_bf16_f32_1row              (not supported)
+ggml_metal_init: skipping kernel_mul_mv_bf16_f32_l4                (not supported)
+ggml_metal_init: skipping kernel_mul_mv_bf16_bf16                  (not supported)
+ggml_metal_init: skipping kernel_mul_mv_id_bf16_f32                (not supported)
+ggml_metal_init: skipping kernel_mul_mm_bf16_f32                   (not supported)
+ggml_metal_init: skipping kernel_mul_mm_id_bf16_f16                (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h64           (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h80           (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h96           (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h112          (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h128          (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h192          (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_hk192_hv128   (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_h256          (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_bf16_hk576_hv512   (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_h64       (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_h96       (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_h128      (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_h192      (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_hk192_hv128 (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_h256      (not supported)
+ggml_metal_init: skipping kernel_flash_attn_ext_vec_bf16_hk576_hv512 (not supported)
+ggml_metal_init: skipping kernel_cpy_f32_bf16                      (not supported)
+ggml_metal_init: skipping kernel_cpy_bf16_f32                      (not supported)
+ggml_metal_init: skipping kernel_cpy_bf16_bf16                     (not supported)
+INFO:     127.0.0.1:53290 - "POST /v1/models/phi-4/load HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53311 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53411 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55420 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56641 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57092 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57184 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57186 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57199 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57208 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57220 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57230 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57239 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57248 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57257 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57266 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57275 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57284 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57293 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57302 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57311 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57320 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57329 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57338 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57347 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57356 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57365 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57374 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57383 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57393 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57403 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57413 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57422 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57431 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57441 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57453 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57462 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57473 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57482 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57494 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57504 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57513 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57523 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57972 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57972 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57981 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57981 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58003 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58003 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58016 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58016 - "POST /v1/chat/completions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58022 - "GET /v1/models HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58029 - "GET /v1/models HTTP/1.1" 200 OK
+Inference error: Generation failed for phi-4: llama_decode returned -1
+Traceback (most recent call last):
+  File "/Users/kevintoles/POC/inference-service/src/providers/llamacpp.py", line 330, in generate
+    result = await asyncio.to_thread(
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama.py", line 2003, in create_chat_completion
+    return handler(
+        llama=self,
+    ...<27 lines>...
+        logit_bias=logit_bias,
+    )
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama_chat_format.py", line 669, in chat_completion_handler
+    completion_or_chunks = llama.create_completion(
+        prompt=prompt,
+    ...<21 lines>...
+        logit_bias=logit_bias,
+    )
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama.py", line 1837, in create_completion
+    completion: Completion = next(completion_or_chunks)  # type: ignore
+                             ~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama.py", line 1322, in _create_completion
+    for token in self.generate(
+                 ~~~~~~~~~~~~~^
+        prompt_tokens,
+        ^^^^^^^^^^^^^^
+    ...<14 lines>...
+        grammar=grammar,
+        ^^^^^^^^^^^^^^^^
+    ):
+    ^
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama.py", line 914, in generate
+    self.eval(tokens)
+    ~~~~~~~~~^^^^^^^^
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama.py", line 648, in eval
+    self._ctx.decode(self._batch)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/_internals.py", line 327, in decode
+    raise RuntimeError(f"llama_decode returned {return_code}")
+RuntimeError: llama_decode returned -1
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/kevintoles/POC/inference-service/src/api/routes/completions.py", line 174, in create_chat_completion
+    response: ChatCompletionResponse = await provider.generate(completion_request)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevintoles/POC/inference-service/src/providers/llamacpp.py", line 342, in generate
+    raise LlamaCppInferenceError(
+        f"Generation failed for {self._model_id}: {e}"
+    ) from e
+src.providers.llamacpp.LlamaCppInferenceError: Generation failed for phi-4: llama_decode returned -1
+INFO:     127.0.0.1:58029 - "POST /v1/chat/completions HTTP/1.1" 500 Internal Server Error
+Inference error: Generation failed for phi-4: llama_decode returned -1
+Traceback (most recent call last):
+  File "/Users/kevintoles/POC/inference-service/src/providers/llamacpp.py", line 330, in generate
+    result = await asyncio.to_thread(
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama.py", line 2003, in create_chat_completion
+    return handler(
+        llama=self,
+    ...<27 lines>...
+        logit_bias=logit_bias,
+    )
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama_chat_format.py", line 669, in chat_completion_handler
+    completion_or_chunks = llama.create_completion(
+        prompt=prompt,
+    ...<21 lines>...
+        logit_bias=logit_bias,
+    )
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama.py", line 1837, in create_completion
+    completion: Completion = next(completion_or_chunks)  # type: ignore
+                             ~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama.py", line 1322, in _create_completion
+    for token in self.generate(
+                 ~~~~~~~~~~~~~^
+        prompt_tokens,
+        ^^^^^^^^^^^^^^
+    ...<14 lines>...
+        grammar=grammar,
+        ^^^^^^^^^^^^^^^^
+    ):
+    ^
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama.py", line 914, in generate
+    self.eval(tokens)
+    ~~~~~~~~~^^^^^^^^
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/llama.py", line 648, in eval
+    self._ctx.decode(self._batch)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/kevintoles/POC/inference-service/.venv/lib/python3.13/site-packages/llama_cpp/_internals.py", line 327, in decode
+    raise RuntimeError(f"llama_decode returned {return_code}")
+RuntimeError: llama_decode returned -1
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/kevintoles/POC/inference-service/src/api/routes/completions.py", line 174, in create_chat_completion
+    response: ChatCompletionResponse = await provider.generate(completion_request)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/kevintoles/POC/inference-service/src/providers/llamacpp.py", line 342, in generate
+    raise LlamaCppInferenceError(
+        f"Generation failed for {self._model_id}: {e}"
+    ) from e
+src.providers.llamacpp.LlamaCppInferenceError: Generation failed for phi-4: llama_decode returned -1
+INFO:     127.0.0.1:58022 - "POST /v1/chat/completions HTTP/1.1" 500 Internal Server Error

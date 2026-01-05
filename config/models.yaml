@@ -169,6 +169,101 @@ models:
     gpu_layers: 0  # CPU only - 14GB model needs CPU mode on 16GB Mac
     notes: "Requires >24GB RAM/VRAM for GPU - CPU mode on consumer hardware"
 
+  # =========================================================================
+  # CodeLlama Models (January 2026)
+  # =========================================================================
+  codellama-7b-instruct:
+    name: "CodeLlama 7B Instruct"
+    description: "Meta CodeLlama 7B - code generation with instruction following"
+    file: "codellama-7b-instruct/codellama-7b-instruct-q4_k_m.gguf"
+    size_gb: 4.0
+    context_length: 4096
+    quantization: "Q4_K_M"
+    source:
+      repo: "TheBloke/CodeLlama-7B-Instruct-GGUF"
+      filename: "codellama-7b-instruct.Q4_K_M.gguf"
+    roles:
+      - coder
+      - primary
+    gpu_layers: -1  # All layers on GPU (Metal)
+
+  codellama-13b:
+    name: "CodeLlama 13B"
+    description: "Meta CodeLlama 13B - larger capacity code generation"
+    file: "codellama-13b/codellama-13b-q4_k_m.gguf"
+    size_gb: 7.5
+    context_length: 4096
+    quantization: "Q4_K_M"
+    source:
+      repo: "TheBloke/CodeLlama-13B-GGUF"
+      filename: "codellama-13b.Q4_K_M.gguf"
+    roles:
+      - coder
+      - thinker
+    gpu_layers: 30  # Hybrid: 30 layers on GPU for 16GB Mac
+    notes: "Tight fit on 16GB - close other apps before use"
+
+  qwen2.5-coder-7b:
+    name: "Qwen 2.5 Coder 7B Instruct"
+    description: "Alibaba Qwen 2.5 Coder - specialized for code generation and reasoning"
+    file: "qwen2.5-coder-7b/qwen2.5-coder-7b-instruct-q4_k_m.gguf"
+    size_gb: 4.7
+    context_length: 32768
+    quantization: "Q4_K_M"
+    source:
+      repo: "Qwen/Qwen2.5-Coder-7B-Instruct-GGUF"
+      filename: "qwen2.5-coder-7b-instruct-q4_k_m.gguf"
+    roles:
+      - coder
+      - primary
+    gpu_layers: -1  # All layers on GPU (Metal)
+
+  starcoder2-7b:
+    name: "StarCoder2 7B"
+    description: "BigCode StarCoder2 - strong mid-size coder trained on The Stack v2"
+    file: "starcoder2-7b/starcoder2-7b-q4_k_m.gguf"
+    size_gb: 4.1
+    context_length: 16384
+    quantization: "Q4_K_M"
+    source:
+      repo: "second-state/StarCoder2-7B-GGUF"
+      filename: "starcoder2-7b-Q4_K_M.gguf"
+    roles:
+      - coder
+      - primary
+    gpu_layers: -1  # All layers on GPU (Metal)
+
+  codegemma-7b:
+    name: "CodeGemma 7B IT"
+    description: "Google CodeGemma - code-tuned Gemma variant with instruction tuning"
+    file: "codegemma-7b/codegemma-7b-it-q4_k_m.gguf"
+    size_gb: 5.0
+    context_length: 8192
+    quantization: "Q4_K_M"
+    source:
+      repo: "bartowski/codegemma-7b-it-GGUF"
+      filename: "codegemma-7b-it-Q4_K_M.gguf"
+    roles:
+      - coder
+      - primary
+    gpu_layers: -1  # All layers on GPU (Metal)
+
+  deepseek-coder-v2-lite:
+    name: "DeepSeek Coder V2 Lite Instruct"
+    description: "DeepSeek MoE code model - 32K context for 16GB Mac"
+    file: "deepseek-coder-v2-lite/deepseek-coder-v2-lite-instruct-q4_k_m.gguf"
+    size_gb: 9.0
+    context_length: 32768  # Reduced from 128K - keeps RAM ~12GB on 16GB Mac
+    quantization: "Q4_K_M"
+    source:
+      repo: "bartowski/DeepSeek-Coder-V2-Lite-Instruct-GGUF"
+      filename: "DeepSeek-Coder-V2-Lite-Instruct-Q4_K_M.gguf"
+    roles:
+      - coder
+      - thinker
+    gpu_layers: -1  # All layers on GPU (Metal) - MoE only activates ~2.4B params
+    notes: "MoE architecture (16B total, 2.4B active) - full 128K needs 32GB+ RAM"
+
 # =============================================================================
 # Role Definitions
 # =============================================================================
