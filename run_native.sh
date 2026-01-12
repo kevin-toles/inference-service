@@ -118,9 +118,10 @@ echo -e "${GREEN}Starting inference-service with Metal acceleration...${NC}"
 echo -e "${YELLOW}Press Ctrl+C to stop${NC}"
 echo ""
 
-# Start the service
+# Start the service (--no-access-log suppresses health check spam)
 python -m uvicorn src.main:app \
     --host "$INFERENCE_HOST" \
     --port "$INFERENCE_PORT" \
     --reload \
-    --reload-dir src
+    --reload-dir src \
+    --no-access-log
