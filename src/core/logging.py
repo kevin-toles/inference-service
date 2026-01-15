@@ -2,6 +2,12 @@
 
 Provides JSON-formatted structured logging using structlog.
 
+WBS-LOG0: Structured Logging Implementation
+- AC-LOG0.1: JSONFormatter with timestamp, level, service, correlation_id, module, message
+- AC-LOG0.2: RotatingFileHandler writing to /var/log/inference-service/app.log
+- AC-LOG0.3: CorrelationIdFilter for X-Request-ID propagation
+- AC-LOG0.4: Log level configurable via INFERENCE_SERVICE_LOG_LEVEL env var
+
 Patterns applied:
 - Singleton _configured flag prevents reconfiguration - Issue #16
 - configure_logging() called ONCE at startup
@@ -9,12 +15,18 @@ Patterns applied:
 - JSON output via JSONRenderer
 - Correlation ID support via contextvars
 
-Reference: WBS-INF2 AC-2.2
+Reference: WBS-INF2 AC-2.2, WBS-LOG0
 Exit Criteria: Log output is valid JSON with timestamp, level, message
 """
 
 import contextvars
+import json
+import logging
+import os
 import sys
+from datetime import datetime, timezone
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from typing import Any, TextIO
 
 import structlog
@@ -28,7 +40,7 @@ _configured: bool = False
 
 
 # =============================================================================
-# Correlation ID Context (for request tracing)
+# Correlation ID Context (AC-LOG0.3)
 # =============================================================================
 _correlation_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "correlation_id", default=None
@@ -53,6 +65,11 @@ def get_correlation_id() -> str | None:
     return _correlation_id_var.get()
 
 
+def clear_correlation_id() -> None:
+    """Clear the correlation ID from context."""
+    _correlation_id_var.set(None)
+
+
 # =============================================================================
 # Custom Processors
 # =============================================================================
@@ -72,6 +89,8 @@ def add_correlation_id(
     correlation_id = get_correlation_id()
     if correlation_id is not None:
         event_dict["correlation_id"] = correlation_id
+    else:
+        event_dict["correlation_id"] = "-"
     return event_dict
 
 
@@ -144,6 +163,104 @@ def reset_logging() -> None:
     """
     global _configured
     _configured = False
+
+
+# =============================================================================
+# WBS-LOG0: Standard Library Logging Integration
+# =============================================================================
+class JSONFormatter(logging.Formatter):
+    """JSON log formatter with standard fields (AC-LOG0.1)."""
+    
+    def __init__(self, service_name: str = "inference-service", **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.service_name = service_name
+    
+    def format(self, record: logging.LogRecord) -> str:
+        correlation_id = getattr(record, "correlation_id", "-")
+        
+        log_data = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "level": record.levelname,
+            "service": self.service_name,
+            "correlation_id": correlation_id,
+            "module": record.module,
+            "message": record.getMessage(),
+        }
+        
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+        
+        return json.dumps(log_data, ensure_ascii=False)
+
+
+class CorrelationIdFilter(logging.Filter):
+    """Filter that adds correlation ID to log records (AC-LOG0.3)."""
+    
+    def filter(self, record: logging.LogRecord) -> bool:
+        correlation_id = get_correlation_id()
+        record.correlation_id = correlation_id if correlation_id else "-"
+        return True
+
+
+def get_log_level_from_env(service_prefix: str = "INFERENCE_SERVICE") -> int:
+    """Get log level from INFERENCE_SERVICE_LOG_LEVEL env var (AC-LOG0.4)."""
+    env_var = f"{service_prefix}_LOG_LEVEL"
+    level_str = os.environ.get(env_var, "INFO").upper()
+    level = getattr(logging, level_str, None)
+    return level if isinstance(level, int) else logging.INFO
+
+
+def create_file_handler(
+    log_file_path: str = "/var/log/inference-service/app.log",
+    service_name: str = "inference-service",
+    max_bytes: int = 10_485_760,
+    backup_count: int = 5,
+) -> RotatingFileHandler:
+    """Create a rotating file handler for JSON logs (AC-LOG0.2)."""
+    log_dir = Path(log_file_path).parent
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    handler = RotatingFileHandler(
+        filename=log_file_path,
+        maxBytes=max_bytes,
+        backupCount=backup_count,
+        encoding="utf-8",
+    )
+    handler.setFormatter(JSONFormatter(service_name=service_name))
+    handler.addFilter(CorrelationIdFilter())
+    return handler
+
+
+def setup_structured_logging(
+    service_name: str = "inference-service",
+    log_file_path: str | None = "/var/log/inference-service/app.log",
+    log_level: int | None = None,
+) -> logging.Logger:
+    """Set up structured logging with file handler (WBS-LOG0)."""
+    if log_level is None:
+        log_level = get_log_level_from_env()
+    
+    logger = logging.getLogger(service_name)
+    logger.setLevel(log_level)
+    logger.handlers.clear()
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(JSONFormatter(service_name=service_name))
+    console_handler.addFilter(CorrelationIdFilter())
+    logger.addHandler(console_handler)
+    
+    # File handler
+    if log_file_path:
+        try:
+            file_handler = create_file_handler(log_file_path, service_name)
+            file_handler.setLevel(log_level)
+            logger.addHandler(file_handler)
+        except PermissionError:
+            logger.warning(f"Cannot write to {log_file_path}, file logging disabled")
+    
+    logger.propagate = False
+    return logger
 
 
 def get_logger(name: str) -> Any:
