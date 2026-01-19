@@ -297,6 +297,42 @@ class TestSettingsModelConfiguration:
             settings = Settings()
         assert settings.gpu_layers == -1
 
+    def test_default_gpu_index(self) -> None:
+        """GPU index defaults to 0 (first GPU).
+        
+        WBS-GPU6: Add INFERENCE_GPU_INDEX env var for multi-GPU.
+        """
+        from src.core.config import Settings
+
+        with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
+            settings = Settings()
+        assert settings.gpu_index == 0
+
+    def test_loads_gpu_index_from_env(self) -> None:
+        """Settings loads INFERENCE_GPU_INDEX from environment.
+        
+        WBS-GPU6: Multi-GPU selection via environment variable.
+        """
+        from src.core.config import Settings
+
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_GPU_INDEX": "1"}
+        with patch.dict(os.environ, env, clear=True):
+            settings = Settings()
+        assert settings.gpu_index == 1
+
+    def test_gpu_index_rejects_negative(self) -> None:
+        """GPU index must be >= 0.
+        
+        WBS-GPU7: Validate GPU index is non-negative.
+        """
+        from src.core.config import Settings
+
+        env = {**SKIP_VALIDATION_ENV, "INFERENCE_GPU_INDEX": "-1"}
+        with patch.dict(os.environ, env, clear=True):
+            with pytest.raises(ValidationError) as exc_info:
+                Settings()
+        assert "gpu_index" in str(exc_info.value).lower()
+
     def test_default_backend(self) -> None:
         """Backend defaults to llamacpp."""
         from src.core.config import Settings

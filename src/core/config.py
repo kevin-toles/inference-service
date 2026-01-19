@@ -89,6 +89,11 @@ class Settings(BaseSettings):
         default=DEFAULT_GPU_LAYERS,
         description="Number of layers to offload to GPU (-1 = all)",
     )
+    gpu_index: int = Field(
+        default=0,
+        ge=0,
+        description="GPU device index for multi-GPU systems (sets CUDA_VISIBLE_DEVICES)",
+    )
     backend: Literal["llamacpp", "vllm"] = Field(
         default="llamacpp",
         description="Inference backend to use",
