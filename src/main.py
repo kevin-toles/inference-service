@@ -6,10 +6,12 @@ Patterns applied:
 - Health endpoints for K8s probes (/health, /health/ready)
 - Docs disabled in production
 - Auto-load default preset on startup (INFERENCE_DEFAULT_PRESET env var)
+- OBS-11: Distributed tracing propagation
 
 Reference: WBS-INF2 AC-2.3, WBS-INF7
 """
 
+import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
@@ -22,6 +24,9 @@ from src.api.routes.models import router as models_router
 from src.core.config import get_settings
 from src.core.logging import configure_logging, get_logger
 from src.services.model_manager import get_model_manager
+
+# OBS-11: Distributed tracing propagation
+from src.observability import setup_tracing, TracingMiddleware
 
 
 # =============================================================================
@@ -122,6 +127,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 # =============================================================================
 settings = get_settings()
 
+# OBS-11: Initialize OpenTelemetry tracing
+otlp_endpoint = os.getenv("OTLP_ENDPOINT", "http://localhost:4317")
+tracing_enabled = os.getenv("TRACING_ENABLED", "true").lower() == "true"
+if tracing_enabled:
+    setup_tracing(service_name="inference-service", otlp_endpoint=otlp_endpoint)
+
 app = FastAPI(
     title=APP_NAME,
     description=APP_DESCRIPTION,
@@ -130,6 +141,13 @@ app = FastAPI(
     redoc_url="/redoc" if settings.environment != "production" else None,
     lifespan=lifespan,
 )
+
+# OBS-11: Add TracingMiddleware for distributed tracing
+if tracing_enabled:
+    app.add_middleware(
+        TracingMiddleware,
+        exclude_paths=["/health", "/health/ready", "/health/live", "/metrics"],
+    )
 
 
 # =============================================================================

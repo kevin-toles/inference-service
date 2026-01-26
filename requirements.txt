@@ -12,6 +12,13 @@ structlog~=24.4.0
 llama-cpp-python~=0.3.0
 numpy~=1.26.0
 
+# OBS-11: OpenTelemetry (Distributed Tracing)
+opentelemetry-api~=1.28.0
+opentelemetry-sdk~=1.28.0
+opentelemetry-instrumentation-fastapi~=0.49b0
+opentelemetry-exporter-otlp-proto-grpc~=1.28.0
+prometheus-client~=0.21.0
+
 # Development dependencies (also in pyproject.toml[dev])
 # Uncomment for manual install:
 # pytest~=8.3.0
