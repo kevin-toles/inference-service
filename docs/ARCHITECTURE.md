@@ -1,8 +1,8 @@
 # Inference Service Architecture
 
-> **Version:** 1.4.0  
-> **Last Updated:** 2025-12-31  
-> **Status:** Implementation Phase
+> **Version:** 1.5.0  
+> **Last Updated:** 2026-01-27  
+> **Status:** Production
 
 ## Table of Contents
 
@@ -20,6 +20,7 @@
 12. [Configuration Reference](#configuration-reference)
 13. [Health Checks](#health-checks)
 14. [llm-gateway Integration](#llm-gateway-integration)
+15. [Observability](#observability)
 
 ---
 
@@ -33,10 +34,11 @@ The **inference-service** is a self-hosted LLM inference worker that runs local 
 |--------|-------|
 | **Port** | 8085 |
 | **Role** | Sous Chef Worker (Kitchen Brigade) |
-| **Access** | Internal only (called by llm-gateway) |
+| **Access** | Internal only (via CMS:8086 proxy or direct) |
 | **API** | OpenAI-compatible |
 | **Backend (Current)** | llama-cpp-python + Metal |
 | **Backend (Future)** | vLLM + CUDA |
+| **Observability** | OpenTelemetry tracing (OBS-11) |
 
 ### Hardware Targets
 
@@ -64,8 +66,13 @@ The **inference-service** is a self-hosted LLM inference worker that runs local 
 │  │  (llm-gw)    │     └─────────────────┘                          │
 │  │    :8080     │                                                   │
 │  └──────┬───────┘     ┌─────────────────┐                          │
-│         │             │ inference-svc   │ ◀── NEW                  │
-│         └────────────▶│     :8085       │                          │
+│         │             │   CMS :8086     │ ◀── LLM Proxy            │
+│         │             │ (Context Mgmt)  │                          │
+│         │             └────────┬────────┘                          │
+│         │                      │                                    │
+│         │             ┌────────▼────────┐                          │
+│         └────────────▶│ inference-svc   │                          │
+│                       │     :8085       │                          │
 │                       │  (Local LLMs)   │                          │
 │                       └─────────────────┘                          │
 │                                                                      │
@@ -1466,6 +1473,48 @@ huggingface-cli download mradermacher/granite-20b-code-instruct-GGUF granite-20b
 
 ---
 
+## 15. Observability
+
+### OpenTelemetry Tracing (OBS-11)
+
+The inference-service now supports distributed tracing via OpenTelemetry, enabling request correlation across the Kitchen Brigade services.
+
+#### Configuration
+
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4317` | OTLP collector endpoint |
+| `OTEL_SERVICE_NAME` | `inference-service` | Service name in traces |
+| `OTEL_ENABLED` | `true` | Enable/disable tracing |
+
+#### Trace Propagation
+
+```
+External Request
+      │
+      ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   ai-agents     │────▶│   CMS:8086      │────▶│ inference:8085  │
+│   trace_id: X   │     │   trace_id: X   │     │   trace_id: X   │
+│   span: agent   │     │   span: proxy   │     │   span: infer   │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                                                        │
+                                                        ▼
+                                               ┌─────────────────┐
+                                               │    Jaeger UI    │
+                                               │ Trace Viewer    │
+                                               └─────────────────┘
+```
+
+#### Files
+
+| File | Purpose |
+|------|---------|
+| `src/observability/__init__.py` | Module exports |
+| `src/observability/tracing.py` | OpenTelemetry setup, span creation |
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
@@ -1475,3 +1524,5 @@ huggingface-cli download mradermacher/granite-20b-code-instruct-GGUF granite-20b
 | 1.2.0 | 2025-12-27 | Added Context Management and Caching Strategy sections |
 | 1.3.0 | 2025-12-27 | Document Analysis Phase validation: Added Error Handling section (exception hierarchy, saga compensation), Error Contamination Detection, Semantic Cache Layer, Cache Invalidation Strategy, Cache Interface Abstraction |
 | 1.3.1 | 2025-12-27 | Anti-pattern fixes from CODING_PATTERNS_ANALYSIS: AP-1.5 (HandoffState default_factory), AP-2.1 (fit_to_budget iterative), AP-10.1 (HandoffCache asyncio.Lock) |
+| 1.4.0 | 2025-12-31 | Implementation phase updates |
+| 1.5.0 | 2026-01-27 | Added Observability section (OBS-11), CMS proxy routing diagram, updated Kitchen Brigade positioning |

@@ -99,6 +99,10 @@ export INFERENCE_HOST="${INFERENCE_HOST:-0.0.0.0}"
 export INFERENCE_LOG_LEVEL="${INFERENCE_LOG_LEVEL:-INFO}"
 export INFERENCE_ENVIRONMENT="${INFERENCE_ENVIRONMENT:-development}"
 
+# Vision Language Model (VLM) - DeepSeek-VL2-Tiny for image classification
+export INFERENCE_VISION_MODEL_PATH="${INFERENCE_VISION_MODEL_PATH:-deepseek-vl2-tiny}"
+export INFERENCE_VISION_MODEL_ID="${INFERENCE_VISION_MODEL_ID:-deepseek-vl2-tiny}"
+
 # Optional: Set default preset from command line arg
 if [ -n "$1" ]; then
     export INFERENCE_DEFAULT_PRESET="$1"
@@ -113,6 +117,7 @@ echo -e "  Models Dir:    $INFERENCE_MODELS_DIR"
 echo -e "  Config Dir:    $INFERENCE_CONFIG_DIR"
 echo -e "  Port:          $INFERENCE_PORT"
 echo -e "  Default Preset: $INFERENCE_DEFAULT_PRESET"
+echo -e "  VLM Model:     ${GREEN}$INFERENCE_VISION_MODEL_PATH${NC} (image classification)"
 echo ""
 echo -e "${GREEN}Starting inference-service with Metal acceleration...${NC}"
 echo -e "${YELLOW}Press Ctrl+C to stop${NC}"

@@ -6,6 +6,57 @@
 
 ## Changelog
 
+### 2026-01-26: OpenTelemetry Dependency Fix (CL-007)
+
+**Summary**: Added missing `opentelemetry-exporter-otlp` dependency required for distributed tracing.
+
+**Commit:** `76f2670`
+
+**Issue Fixed:**
+- `ModuleNotFoundError` at startup when tracing was enabled
+- Missing OTLP exporter for sending traces to Jaeger/OTEL Collector
+
+**Files Changed:**
+
+| File | Changes |
+|------|---------|
+| `requirements.txt` | +5 lines: Added opentelemetry-exporter-otlp |
+
+---
+
+### 2026-01-25: OBS-11 Distributed Tracing with OpenTelemetry (CL-006)
+
+**Summary**: Added distributed tracing infrastructure using OpenTelemetry for cross-service request tracing and integration with Jaeger.
+
+**Commit:** `a0a44d1`
+
+**New Components:**
+
+| Component | Purpose |
+|-----------|---------|
+| `src/observability/__init__.py` | Observability module initialization |
+| `src/observability/tracing.py` | OpenTelemetry tracing setup (+170 lines) |
+
+**Dependencies Added:**
+- `opentelemetry-api`
+- `opentelemetry-sdk`
+- `opentelemetry-instrumentation-fastapi`
+- `opentelemetry-exporter-otlp`
+
+**Files Changed:**
+
+| File | Changes |
+|------|---------|
+| `requirements.txt` | +7 lines: OpenTelemetry packages |
+| `src/main.py` | +18 lines: Tracing initialization |
+| `src/observability/` | New observability module |
+
+**Cross-References:**
+- WBS-OBS-11: Distributed tracing work package
+- ai-agents CL-008: Matching implementation
+
+---
+
 ### 2026-01-18: WBS-GPU Multi-GPU Documentation (CL-005)
 
 **Summary**: Added comprehensive GPU allocation documentation and multi-GPU support configuration.

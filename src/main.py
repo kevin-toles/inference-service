@@ -21,6 +21,7 @@ from src.api.error_handlers import register_exception_handlers
 from src.api.routes.completions import router as completions_router
 from src.api.routes.health import router as health_router
 from src.api.routes.models import router as models_router
+from src.api.routes.vision import router as vision_router
 from src.core.config import get_settings
 from src.core.logging import configure_logging, get_logger
 from src.services.model_manager import get_model_manager
@@ -113,6 +114,37 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         app.state.current_preset = None
         app.state.models_loaded = []
 
+    # =========================================================================
+    # Register VLM provider (lazy-loaded - NOT loaded into memory at startup)
+    # =========================================================================
+    app.state.vision_provider = None
+    if settings.vision_model_id:  # Check if VLM is enabled
+        try:
+            from src.providers.moondream import MoondreamProvider
+
+            # Create Moondream provider (downloads from HuggingFace on first use)
+            app.state.vision_provider = MoondreamProvider(
+                model_id=settings.vision_model_id,
+                revision=settings.vision_model_revision,
+                device=settings.vision_device,  # None = auto-detect, "cpu" = force CPU
+                context_length=settings.vision_context_length,
+            )
+            logger.info(
+                "VLM provider registered (model NOT loaded - will download/load on first use)",
+                model_id=settings.vision_model_id,
+                revision=settings.vision_model_revision,
+                device=settings.vision_device or "auto",
+            )
+        except Exception as e:
+            logger.error(
+                "Failed to register VLM provider - vision endpoints disabled",
+                error=str(e),
+            )
+    else:
+        logger.info(
+            "VLM disabled - set INFERENCE_VISION_MODEL_ID to enable vision endpoints"
+        )
+
     yield
 
     # =========================================================================
@@ -151,11 +183,12 @@ if tracing_enabled:
 
 
 # =============================================================================
-# Register Routers (WBS-INF7, WBS-INF8, WBS-INF9)
+# Register Routers (WBS-INF7, WBS-INF8, WBS-INF9, WBS-IMG6)
 # =============================================================================
 app.include_router(health_router)
 app.include_router(models_router, prefix="/v1")
 app.include_router(completions_router, prefix="/v1")
+app.include_router(vision_router)  # WBS-IMG6: VLM vision endpoints
 
 
 # =============================================================================

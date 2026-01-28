@@ -225,7 +225,7 @@ inference-service/
 │   ├── api/routes/         # FastAPI routes
 │   ├── core/               # Config, logging, exceptions
 │   ├── models/             # Pydantic request/response models
-│   ├── providers/          # LLM providers (llamacpp, vllm)
+│   ├── providers/          # LLM providers (llamacpp, vllm, deepseek_vl)
 │   ├── orchestration/      # Multi-model orchestration
 │   └── services/           # Model manager, queue manager
 ├── tests/
@@ -235,6 +235,64 @@ inference-service/
 ├── docker/                 # Docker files
 └── docs/                   # Documentation
 ```
+
+## Vision Language Model (VLM) Support
+
+inference-service supports DeepSeek-VL2 for image classification and vision-language tasks.
+
+### VLM Installation
+
+```bash
+# Install VLM dependencies
+pip install -e ".[vlm]"
+
+# Install DeepSeek-VL2 from GitHub (not on PyPI)
+pip install --no-deps git+https://github.com/deepseek-ai/DeepSeek-VL2.git
+```
+
+### VLM Model Download
+
+```bash
+# Download DeepSeek-VL2-Tiny (~6.7GB)
+cd /path/to/ai-models/models
+git lfs install
+git clone https://huggingface.co/deepseek-ai/deepseek-vl2-tiny
+```
+
+### VLM Configuration
+
+Set these environment variables to enable VLM:
+
+```bash
+export INFERENCE_VISION_MODEL_PATH=deepseek-vl2-tiny
+export INFERENCE_VISION_MODEL_ID=deepseek-vl2-tiny
+export INFERENCE_MODELS_DIR=/path/to/ai-models/models
+```
+
+These are already configured in the platform startup scripts (`start_hybrid.sh`, `run_native.sh`).
+
+### VLM API Usage
+
+```bash
+# Check VLM health
+curl http://localhost:8085/api/v1/vision/health
+
+# Classify an image
+curl -X POST http://localhost:8085/api/v1/vision/classify \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_path": "/path/to/image.png",
+    "prompt": "Is this a technical diagram?",
+    "max_tokens": 256
+  }'
+```
+
+### VLM Notes
+
+- **First request is slow** - Model loads on first use (~30-60 seconds for 6.7GB model)
+- **MPS (Apple Silicon)** - Uses float32 for compatibility
+- **Memory usage** - ~8-10GB RAM when loaded
+- **transformers version** - Pinned to 4.38.x for DeepSeek-VL2 compatibility
 
 ## Documentation
 

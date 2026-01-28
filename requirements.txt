@@ -12,6 +12,23 @@ structlog~=24.4.0
 llama-cpp-python~=0.3.0
 numpy~=1.26.0
 
+# Vision Language Model (VLM) dependencies
+# NOTE: transformers 4.38.x required for DeepSeek-VL2 compatibility
+# (newer versions removed LlamaFlashAttention2 which deepseek_vl2 imports)
+transformers>=4.38.0,<4.40.0
+accelerate>=1.0.0
+torch>=2.0.0
+torchvision>=0.15.0
+Pillow>=10.0.0
+sentencepiece>=0.2.0
+einops>=0.7.0
+timm>=0.9.0  # Required by DeepSeek-VL2 vision encoder
+attrdict3>=2.0.0  # Required by DeepSeek-VL2
+
+# DeepSeek-VL2: Install from GitHub (not on PyPI)
+# pip install --no-deps git+https://github.com/deepseek-ai/DeepSeek-VL2.git
+# --no-deps because DeepSeek-VL2 pins old versions we don't need
+
 # OBS-11: OpenTelemetry (Distributed Tracing)
 opentelemetry-api>=1.28.0
 opentelemetry-sdk>=1.28.0

@@ -3,6 +3,7 @@
 Providers:
 - base: InferenceProvider ABC
 - llamacpp: LlamaCppProvider (llama-cpp-python + Metal)
+- deepseek_vl: DeepSeekVLProvider (Vision-Language Model)
 - vllm: VLLMProvider (future, CUDA)
 """
 
@@ -14,14 +15,35 @@ from src.providers.llamacpp import (
     LlamaCppProvider,
     LlamaCppProviderError,
 )
+from src.providers.deepseek_vl import (
+    DeepSeekVLProvider,
+    DeepSeekVLProviderError,
+    DeepSeekVLModelNotFoundError,
+    DeepSeekVLModelLoadError,
+    DeepSeekVLInferenceError,
+    DeepSeekVLImageError,
+    VisionClassifyRequest,
+    VisionClassifyResponse,
+)
 
 
 __all__: list[str] = [
+    # Base
     "InferenceProvider",
+    "ModelMetadata",
+    # LlamaCpp
     "LlamaCppInferenceError",
     "LlamaCppModelLoadError",
     "LlamaCppModelNotFoundError",
     "LlamaCppProvider",
     "LlamaCppProviderError",
-    "ModelMetadata",
+    # DeepSeek VL
+    "DeepSeekVLProvider",
+    "DeepSeekVLProviderError",
+    "DeepSeekVLModelNotFoundError",
+    "DeepSeekVLModelLoadError",
+    "DeepSeekVLInferenceError",
+    "DeepSeekVLImageError",
+    "VisionClassifyRequest",
+    "VisionClassifyResponse",
 ]
