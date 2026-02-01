@@ -123,7 +123,7 @@ class TestDeepSeekVLProviderDefaultBackend:
             "create_backend",
             wraps=DeviceBackendFactory.create_backend,
         ) as mock_create:
-            provider = DeepSeekVLProvider(
+            _provider = DeepSeekVLProvider(
                 model_path=mock_model_path,
                 model_id="test-model",
                 device="mps",

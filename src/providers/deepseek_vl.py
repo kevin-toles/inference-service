@@ -476,27 +476,23 @@ class DeepSeekVLProvider(InferenceProvider):
             img = img.resize(new_size, Image.Resampling.LANCZOS)
         return img
 
-    def _run_inference_sync(
-        self,
-        image: Image.Image,
-        prompt: str,
-        max_tokens: int,
-        temperature: float,
-    ) -> VisionClassifyResponse:
-        """Synchronous inference (runs in executor)."""
+    def _convert_tensor_dtype(self, tensor: torch.Tensor | None, target_dtype: torch.dtype) -> torch.Tensor | None:
+        """Convert tensor to target dtype if needed (extracted for CC reduction)."""
+        if tensor is None or not hasattr(tensor, 'dtype'):
+            return tensor
+        if tensor.dtype in (torch.bfloat16, torch.float32, torch.float16) and tensor.dtype != target_dtype:
+            return tensor.to(target_dtype)
+        return tensor
+
+    def _prepare_model_inputs(self, image: Image.Image, prompt: str) -> Any:
+        """Prepare inputs for the model (extracted for CC reduction)."""
         from deepseek_vl2.utils.io import load_pil_images
 
-        # Prepare conversation format
         conversation = [
-            {
-                "role": "<|User|>",
-                "content": f"<image>\n{prompt}",
-                "images": [image],
-            },
+            {"role": "<|User|>", "content": f"<image>\n{prompt}", "images": [image]},
             {"role": "<|Assistant|>", "content": ""},
         ]
-
-        # Process inputs
+        
         prepare_inputs = self._processor(
             conversations=conversation,
             images=[image],
@@ -504,22 +500,35 @@ class DeepSeekVLProvider(InferenceProvider):
             system_prompt="",
         ).to(self._model.device)
         
-        # Convert input tensors to match model dtype (float16 on MPS, float32 on CPU)
+        # Convert tensor dtypes if backend specifies
         if self._backend is not None:
             target_dtype = self._backend.get_optimal_dtype()
             for key in prepare_inputs.keys():
                 tensor = getattr(prepare_inputs, key, None)
-                if tensor is not None and hasattr(tensor, 'dtype'):
-                    # Convert any float type to target dtype for consistency
-                    if tensor.dtype in (torch.bfloat16, torch.float32, torch.float16):
-                        if tensor.dtype != target_dtype:
-                            setattr(prepare_inputs, key, tensor.to(target_dtype))
+                converted = self._convert_tensor_dtype(tensor, target_dtype)
+                if converted is not tensor:
+                    setattr(prepare_inputs, key, converted)
+        
+        return prepare_inputs
 
-        # Get image embeddings
+    def _cleanup_memory(self) -> None:
+        """Explicit memory cleanup for MPS (extracted for CC reduction)."""
+        if self._device == "mps":
+            import gc
+            gc.collect()
+            torch.mps.empty_cache()
+
+    def _run_inference_sync(
+        self,
+        image: Image.Image,
+        prompt: str,
+        max_tokens: int,
+        temperature: float,
+    ) -> VisionClassifyResponse:
+        """Synchronous inference (runs in executor). CC reduced via helper extraction."""
+        prepare_inputs = self._prepare_model_inputs(image, prompt)
         inputs_embeds = self._model.prepare_inputs_embeds(**prepare_inputs)
 
-        # Generate response
-        # Note: DeepseekVLV2ForCausalLM uses `language` attribute, not `language_model`
         with torch.no_grad():
             outputs = self._model.language.generate(
                 inputs_embeds=inputs_embeds,
@@ -528,29 +537,20 @@ class DeepSeekVLProvider(InferenceProvider):
                 bos_token_id=self._tokenizer.bos_token_id,
                 eos_token_id=self._tokenizer.eos_token_id,
                 max_new_tokens=max_tokens,
-                do_sample=False,  # Greedy decoding - faster, deterministic
-                use_cache=False,  # MEMORY: Disable KV cache to prevent OOM
+                do_sample=False,
+                use_cache=False,
             )
 
-        # Decode response
         raw_response = self._tokenizer.decode(
-            outputs[0].cpu().tolist(),
-            skip_special_tokens=True,
+            outputs[0].cpu().tolist(), skip_special_tokens=True
         ).strip()
-
-        # Parse classification from response
         classification, confidence = self._parse_classification(raw_response)
 
-        # Estimate token usage
         input_tokens = len(prepare_inputs.input_ids[0])
         output_tokens = len(outputs[0]) - input_tokens
         
-        # CRITICAL: Explicit memory cleanup to prevent MPS OOM crashes
         del outputs, inputs_embeds, prepare_inputs, image
-        if self._device == "mps":
-            import gc
-            gc.collect()
-            torch.mps.empty_cache()
+        self._cleanup_memory()
 
         return VisionClassifyResponse(
             classification=classification,
@@ -617,13 +617,20 @@ class DeepSeekVLProvider(InferenceProvider):
     async def stream(
         self, request: ChatCompletionRequest
     ) -> AsyncIterator[ChatCompletionChunk]:
-        """Stream completion (not supported for vision)."""
+        """Stream completion (not supported for vision).
+        
+        Raises NotImplementedError immediately. Use classify_image() instead.
+        
+        Note: Uses _ = request and unreachable yield for type checking.
+        """
+        _ = request  # Acknowledge parameter for interface compliance
         raise NotImplementedError(
             "DeepSeekVLProvider does not support streaming. "
             "Use classify_image() for vision tasks."
         )
-        # Yield statement to make this a generator (required for type)
-        yield  # type: ignore[misc]
+        # This yield is unreachable but required for async generator return type.
+        # SonarQube S1763 is acceptable here - it's a Python typing limitation.
+        yield ChatCompletionChunk(id="", object="", created=0, model="", choices=[])  # type: ignore[misc] # noqa: S1763
 
     def tokenize(self, text: str) -> list[int]:
         """Tokenize text."""

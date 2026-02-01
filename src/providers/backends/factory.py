@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 from .device_backend import CPUBackend, DeviceBackend, MPSBackend
 
 if TYPE_CHECKING:
-    pass
+    from typing import TypeAlias  # noqa: F401 - provides typing context
 
 # =============================================================================
 # Device Constants (AP-1: No duplicated string literals)

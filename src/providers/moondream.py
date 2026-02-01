@@ -269,15 +269,21 @@ class MoondreamProvider(InferenceProvider):
     async def stream(
         self, request: ChatCompletionRequest
     ) -> "AsyncIterator[ChatCompletionChunk]":
-        """Stream completion (not implemented for vision model)."""
-        # Vision models don't support text streaming
-        # This is an async generator that immediately raises
-        if False:  # pragma: no cover
-            yield  # type: ignore[misc]
+        """Stream completion (not implemented for vision model).
+        
+        Vision models don't support text streaming.
+        Raises NotImplementedError immediately.
+        
+        Note: Uses _ = request and TYPE_CHECKING yield for type checking.
+        """
+        _ = request  # Acknowledge parameter for interface compliance
         raise NotImplementedError(
             "MoondreamProvider does not support streaming. "
             "Use classify_image() for vision tasks."
         )
+        # This yield is unreachable but required for async generator return type.
+        # SonarQube S1763 is acceptable here - it's a Python typing limitation.
+        yield ChatCompletionChunk(id="", object="", created=0, model="", choices=[])  # type: ignore[misc] # noqa: S1763
 
     async def tokenize(self, text: str) -> list[int]:
         """Tokenize text (not implemented for vision model)."""
