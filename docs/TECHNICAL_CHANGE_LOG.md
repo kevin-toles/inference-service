@@ -6,6 +6,75 @@
 
 ## Changelog
 
+### 2026-01-31: Vision/VLM Capabilities Added (CL-004)
+
+**Summary**: Added vision/VLM capabilities supporting DeepSeek-VL2 and Moondream models for image analysis.
+
+**Background**:
+- Platform needed multimodal capabilities for code screenshot analysis
+- Vision-language models enable diagram parsing and UI screenshot understanding
+- Metal GPU acceleration critical for VLM inference performance
+
+**Changes Made**:
+
+| File | Change |
+|------|--------|
+| `src/providers/deepseek_vl.py` | New provider for DeepSeek-VL2-Tiny |
+| `src/providers/moondream.py` | New provider for Moondream-2B |
+| `src/api/routes/vision.py` | New vision endpoints |
+| `src/services/vision_service.py` | Vision orchestration layer |
+| `config/models.yaml` | Added vision model configurations |
+| `docs/ARCHITECTURE.md` | Added `/v1/vision/*` endpoint documentation |
+
+**New API Endpoints**:
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/v1/vision/analyze` | POST | Analyze image with prompt |
+| `/v1/vision/describe` | POST | Generate image description |
+| `/v1/vision/extract` | POST | Extract structured data from image |
+| `/v1/vision/compare` | POST | Compare two images |
+| `/v1/vision/models` | GET | List available vision models |
+
+**Architecture Alignment**:
+- ✅ Kitchen Brigade: Sous Chef Worker expanded capabilities
+- ✅ Multimodal: Enables code diagram and screenshot analysis
+- ✅ Metal GPU: VLM inference optimized for Apple Silicon
+
+---
+
+### 2026-01-28: OpenTelemetry Distributed Tracing (CL-003)
+
+**Summary**: Added OpenTelemetry distributed tracing for observability (OBS-11).
+
+**Background**:
+- Platform needed end-to-end request tracing across services
+- Debugging multi-service requests required correlated traces
+- OTEL standard enables integration with Jaeger/Tempo/etc.
+
+**Changes Made**:
+
+| File | Change |
+|------|--------|
+| `src/observability/tracing.py` | New tracing module |
+| `src/main.py` | OTEL middleware integration |
+| `requirements.txt` | Added `opentelemetry-*` dependencies |
+| `docker-compose.yml` | Added OTEL environment variables |
+
+**Environment Variables**:
+```bash
+OTEL_SERVICE_NAME=inference-service
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+OTEL_TRACES_EXPORTER=otlp
+```
+
+**Architecture Alignment**:
+- ✅ Observability: Traces flow through Kitchen Brigade services
+- ✅ WBS OBS-11: Distributed tracing requirement satisfied
+- ✅ Integration: Compatible with platform-wide Jaeger collector
+
+---
+
 ### 2025-12-31: Model Configuration Ownership Established (CL-001)
 
 **Summary**: Established inference-service as the **single source of truth** for all model configuration. Deleted duplicate config files from ai-models repo.
