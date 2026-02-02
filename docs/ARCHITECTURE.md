@@ -215,6 +215,16 @@ ai-models/
 | GET | `/health` | Liveness check |
 | GET | `/health/ready` | Readiness (has loaded models) |
 
+### Vision Endpoints (DeepSeek-VL)
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/v1/vision/health` | Vision model health check |
+| POST | `/v1/vision/classify` | Single image classification |
+| POST | `/v1/vision/classify/batch` | Batch image classification |
+| POST | `/v1/vision/load` | Load vision model |
+| POST | `/v1/vision/unload` | Unload vision model |
+
 ### Chat Completion Request
 
 ```json
