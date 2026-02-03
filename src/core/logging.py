@@ -116,10 +116,25 @@ def _level_to_int(level: str) -> int:
 # =============================================================================
 # Singleton Configuration
 # =============================================================================
+def _get_default_log_path() -> str:
+    """Get platform-appropriate default log file path.
+    
+    Returns:
+        macOS: ~/Library/Logs/ai-platform/inference-service/app.log
+        Linux: /var/log/inference-service/app.log
+    """
+    if sys.platform == "darwin":
+        home = Path.home()
+        return str(home / "Library" / "Logs" / "ai-platform" / "inference-service" / "app.log")
+    return "/var/log/inference-service/app.log"
+
+
 def configure_logging(
     level: str = "INFO",
     stream: TextIO | None = None,
     force: bool = False,
+    log_file_path: str | None = None,
+    enable_file_logging: bool | None = None,
 ) -> None:
     """Configure structlog ONCE at application startup.
 
@@ -130,6 +145,9 @@ def configure_logging(
         level: Minimum log level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
         stream: Output stream. Defaults to sys.stdout.
         force: Force reconfiguration (for testing only).
+        log_file_path: Path for log file. Defaults to platform-appropriate location.
+        enable_file_logging: Whether to enable file logging. 
+            Defaults from INFERENCE_ENABLE_FILE_LOGGING env var.
     """
     global _configured
 
@@ -152,6 +170,25 @@ def configure_logging(
         logger_factory=structlog.PrintLoggerFactory(file=stream or sys.stdout),
         cache_logger_on_first_use=False,
     )
+
+    # Setup file logging if enabled
+    if enable_file_logging is None:
+        enable_file_logging = os.environ.get("INFERENCE_ENABLE_FILE_LOGGING", "true").lower() in ("true", "1", "yes")
+    
+    if enable_file_logging:
+        if log_file_path is None:
+            log_file_path = os.environ.get("INFERENCE_LOG_FILE_PATH") or _get_default_log_path()
+        
+        try:
+            file_handler = create_file_handler(log_file_path, "inference-service")
+            file_handler.setLevel(_level_to_int(level))
+            # Add to root logger to capture all logs
+            root_logger = logging.getLogger()
+            root_logger.setLevel(_level_to_int(level))
+            root_logger.addHandler(file_handler)
+        except (PermissionError, OSError) as e:
+            # Log warning to stdout if file logging fails
+            print(f'{{"timestamp": "{datetime.now(timezone.utc).isoformat()}", "level": "WARNING", "service": "inference-service", "message": "File logging disabled: {e}"}}', file=sys.stderr)
 
     _configured = True
 
