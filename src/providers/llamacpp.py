@@ -238,6 +238,12 @@ class LlamaCppProvider(InferenceProvider):
                 # Metal acceleration for all layers
                 n_gpu_layers = -1
 
+            # Performance optimization parameters
+            # Reference: LLM Engineers Handbook Ch35 - KV cache and batch optimization
+            # Reference: AI Systems Performance Engineering - Flash attention
+            import os
+            n_threads = os.cpu_count() or 4
+            
             # Run synchronous model loading in thread pool
             # to avoid blocking the event loop
             self._model = await asyncio.to_thread(
@@ -245,6 +251,24 @@ class LlamaCppProvider(InferenceProvider):
                 model_path=str(self._model_path),
                 n_ctx=self._context_length,
                 n_gpu_layers=n_gpu_layers,
+                # === SPEED OPTIMIZATIONS ===
+                # Batch size: larger = faster prompt processing (prefill phase)
+                # 2048 is 4x default, good balance of speed vs memory
+                n_batch=2048,
+                # Micro-batch for continuous batching
+                n_ubatch=512,
+                # Thread parallelism for CPU-bound ops
+                n_threads=n_threads,
+                n_threads_batch=n_threads,
+                # Flash attention: 2-4x faster on Metal
+                # Uses optimized attention kernel
+                flash_attn=True,
+                # Memory mapping: faster model loading
+                use_mmap=True,
+                # Lock model in RAM: prevents swap, consistent latency
+                use_mlock=True,
+                # KV cache on GPU (default True, explicit for clarity)
+                offload_kqv=True,
                 verbose=False,
             )
 

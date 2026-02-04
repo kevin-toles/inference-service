@@ -26,19 +26,22 @@ models:
     # phi-4 has 40 layers. Optimal for 16GB Mac: 35 GPU + 5 CPU = best speed
     gpu_layers: 35  # Optimal hybrid: 35/40 layers on GPU (~26s vs 57s CPU-only)
 
-  deepseek-r1-7b:
-    name: "DeepSeek R1 Distill 7B"
-    description: "Chain-of-thought reasoning, complex analysis"
-    file: "deepseek-r1-7b/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf"
-    size_gb: 4.7
-    context_length: 4608  # Reduced from 32768 - matches Qwen models for 16GB Mac stability
-    quantization: "Q4_K_M"
-    source:
-      repo: "unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF"
-      filename: "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf"
-    roles:
-      - thinker
-    gpu_layers: -1  # All layers on GPU (Metal)
+  # NOTE: deepseek-r1-7b model file not downloaded - use deepseek-coder-v2-lite instead
+  # To enable, download: huggingface-cli download unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF \
+  #   DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf --local-dir models/deepseek-r1-7b
+  # deepseek-r1-7b:
+  #   name: "DeepSeek R1 Distill 7B"
+  #   description: "Chain-of-thought reasoning, complex analysis"
+  #   file: "deepseek-r1-7b/DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf"
+  #   size_gb: 4.7
+  #   context_length: 4608
+  #   quantization: "Q4_K_M"
+  #   source:
+  #     repo: "unsloth/DeepSeek-R1-Distill-Qwen-7B-GGUF"
+  #     filename: "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf"
+  #   roles:
+  #     - thinker
+  #   gpu_layers: -1
 
   qwen2.5-7b:
     name: "Qwen 2.5 7B Instruct"
