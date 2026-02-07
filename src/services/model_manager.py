@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Any
 
 from src.providers.llamacpp import LlamaCppProvider
+from src.services.config_publisher import get_config_publisher
+from src.services.audit_client import get_audit_client
 
 
 # =============================================================================
@@ -259,6 +261,26 @@ class ModelManager:
             self._model_locks[model_id] = asyncio.Lock()
             self.current_memory_gb += model_size
 
+            # LLM Operations Mesh - Phase 2: Publish config change to Redis
+            publisher = get_config_publisher()
+            if publisher:
+                await publisher.publish_model_loaded(
+                    model_id=model_id,
+                    context_length=config.get("context_length", 2048),
+                    memory_mb=int(model_size * 1024),
+                    roles=config.get("roles", []),
+                )
+            
+            # LLM Operations Mesh - Phase 5: Log to Neo4j audit trail
+            audit_client = get_audit_client()
+            if audit_client and audit_client.is_connected:
+                await audit_client.log_model_loaded(
+                    model_id=model_id,
+                    context_length=config.get("context_length", 2048),
+                    memory_mb=int(model_size * 1024),
+                    roles=config.get("roles", []),
+                )
+
     async def unload_model(self, model_id: str) -> None:
         """Unload a model from memory.
 
@@ -282,6 +304,16 @@ class ModelManager:
             del self._model_locks[model_id]
             self.current_memory_gb -= model_size
             self.current_memory_gb = max(0.0, self.current_memory_gb)
+
+            # LLM Operations Mesh - Phase 2: Publish config change to Redis
+            publisher = get_config_publisher()
+            if publisher:
+                await publisher.publish_model_unloaded(model_id)
+            
+            # LLM Operations Mesh - Phase 5: Log to Neo4j audit trail
+            audit_client = get_audit_client()
+            if audit_client and audit_client.is_connected:
+                await audit_client.log_model_unloaded(model_id)
 
     def get_provider(self, model_id: str) -> LlamaCppProvider:
         """Get the provider for a model with graceful degradation.

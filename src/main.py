@@ -25,6 +25,8 @@ from src.api.routes.vision import router as vision_router
 from src.core.config import get_settings
 from src.core.logging import configure_logging, get_logger
 from src.services.model_manager import get_model_manager
+from src.services.config_publisher import initialize_publisher, shutdown_publisher
+from src.services.audit_client import init_audit_client, get_audit_client
 
 # OBS-11: Distributed tracing propagation
 from src.observability import setup_tracing, TracingMiddleware
@@ -75,6 +77,48 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     app.state.initialized = True
     app.state.environment = settings.environment
     app.state.service_name = settings.service_name
+
+    # =========================================================================
+    # LLM Operations Mesh - Phase 2: Initialize Redis config publisher
+    # =========================================================================
+    if settings.redis_enabled:
+        try:
+            publisher = await initialize_publisher(settings.redis_url)
+            if publisher.is_connected:
+                logger.info(
+                    "Redis config publisher initialized",
+                    redis_url=settings.redis_url,
+                )
+            else:
+                logger.warning(
+                    "Redis unavailable - config changes will not be published",
+                    redis_url=settings.redis_url,
+                )
+        except Exception as e:
+            logger.warning(
+                "Failed to initialize Redis publisher",
+                error=str(e),
+            )
+
+    # =========================================================================
+    # LLM Operations Mesh - Phase 5: Initialize Neo4j audit client
+    # =========================================================================
+    try:
+        audit_client = await init_audit_client()
+        if audit_client and audit_client.is_connected:
+            logger.info(
+                "Neo4j audit client initialized",
+                uri=audit_client._config.uri,
+            )
+        else:
+            logger.info(
+                "Neo4j audit logging disabled or unavailable",
+            )
+    except Exception as e:
+        logger.warning(
+            "Failed to initialize Neo4j audit client",
+            error=str(e),
+        )
 
     # =========================================================================
     # Auto-load default preset if configured
@@ -151,6 +195,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # SHUTDOWN
     # =========================================================================
     logger.info("Application shutting down", service=APP_NAME)
+    
+    # LLM Operations Mesh - Phase 5: Shutdown Neo4j audit client
+    audit_client = get_audit_client()
+    if audit_client:
+        await audit_client.close()
+    
+    # LLM Operations Mesh - Phase 2: Shutdown Redis publisher
+    await shutdown_publisher()
+    
     app.state.initialized = False
 
 

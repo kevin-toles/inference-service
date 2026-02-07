@@ -140,6 +140,18 @@ class Settings(BaseSettings):
     )
 
     # =========================================================================
+    # Redis Configuration (LLM Operations Mesh - Phase 2)
+    # =========================================================================
+    redis_url: str = Field(
+        default="redis://localhost:6379",
+        description="Redis connection URL for config pub/sub",
+    )
+    redis_enabled: bool = Field(
+        default=True,
+        description="Enable Redis pub/sub for config change notifications",
+    )
+
+    # =========================================================================
     # Testing/Development Options
     # =========================================================================
     skip_path_validation: bool = Field(

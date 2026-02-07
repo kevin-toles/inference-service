@@ -32,6 +32,7 @@ from src.models.responses import (
     Usage,
 )
 from src.providers.base import InferenceProvider, ModelMetadata
+from src.core.text_processing import strip_reasoning_tags
 
 
 # Import Llama at module level for easier mocking in tests
@@ -540,12 +541,15 @@ class LlamaCppProvider(InferenceProvider):
         choices: list[Choice] = []
         for i, raw_choice in enumerate(result.get("choices", [])):
             message_data = raw_choice.get("message", {})
+            # Strip reasoning/thinking tags (Qwen3, DeepSeek-R1, etc.)
+            raw_content = message_data.get("content")
+            cleaned_content = strip_reasoning_tags(raw_content)
             choices.append(
                 Choice(
                     index=i,
                     message=ChoiceMessage(
                         role=message_data.get("role", "assistant"),
-                        content=message_data.get("content"),
+                        content=cleaned_content,
                         tool_calls=message_data.get("tool_calls"),
                     ),
                     finish_reason=raw_choice.get("finish_reason"),
@@ -583,12 +587,15 @@ class LlamaCppProvider(InferenceProvider):
         chunk_choices: list[ChunkChoice] = []
         for raw_choice in chunk.get("choices", []):
             delta_data = raw_choice.get("delta", {})
+            # Strip reasoning/thinking tags from streaming content
+            raw_content = delta_data.get("content")
+            cleaned_content = strip_reasoning_tags(raw_content)
             chunk_choices.append(
                 ChunkChoice(
                     index=raw_choice.get("index", 0),
                     delta=ChunkDelta(
                         role=delta_data.get("role"),
-                        content=delta_data.get("content"),
+                        content=cleaned_content,
                         tool_calls=delta_data.get("tool_calls"),
                     ),
                     finish_reason=raw_choice.get("finish_reason"),

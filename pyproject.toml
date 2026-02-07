@@ -30,6 +30,8 @@ dependencies = [
     "structlog~=24.4.0",
     "llama-cpp-python~=0.3.0",
     "numpy~=1.26.0",
+    "redis>=5.0.0",  # LLM-MESH-P2: Config pub/sub
+    "neo4j>=5.14.0",  # LLM-MESH-P5: Audit trail
 ]
 
 [project.optional-dependencies]
