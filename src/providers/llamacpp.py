@@ -506,8 +506,9 @@ class LlamaCppProvider(InferenceProvider):
         """
         kwargs: dict[str, Any] = {}
 
-        if request.max_tokens is not None:
-            kwargs["max_tokens"] = request.max_tokens
+        # Default to 4096 when max_tokens is None to avoid llama-cpp-python's
+        # internal 256-token default (C-6: max_tokens truncation fix)
+        kwargs["max_tokens"] = request.max_tokens if request.max_tokens is not None else 4096
 
         if request.temperature is not None:
             kwargs["temperature"] = request.temperature
