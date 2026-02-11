@@ -269,6 +269,7 @@ class ModelManager:
                     context_length=config.get("context_length", 2048),
                     memory_mb=int(model_size * 1024),
                     roles=config.get("roles", []),
+                    trigger="preset_load",
                 )
             
             # LLM Operations Mesh - Phase 5: Log to Neo4j audit trail

@@ -93,21 +93,46 @@ class ConfigPublisher:
             self._connected = False
             logger.info("ConfigPublisher disconnected from Redis")
     
+    async def _get_usage_stats(self, model_id: str) -> dict[str, Any] | None:
+        """Read usage stats from model:usage:{model_id} for lifecycle events.
+
+        Returns:
+            Dict with last_used and request_count, or None if unavailable.
+        """
+        if not self.is_connected:
+            return None
+        try:
+            usage_key = CACHE_KEY_MODEL_USAGE.format(model_id=model_id)
+            data = await self._redis.hgetall(usage_key)
+            if not data:
+                return None
+            return {
+                "last_used": data.get("last_used"),
+                "request_count": int(data.get("request_count", 0)),
+            }
+        except (ConnectionError, RedisError):
+            return None
+
     async def publish_model_loaded(
         self,
         model_id: str,
         context_length: int,
         memory_mb: int = 0,
         roles: list[str] | None = None,
+        trigger: str = "api_request",
         **extra: Any,
     ) -> bool:
         """Publish MODEL_LOADED event and update cache.
+
+        Publishes to both model:config:changes (existing) and
+        model:lifecycle:events (Phase B) channels.
         
         Args:
             model_id: Model identifier
             context_length: Context window size
             memory_mb: Memory usage in MB
             roles: Model roles (e.g., ["chat", "code"])
+            trigger: What triggered the load ("api_request", "preset_load", "warmup")
             **extra: Additional model metadata
             
         Returns:
@@ -118,7 +143,9 @@ class ConfigPublisher:
             return False
         
         try:
-            # Build event payload
+            now = datetime.now(timezone.utc).isoformat()
+
+            # Build config event payload (existing behaviour)
             event = {
                 "event_type": "MODEL_LOADED",
                 "model_id": model_id,
@@ -130,11 +157,26 @@ class ConfigPublisher:
                     **extra,
                 },
                 "source": "inference-service",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": now,
             }
             
-            # Publish to channel
+            # Publish to config channel (existing)
             await self._redis.publish(CHANNEL_MODEL_CONFIG, json.dumps(event))
+            
+            # Phase B: Publish richer lifecycle event (AC-B.1, AC-B.3)
+            usage_stats = await self._get_usage_stats(model_id)
+            lifecycle_event = {
+                "event_type": "MODEL_LOADED",
+                "model_id": model_id,
+                "timestamp": now,
+                "source": "inference-service",
+                "memory_mb": memory_mb,
+                "trigger": trigger,
+                "usage_stats": usage_stats,
+            }
+            await self._redis.publish(
+                CHANNEL_MODEL_LIFECYCLE, json.dumps(lifecycle_event)
+            )
             
             # Update cache
             cache_key = CACHE_KEY_MODEL_CONFIG.format(model_id=model_id)
@@ -149,7 +191,7 @@ class ConfigPublisher:
             
             logger.info(
                 f"Published MODEL_LOADED for {model_id}",
-                extra={"context_length": context_length},
+                extra={"context_length": context_length, "trigger": trigger},
             )
             return True
             
@@ -158,11 +200,17 @@ class ConfigPublisher:
             self._connected = False
             return False
     
-    async def publish_model_unloaded(self, model_id: str) -> bool:
+    async def publish_model_unloaded(
+        self, model_id: str, trigger: str = "api_request"
+    ) -> bool:
         """Publish MODEL_UNLOADED event and update cache.
+
+        Publishes to both model:config:changes (existing) and
+        model:lifecycle:events (Phase B) channels.
         
         Args:
             model_id: Model identifier
+            trigger: What triggered the unload ("api_request", "eviction", "shutdown")
             
         Returns:
             True if published successfully
@@ -172,7 +220,12 @@ class ConfigPublisher:
             return False
         
         try:
-            # Build event payload
+            now = datetime.now(timezone.utc).isoformat()
+
+            # Read usage stats before unload (lifecycle event enrichment)
+            usage_stats = await self._get_usage_stats(model_id)
+
+            # Build config event payload (existing behaviour)
             event = {
                 "event_type": "MODEL_UNLOADED",
                 "model_id": model_id,
@@ -180,11 +233,25 @@ class ConfigPublisher:
                     "status": "unloaded",
                 },
                 "source": "inference-service",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": now,
             }
             
-            # Publish to channel
+            # Publish to config channel (existing)
             await self._redis.publish(CHANNEL_MODEL_CONFIG, json.dumps(event))
+
+            # Phase B: Publish richer lifecycle event (AC-B.2, AC-B.3)
+            lifecycle_event = {
+                "event_type": "MODEL_UNLOADED",
+                "model_id": model_id,
+                "timestamp": now,
+                "source": "inference-service",
+                "memory_mb": 0,
+                "trigger": trigger,
+                "usage_stats": usage_stats,
+            }
+            await self._redis.publish(
+                CHANNEL_MODEL_LIFECYCLE, json.dumps(lifecycle_event)
+            )
             
             # Remove from cache
             cache_key = CACHE_KEY_MODEL_CONFIG.format(model_id=model_id)
@@ -193,7 +260,10 @@ class ConfigPublisher:
             # Remove from available models set
             await self._redis.srem(CACHE_KEY_MODELS_AVAILABLE, model_id)
             
-            logger.info(f"Published MODEL_UNLOADED for {model_id}")
+            logger.info(
+                f"Published MODEL_UNLOADED for {model_id}",
+                extra={"trigger": trigger},
+            )
             return True
             
         except (ConnectionError, RedisError) as e:
