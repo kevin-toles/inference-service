@@ -8,4 +8,4 @@ export DYLD_FALLBACK_LIBRARY_PATH="/opt/homebrew/lib:${DYLD_FALLBACK_LIBRARY_PAT
 cd /Users/kevintoles/POC/inference-service
 source .venv/bin/activate
 
-exec python -m uvicorn src.main:app --host 0.0.0.0 --port 8085 "$@"
+exec python -m uvicorn src.main:app --host :: --port 8085 --timeout-keep-alive 30 --limit-concurrency 20 "$@"

@@ -95,7 +95,7 @@ fi
 
 export INFERENCE_CONFIG_DIR="${SCRIPT_DIR}/config"
 export INFERENCE_PORT="${INFERENCE_PORT:-8085}"
-export INFERENCE_HOST="${INFERENCE_HOST:-0.0.0.0}"
+export INFERENCE_HOST="${INFERENCE_HOST:-::}"  # C-7: Dual-stack IPv4+IPv6
 export INFERENCE_LOG_LEVEL="${INFERENCE_LOG_LEVEL:-INFO}"
 export INFERENCE_ENVIRONMENT="${INFERENCE_ENVIRONMENT:-development}"
 
@@ -124,9 +124,12 @@ echo -e "${YELLOW}Press Ctrl+C to stop${NC}"
 echo ""
 
 # Start the service (--no-access-log suppresses health check spam)
+# C-7: Added --timeout-keep-alive and --limit-concurrency for stability
 python -m uvicorn src.main:app \
     --host "$INFERENCE_HOST" \
     --port "$INFERENCE_PORT" \
+    --timeout-keep-alive 30 \
+    --limit-concurrency 20 \
     --reload \
     --reload-dir src \
     --no-access-log

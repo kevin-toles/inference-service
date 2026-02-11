@@ -100,6 +100,20 @@ class Settings(BaseSettings):
     )
 
     # =========================================================================
+    # Inference Resilience (C-7)
+    # =========================================================================
+    inference_timeout: int = Field(
+        default=300,
+        ge=10,
+        description="Max seconds per inference call — prevents hangs from runaway generation",
+    )
+    inference_max_consecutive_failures: int = Field(
+        default=3,
+        ge=1,
+        description="Auto-reload model after N consecutive llama_decode failures",
+    )
+
+    # =========================================================================
     # Orchestration Settings
     # =========================================================================
     orchestration_mode: Literal[

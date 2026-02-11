@@ -15,6 +15,7 @@ Reference: WBS-INF5 AC-5.1 through AC-5.6
 from __future__ import annotations
 
 import asyncio
+import logging
 import platform
 import time
 from collections.abc import AsyncIterator
@@ -33,6 +34,8 @@ from src.models.responses import (
 )
 from src.providers.base import InferenceProvider, ModelMetadata
 from src.core.text_processing import strip_reasoning_tags
+
+logger = logging.getLogger(__name__)
 
 
 # Import Llama at module level for easier mocking in tests
@@ -55,6 +58,12 @@ STATUS_LOADED = "loaded"
 STATUS_LOADING = "loading"
 DEFAULT_CONTEXT_LENGTH = 4096
 TOKENS_PER_CHAR_ESTIMATE = 4  # Rough estimate: ~4 chars per token
+
+# C-7: Resilience constants
+DEFAULT_INFERENCE_TIMEOUT = 300  # 5 minutes max per inference call
+DEFAULT_MAX_CONSECUTIVE_FAILURES = 3  # Auto-reload model after N failures
+QWEN3_DEFAULT_MAX_TOKENS = 2048  # Cap Qwen3 <think> tag inflation
+LLAMA_DECODE_ERROR_MARKER = "llama_decode returned"  # KV cache corruption signal
 
 
 # =============================================================================
@@ -168,6 +177,11 @@ class LlamaCppProvider(InferenceProvider):
         # Reference: Python Cookbook 3rd Ed, Ch12.4 "Locking Critical Sections"
         # WBS-FIX: Prevents SIGABRT from concurrent batch_allocr corruption
         self._inference_lock = asyncio.Lock()
+
+        # C-7: Inference resilience
+        self._inference_timeout = DEFAULT_INFERENCE_TIMEOUT
+        self._max_consecutive_failures = DEFAULT_MAX_CONSECUTIVE_FAILURES
+        self._consecutive_failures = 0
 
         # Validate model path exists
         if not self._model_path.exists():
@@ -335,6 +349,8 @@ class LlamaCppProvider(InferenceProvider):
 
         AC-5.2: Provider generates completions using llama-cpp-python.
         AC-5.4: Provider correctly reports token usage.
+        C-7: Wraps inference in asyncio.wait_for() to prevent hangs.
+        C-7: Auto-recovers from llama_decode -1 (KV cache corruption).
 
         Args:
             request: Chat completion request with messages.
@@ -360,12 +376,29 @@ class LlamaCppProvider(InferenceProvider):
                 # Build generation kwargs
                 gen_kwargs = self._build_generation_kwargs(request)
 
-                # Run synchronous generation in thread pool
-                result = await asyncio.to_thread(
-                    self._model.create_chat_completion,
-                    messages=messages,  # type: ignore[arg-type]
-                    **gen_kwargs,
-                )
+                # C-7: Wrap inference in timeout to prevent hangs
+                try:
+                    result = await asyncio.wait_for(
+                        asyncio.to_thread(
+                            self._model.create_chat_completion,
+                            messages=messages,  # type: ignore[arg-type]
+                            **gen_kwargs,
+                        ),
+                        timeout=self._inference_timeout,
+                    )
+                except asyncio.TimeoutError:
+                    logger.error(
+                        "Inference timeout after %ds for model %s",
+                        self._inference_timeout,
+                        self._model_id,
+                    )
+                    raise LlamaCppInferenceError(
+                        f"Inference timed out after {self._inference_timeout}s "
+                        f"for model {self._model_id}"
+                    )
+
+                # C-7: Reset consecutive failure count on success
+                self._consecutive_failures = 0
 
                 # Parse response
                 return self._parse_completion_response(result)  # type: ignore[arg-type]
@@ -373,6 +406,8 @@ class LlamaCppProvider(InferenceProvider):
         except LlamaCppInferenceError:
             raise
         except Exception as e:
+            # C-7: Auto-recover from llama_decode corruption
+            await self._handle_inference_failure(e)
             raise LlamaCppInferenceError(
                 f"Generation failed for {self._model_id}: {e}"
             ) from e
@@ -383,6 +418,7 @@ class LlamaCppProvider(InferenceProvider):
         """Generate a streaming completion.
 
         AC-5.3: Provider supports streaming with proper SSE format.
+        C-7: Wraps stream initialization in timeout.
 
         Args:
             request: Chat completion request with messages.
@@ -409,13 +445,29 @@ class LlamaCppProvider(InferenceProvider):
                 gen_kwargs = self._build_generation_kwargs(request)
                 gen_kwargs["stream"] = True
 
-                # Get streaming iterator (synchronous)
-                # Run initial setup in thread pool
-                stream_iter = await asyncio.to_thread(
-                    self._model.create_chat_completion,
-                    messages=messages,  # type: ignore[arg-type]
-                    **gen_kwargs,
-                )
+                # C-7: Wrap stream initialization in timeout
+                try:
+                    stream_iter = await asyncio.wait_for(
+                        asyncio.to_thread(
+                            self._model.create_chat_completion,
+                            messages=messages,  # type: ignore[arg-type]
+                            **gen_kwargs,
+                        ),
+                        timeout=self._inference_timeout,
+                    )
+                except asyncio.TimeoutError:
+                    logger.error(
+                        "Stream initialization timeout after %ds for model %s",
+                        self._inference_timeout,
+                        self._model_id,
+                    )
+                    raise LlamaCppInferenceError(
+                        f"Stream timed out after {self._inference_timeout}s "
+                        f"for model {self._model_id}"
+                    )
+
+                # C-7: Reset failure count on successful stream start
+                self._consecutive_failures = 0
 
                 # Iterate over chunks (while holding lock)
                 for chunk in stream_iter:
@@ -424,6 +476,8 @@ class LlamaCppProvider(InferenceProvider):
         except LlamaCppInferenceError:
             raise
         except Exception as e:
+            # C-7: Auto-recover from llama_decode corruption
+            await self._handle_inference_failure(e)
             raise LlamaCppInferenceError(
                 f"Streaming failed for {self._model_id}: {e}"
             ) from e
@@ -471,6 +525,55 @@ class LlamaCppProvider(InferenceProvider):
             return max(1, len(text) // TOKENS_PER_CHAR_ESTIMATE)
 
     # =========================================================================
+    # C-7: Auto-Recovery
+    # =========================================================================
+
+    async def _handle_inference_failure(self, exc: Exception) -> None:
+        """Handle inference failure with auto-recovery for KV cache corruption.
+
+        When ``llama_decode returned -1`` (or similar) is detected, the model's
+        KV cache is likely corrupted.  After *N* consecutive failures, unload
+        and reload the model automatically.
+
+        Args:
+            exc: The exception from the failed inference call.
+        """
+        self._consecutive_failures += 1
+        error_msg = str(exc)
+
+        if LLAMA_DECODE_ERROR_MARKER in error_msg:
+            logger.warning(
+                "llama_decode failure detected for %s (consecutive: %d/%d)",
+                self._model_id,
+                self._consecutive_failures,
+                self._max_consecutive_failures,
+            )
+            if self._consecutive_failures >= self._max_consecutive_failures:
+                logger.error(
+                    "Auto-reloading model %s after %d consecutive failures",
+                    self._model_id,
+                    self._consecutive_failures,
+                )
+                try:
+                    await self.unload()
+                    await self.load()
+                    self._consecutive_failures = 0
+                    logger.info("Model %s reloaded successfully", self._model_id)
+                except Exception as reload_err:
+                    logger.error(
+                        "Failed to auto-reload model %s: %s",
+                        self._model_id,
+                        reload_err,
+                    )
+        else:
+            logger.warning(
+                "Inference failure for %s: %s (consecutive: %d)",
+                self._model_id,
+                error_msg[:200],
+                self._consecutive_failures,
+            )
+
+    # =========================================================================
     # Helper Methods
     # =========================================================================
 
@@ -506,9 +609,16 @@ class LlamaCppProvider(InferenceProvider):
         """
         kwargs: dict[str, Any] = {}
 
-        # Default to 4096 when max_tokens is None to avoid llama-cpp-python's
-        # internal 256-token default (C-6: max_tokens truncation fix)
-        kwargs["max_tokens"] = request.max_tokens if request.max_tokens is not None else 4096
+        # C-7: Qwen3 models emit <think>...</think> tags that inflate token count
+        # 2-5x.  Cap max_tokens to prevent runaway generation.
+        if request.max_tokens is not None:
+            kwargs["max_tokens"] = request.max_tokens
+        elif "qwen3" in self._model_id.lower():
+            kwargs["max_tokens"] = QWEN3_DEFAULT_MAX_TOKENS
+        else:
+            # Default to 4096 when max_tokens is None to avoid llama-cpp-python's
+            # internal 256-token default (C-6: max_tokens truncation fix)
+            kwargs["max_tokens"] = 4096
 
         if request.temperature is not None:
             kwargs["temperature"] = request.temperature

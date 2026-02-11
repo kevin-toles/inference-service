@@ -40,7 +40,7 @@ CONTAINER_CONFIG_DIR = "/app/config"
 
 DEFAULT_SERVICE_NAME = "inference-service"
 DEFAULT_PORT = 8085
-DEFAULT_HOST = "0.0.0.0"
+DEFAULT_HOST = "::"  # Dual-stack: accepts both IPv4 and IPv6 connections (C-7 fix)
 DEFAULT_LOG_LEVEL = "INFO"
 DEFAULT_ENVIRONMENT = "development"
 DEFAULT_BACKEND = "llamacpp"

@@ -39,12 +39,12 @@ class TestSettingsDefaults:
         assert settings.port == 8085
 
     def test_default_host_is_localhost(self) -> None:
-        """Host defaults to 0.0.0.0 for container deployment."""
+        """Host defaults to :: for dual-stack IPv4+IPv6 (C-7 fix)."""
         from src.core.config import Settings
 
         with patch.dict(os.environ, SKIP_VALIDATION_ENV, clear=True):
             settings = Settings()
-        assert settings.host == "0.0.0.0"
+        assert settings.host == "::"
 
     def test_default_log_level_is_info(self) -> None:
         """Log level defaults to INFO."""
