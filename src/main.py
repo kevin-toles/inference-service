@@ -27,6 +27,7 @@ from src.core.logging import configure_logging, get_logger
 from src.services.model_manager import get_model_manager
 from src.services.config_publisher import initialize_publisher, shutdown_publisher
 from src.services.audit_client import init_audit_client, get_audit_client
+from src.services.queue_manager import QueueManager, QueueStrategy
 
 # OBS-11: Distributed tracing propagation
 from src.observability import setup_tracing, TracingMiddleware
@@ -159,6 +160,31 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         app.state.models_loaded = []
 
     # =========================================================================
+    # H-1: Initialize QueueManager for GPU concurrency control
+    # =========================================================================
+    # QueueManager is fully implemented (semaphore + FIFO/priority strategies)
+    # but was never wired in. All params configurable via INFERENCE_* env vars
+    # (Task 2.3). Defaults: max_concurrent=1, max_size=10, strategy=fifo.
+    queue_strategy = (
+        QueueStrategy.PRIORITY
+        if settings.queue_strategy == "priority"
+        else QueueStrategy.FIFO
+    )
+    queue_manager = QueueManager(
+        max_concurrent=settings.max_concurrent,
+        strategy=queue_strategy,
+        reject_when_full=False,
+        max_size=settings.queue_max_size,
+    )
+    app.state.queue_manager = queue_manager
+    logger.info(
+        "QueueManager initialized",
+        max_concurrent=settings.max_concurrent,
+        strategy=settings.queue_strategy,
+        max_size=settings.queue_max_size,
+    )
+
+    # =========================================================================
     # Register VLM provider (lazy-loaded - NOT loaded into memory at startup)
     # =========================================================================
     app.state.vision_provider = None
@@ -195,7 +221,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # SHUTDOWN
     # =========================================================================
     logger.info("Application shutting down", service=APP_NAME)
-    
+
+    # H-1: Gracefully shut down QueueManager (drain active, clear pending)
+    if hasattr(app.state, "queue_manager") and app.state.queue_manager is not None:
+        shutdown_stats = await app.state.queue_manager.shutdown(timeout=30.0)
+        logger.info(
+            "QueueManager shut down",
+            active_drained=shutdown_stats["active_drained"],
+            pending_cleared=shutdown_stats["pending_cleared"],
+            timed_out=shutdown_stats["timed_out"],
+        )
+
     # LLM Operations Mesh - Phase 5: Shutdown Neo4j audit client
     audit_client = get_audit_client()
     if audit_client:

@@ -166,6 +166,25 @@ class Settings(BaseSettings):
     )
 
     # =========================================================================
+    # Queue / Concurrency Control (H-1 Task 2.3)
+    # =========================================================================
+    max_concurrent: int = Field(
+        default=1,
+        ge=1,
+        description="Max concurrent inference requests. 1 = serialize all GPU work (safe default for single-GPU).",
+    )
+    queue_max_size: int = Field(
+        default=10,
+        ge=1,
+        le=1000,
+        description="Max pending requests in the queue before rejecting. Prevents unbounded memory growth.",
+    )
+    queue_strategy: Literal["fifo", "priority"] = Field(
+        default="fifo",
+        description="Queue processing strategy: 'fifo' (first-in-first-out) or 'priority' (higher priority first).",
+    )
+
+    # =========================================================================
     # Testing/Development Options
     # =========================================================================
     skip_path_validation: bool = Field(

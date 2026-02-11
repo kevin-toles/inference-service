@@ -176,6 +176,27 @@ Set `INFERENCE_CONFIG` in `.env`:
 | T1-T13 | Triple model | Pipeline, Ensemble |
 | Q1-Q7 | Quad model | Complex orchestration |
 
+### Request Queue Configuration (H-1)
+
+The service serializes inference requests through a queue to prevent GPU OOM from concurrent llama-cpp calls. All queue parameters are configurable via `INFERENCE_*` environment variables:
+
+| Variable | Default | Range | Description |
+|----------|---------|-------|-------------|
+| `INFERENCE_MAX_CONCURRENT` | `1` | ≥ 1 | Max simultaneous inference requests. `1` = serialize all GPU work (safe for single-GPU). Increase for multi-GPU setups. |
+| `INFERENCE_QUEUE_MAX_SIZE` | `10` | 1–1000 | Max pending requests before the queue rejects new arrivals with HTTP 503 + `Retry-After` header. |
+| `INFERENCE_QUEUE_STRATEGY` | `fifo` | `fifo` / `priority` | Processing order. `fifo` = first-in-first-out. `priority` = higher priority requests processed first. |
+
+```bash
+# Example: allow 2 concurrent requests with a 20-deep queue
+export INFERENCE_MAX_CONCURRENT=2
+export INFERENCE_QUEUE_MAX_SIZE=20
+export INFERENCE_QUEUE_STRATEGY=fifo
+```
+
+**Queue headers:**
+- `X-Queue-Position` — returned when the queue is full, indicating the caller's position
+- HTTP 503 with `Retry-After: 5` — returned when the queue cannot accept more requests
+
 ## Orchestration Modes
 
 | Mode | Flow | Best For |

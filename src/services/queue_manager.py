@@ -105,6 +105,7 @@ class QueueManager:
         max_concurrent: int = 10,
         strategy: QueueStrategy = QueueStrategy.FIFO,
         reject_when_full: bool = False,
+        max_size: int = 0,
     ) -> None:
         """Initialize QueueManager.
 
@@ -112,16 +113,20 @@ class QueueManager:
             max_concurrent: Maximum concurrent requests (default: 10)
             strategy: Queue strategy (default: FIFO)
             reject_when_full: Reject requests when full (default: False)
+            max_size: Maximum pending items in queue (0 = unbounded, default: 0)
         """
         self._max_concurrent = max_concurrent
         self._strategy = strategy
         self._reject_when_full = reject_when_full
+        self._max_size = max_size
 
         # Create appropriate queue type based on strategy
         if strategy == QueueStrategy.PRIORITY:
-            self._queue: asyncio.Queue[RequestItem] = asyncio.PriorityQueue()
+            self._queue: asyncio.Queue[RequestItem] = asyncio.PriorityQueue(
+                maxsize=max_size
+            )
         else:
-            self._queue = asyncio.Queue()
+            self._queue = asyncio.Queue(maxsize=max_size)
 
         # Semaphore for concurrency control
         self._semaphore = asyncio.Semaphore(max_concurrent)
@@ -137,6 +142,11 @@ class QueueManager:
     def max_concurrent(self) -> int:
         """Get maximum concurrent requests limit."""
         return self._max_concurrent
+
+    @property
+    def max_size(self) -> int:
+        """Get maximum pending queue size (0 = unbounded)."""
+        return self._max_size
 
     @property
     def active_count(self) -> int:
@@ -215,6 +225,40 @@ class QueueManager:
         async with self._active_lock:
             self._active_count += 1
 
+    class _SlotContext:
+        """Async context manager for queue slot acquire/release.
+
+        Usage::
+
+            async with queue_manager.acquire():
+                # slot is held for this block
+                await do_inference()
+            # slot automatically released
+        """
+
+        def __init__(self, manager: QueueManager) -> None:
+            self._manager = manager
+
+        async def __aenter__(self) -> QueueManager:
+            await self._manager.acquire_slot()
+            return self._manager
+
+        async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+            self._manager.release_slot()
+
+    def acquire(self) -> _SlotContext:
+        """Return an async context manager that acquires/releases a slot.
+
+        Usage::
+
+            async with queue_manager.acquire():
+                await do_work()
+
+        Returns:
+            _SlotContext async context manager.
+        """
+        return self._SlotContext(self)
+
     def release_slot(self) -> None:
         """Release a processing slot.
 
@@ -246,3 +290,37 @@ class QueueManager:
                 break
 
         return removed
+
+    async def shutdown(self, timeout: float = 30.0) -> dict[str, Any]:
+        """Gracefully shut down the queue manager.
+
+        Waits for active requests to complete (up to timeout), then clears
+        any remaining pending items.
+
+        Args:
+            timeout: Maximum seconds to wait for active requests to drain.
+
+        Returns:
+            Dict with shutdown statistics: active_drained, pending_cleared, timed_out.
+        """
+        timed_out = False
+        initial_active = self._active_count
+
+        # Wait for active requests to finish (poll every 100ms)
+        if self._active_count > 0:
+            elapsed = 0.0
+            poll_interval = 0.1
+            while self._active_count > 0 and elapsed < timeout:
+                await asyncio.sleep(poll_interval)
+                elapsed += poll_interval
+            if self._active_count > 0:
+                timed_out = True
+
+        # Clear any pending items from the queue
+        cleared = self.clear()
+
+        return {
+            "active_drained": initial_active - self._active_count,
+            "pending_cleared": len(cleared),
+            "timed_out": timed_out,
+        }
