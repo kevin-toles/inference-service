@@ -399,6 +399,76 @@ class ModelManager:
         )
 
     # =========================================================================
+    # Config Mutation (Phase C: log_config_changed wiring)
+    # =========================================================================
+
+    async def update_model_config(
+        self,
+        model_id: str,
+        **updates: Any,
+    ) -> dict[str, Any]:
+        """Update a model's runtime configuration and log changes.
+
+        Detects which fields changed, calls log_config_changed() for each,
+        and publishes a CONFIG_CHANGED lifecycle event.
+
+        LLM Operations Mesh — Phase C (WBS-MESH-C, AC-C.1, AC-C.2).
+
+        Supported fields: context_length, gpu_layers.
+
+        Args:
+            model_id: Model identifier (must exist in config).
+            **updates: Field=value pairs to update.
+
+        Returns:
+            Dict of field names to their new values (only changed fields).
+
+        Raises:
+            ModelNotAvailableError: If model_id not in configuration.
+        """
+        MUTABLE_FIELDS = {"context_length", "gpu_layers"}
+
+        if model_id not in self._model_configs:
+            msg = f"Model '{model_id}' is not available in configuration"
+            raise ModelNotAvailableError(msg)
+
+        config = self._model_configs[model_id]
+        changed: dict[str, Any] = {}
+
+        for field_name, new_value in updates.items():
+            if field_name not in MUTABLE_FIELDS:
+                continue
+            old_value = config.get(field_name)
+            if old_value == new_value:
+                continue
+
+            # Update stored config
+            config[field_name] = new_value
+            changed[field_name] = new_value
+
+            # AC-C.1, AC-C.2: Log config change to Neo4j audit trail
+            audit_client = get_audit_client()
+            if audit_client and audit_client.is_connected:
+                await audit_client.log_config_changed(
+                    model_id=model_id,
+                    field=field_name,
+                    old_value=old_value,
+                    new_value=new_value,
+                )
+
+            # AC-C.4: Publish lifecycle event
+            publisher = get_config_publisher()
+            if publisher:
+                await publisher.publish_config_changed(
+                    model_id=model_id,
+                    field=field_name,
+                    old_value=old_value,
+                    new_value=new_value,
+                )
+
+        return changed
+
+    # =========================================================================
     # Role-Based Lookup
     # =========================================================================
 

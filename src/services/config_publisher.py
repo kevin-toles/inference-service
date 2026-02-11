@@ -315,6 +315,76 @@ class ConfigPublisher:
             logger.warning(f"Failed to record model usage for {model_id}: {e}")
             return False
 
+    async def publish_config_changed(
+        self,
+        model_id: str,
+        field: str,
+        old_value: Any,
+        new_value: Any,
+    ) -> bool:
+        """Publish CONFIG_CHANGED lifecycle event to Redis.
+
+        LLM Operations Mesh — Phase C (WBS-MESH-C, AC-C.4).
+
+        Args:
+            model_id: Model identifier
+            field: Configuration field that changed (e.g., "context_length")
+            old_value: Previous value
+            new_value: Updated value
+
+        Returns:
+            True if published successfully, False otherwise
+        """
+        if not self.is_connected:
+            logger.debug("ConfigPublisher not connected, skipping config change publish")
+            return False
+
+        try:
+            now = datetime.now(timezone.utc).isoformat()
+
+            # Publish to config channel (existing pattern)
+            config_event = {
+                "event_type": "CONFIG_CHANGED",
+                "model_id": model_id,
+                "data": {
+                    "field": field,
+                    "old_value": old_value,
+                    "new_value": new_value,
+                },
+                "source": "inference-service",
+                "timestamp": now,
+            }
+            await self._redis.publish(CHANNEL_MODEL_CONFIG, json.dumps(config_event))
+
+            # Lifecycle event with richer metadata (Phase B pattern)
+            lifecycle_event = {
+                "event_type": "CONFIG_CHANGED",
+                "model_id": model_id,
+                "timestamp": now,
+                "source": "inference-service",
+                "memory_mb": 0,
+                "trigger": "config_update",
+                "config_change": {
+                    "field": field,
+                    "old_value": old_value,
+                    "new_value": new_value,
+                },
+            }
+            await self._redis.publish(
+                CHANNEL_MODEL_LIFECYCLE, json.dumps(lifecycle_event)
+            )
+
+            logger.info(
+                f"Published CONFIG_CHANGED for {model_id}.{field}",
+                extra={"field": field, "old_value": old_value, "new_value": new_value},
+            )
+            return True
+
+        except (ConnectionError, RedisError) as e:
+            logger.warning(f"Failed to publish CONFIG_CHANGED: {e}")
+            self._connected = False
+            return False
+
 
 # Singleton instance
 _publisher: ConfigPublisher | None = None
