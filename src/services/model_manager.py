@@ -204,11 +204,14 @@ class ModelManager:
     # Model Loading/Unloading
     # =========================================================================
 
-    async def load_model(self, model_id: str) -> None:
+    async def load_model(self, model_id: str, trigger: str = "api_request") -> None:
         """Load a model into memory.
 
         Args:
             model_id: The model identifier to load.
+            trigger: What initiated the load (e.g. 'api_request',
+                'preset_load', 'warmup').  Forwarded to the lifecycle
+                event so consumers can distinguish load sources.
 
         Raises:
             ModelNotAvailableError: If model is not available.
@@ -269,7 +272,7 @@ class ModelManager:
                     context_length=config.get("context_length", 2048),
                     memory_mb=int(model_size * 1024),
                     roles=config.get("roles", []),
-                    trigger="preset_load",
+                    trigger=trigger,
                 )
             
             # LLM Operations Mesh - Phase 5: Log to Neo4j audit trail
@@ -282,11 +285,13 @@ class ModelManager:
                     roles=config.get("roles", []),
                 )
 
-    async def unload_model(self, model_id: str) -> None:
+    async def unload_model(self, model_id: str, trigger: str = "api_request") -> None:
         """Unload a model from memory.
 
         Args:
             model_id: The model identifier to unload.
+            trigger: What initiated the unload (e.g. 'api_request',
+                'eviction').  Forwarded to the lifecycle event.
         """
         async with self._global_lock:
             if model_id not in self._loaded_models:
@@ -309,7 +314,7 @@ class ModelManager:
             # LLM Operations Mesh - Phase 2: Publish config change to Redis
             publisher = get_config_publisher()
             if publisher:
-                await publisher.publish_model_unloaded(model_id)
+                await publisher.publish_model_unloaded(model_id, trigger=trigger)
             
             # LLM Operations Mesh - Phase 5: Log to Neo4j audit trail
             audit_client = get_audit_client()
@@ -386,7 +391,7 @@ class ModelManager:
         total_memory = 0.0
 
         for model_id in models_to_load:
-            await self.load_model(model_id)
+            await self.load_model(model_id, trigger="preset_load")
             loaded_models.append(model_id)
             config = self._model_configs.get(model_id, {})
             total_memory += config.get("size_gb", 0.0)

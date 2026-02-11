@@ -268,7 +268,9 @@ class TestLoadModel:
         """AC-8.2: Load endpoint calls model manager."""
         client.post(f"{MODELS_ENDPOINT}/{MODEL_DEEPSEEK}/load")
 
-        mock_model_manager.load_model.assert_called_once_with(MODEL_DEEPSEEK)
+        mock_model_manager.load_model.assert_called_once_with(
+            MODEL_DEEPSEEK, trigger="api_request"
+        )
 
     def test_load_model_returns_model_info(
         self, client: TestClient, mock_model_manager: MagicMock
@@ -324,6 +326,19 @@ class TestLoadModel:
 
         assert response.status_code == status.HTTP_507_INSUFFICIENT_STORAGE
 
+    def test_load_model_passes_custom_trigger(
+        self, client: TestClient, mock_model_manager: MagicMock
+    ) -> None:
+        """AC-D.6: Load endpoint forwards trigger query param to manager."""
+        client.post(
+            f"{MODELS_ENDPOINT}/{MODEL_DEEPSEEK}/load",
+            params={"trigger": "warmup"},
+        )
+
+        mock_model_manager.load_model.assert_called_once_with(
+            MODEL_DEEPSEEK, trigger="warmup"
+        )
+
 
 # =============================================================================
 # TestLoadModelNoManager
@@ -378,7 +393,9 @@ class TestUnloadModel:
         """AC-8.3: Unload endpoint calls model manager."""
         client.post(f"{MODELS_ENDPOINT}/{MODEL_PHI4}/unload")
 
-        mock_model_manager.unload_model.assert_called_once_with(MODEL_PHI4)
+        mock_model_manager.unload_model.assert_called_once_with(
+            MODEL_PHI4, trigger="api_request"
+        )
 
     def test_unload_model_returns_model_info(
         self, client: TestClient, mock_model_manager: MagicMock
@@ -397,6 +414,19 @@ class TestUnloadModel:
         response = client.post(f"{MODELS_ENDPOINT}/{MODEL_DEEPSEEK}/unload")
 
         assert response.status_code == status.HTTP_200_OK
+
+    def test_unload_model_passes_custom_trigger(
+        self, client: TestClient, mock_model_manager: MagicMock
+    ) -> None:
+        """AC-D.6: Unload endpoint forwards trigger query param to manager."""
+        client.post(
+            f"{MODELS_ENDPOINT}/{MODEL_PHI4}/unload",
+            params={"trigger": "eviction"},
+        )
+
+        mock_model_manager.unload_model.assert_called_once_with(
+            MODEL_PHI4, trigger="eviction"
+        )
 
 
 # =============================================================================

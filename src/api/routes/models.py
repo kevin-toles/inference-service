@@ -196,7 +196,11 @@ async def list_models(request: Request) -> ModelsListResponse:
         507: {"description": "Insufficient memory to load model"},
     },
 )
-async def load_model(request: Request, model_id: str) -> ModelActionResponse:
+async def load_model(
+    request: Request,
+    model_id: str,
+    trigger: str = "api_request",
+) -> ModelActionResponse:
     """Load a model by ID.
 
     AC-8.2: POST /v1/models/{id}/load loads specified model.
@@ -204,6 +208,8 @@ async def load_model(request: Request, model_id: str) -> ModelActionResponse:
     Args:
         request: FastAPI request object
         model_id: ID of the model to load
+        trigger: What initiated the load (query param, default 'api_request').
+            Forwarded to the lifecycle event.
 
     Returns:
         ModelActionResponse with updated status
@@ -220,7 +226,7 @@ async def load_model(request: Request, model_id: str) -> ModelActionResponse:
     manager = _get_model_manager(request)
 
     try:
-        await manager.load_model(model_id)
+        await manager.load_model(model_id, trigger=trigger)
         return ModelActionResponse(
             id=model_id,
             status="loaded",
@@ -244,7 +250,11 @@ async def load_model(request: Request, model_id: str) -> ModelActionResponse:
     summary="Unload a model",
     description="Unload a model from memory to free resources.",
 )
-async def unload_model(request: Request, model_id: str) -> ModelActionResponse:
+async def unload_model(
+    request: Request,
+    model_id: str,
+    trigger: str = "api_request",
+) -> ModelActionResponse:
     """Unload a model by ID.
 
     AC-8.3: POST /v1/models/{id}/unload unloads specified model.
@@ -252,6 +262,8 @@ async def unload_model(request: Request, model_id: str) -> ModelActionResponse:
     Args:
         request: FastAPI request object
         model_id: ID of the model to unload
+        trigger: What initiated the unload (query param, default 'api_request').
+            Forwarded to the lifecycle event.
 
     Returns:
         ModelActionResponse with updated status
@@ -259,7 +271,7 @@ async def unload_model(request: Request, model_id: str) -> ModelActionResponse:
     manager = _get_model_manager(request)
 
     # Unload is always successful (no-op if not loaded)
-    await manager.unload_model(model_id)
+    await manager.unload_model(model_id, trigger=trigger)
 
     return ModelActionResponse(
         id=model_id,
