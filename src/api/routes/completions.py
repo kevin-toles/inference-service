@@ -4,6 +4,7 @@ Provides OpenAI-compatible /v1/chat/completions endpoint.
 
 Reference: WBS-INF9 AC-9.1 through AC-9.5
 H-1: Queue-gated inference — acquire/release slot around both paths.
+Phase A: Usage tracking — record_model_usage() on each inference request.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 
 from src.models.requests import ChatCompletionRequest
 from src.models.responses import ChatCompletionResponse
+from src.services.config_publisher import get_config_publisher
 from src.services.queue_manager import QueueFullError
 
 
@@ -82,6 +84,20 @@ def _get_queue_manager(request: Request) -> QueueManager | None:
     return getattr(request.app.state, "queue_manager", None)
 
 
+async def _record_usage(model_id: str) -> None:
+    """Record model usage for LRU eviction decisions.
+
+    Fire-and-forget: failures are logged but never propagate.
+    Phase A (WBS-MESH-A, AC-A.1).
+
+    Args:
+        model_id: Model that served the request.
+    """
+    publisher = get_config_publisher()
+    if publisher:
+        await publisher.record_model_usage(model_id)
+
+
 async def _stream_response(
     request: Request,
     completion_request: ChatCompletionRequest,
@@ -91,6 +107,7 @@ async def _stream_response(
 
     AC-9.3: Streaming response uses SSE format.
     H-1: Holds queue slot for the entire duration of the stream.
+    Phase A: Records model usage before streaming begins.
 
     Args:
         request: FastAPI request object
@@ -110,6 +127,9 @@ async def _stream_response(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e
+
+    # Phase A: Record model usage for LRU eviction decisions (fire-and-forget)
+    await _record_usage(completion_request.model)
 
     # H-1: If queue manager present, hold slot for entire stream
     if queue_manager is not None:
@@ -263,6 +283,9 @@ async def _execute_non_streaming(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error getting model provider: {e}",
         ) from e
+
+    # Phase A: Record model usage for LRU eviction decisions (fire-and-forget)
+    await _record_usage(completion_request.model)
 
     # Generate completion
     try:

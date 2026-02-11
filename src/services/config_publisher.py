@@ -26,9 +26,13 @@ CHANNEL_MODEL_LIFECYCLE = "model:lifecycle:events"
 # Cache key patterns
 CACHE_KEY_MODEL_CONFIG = "model:config:{model_id}"
 CACHE_KEY_MODELS_AVAILABLE = "models:available"
+CACHE_KEY_MODEL_USAGE = "model:usage:{model_id}"
 
 # Default TTL for cache entries (1 hour)
 DEFAULT_CACHE_TTL = 3600
+
+# TTL for usage tracking keys (24 hours)
+USAGE_TTL = 86400
 
 
 class ConfigPublisher:
@@ -195,6 +199,50 @@ class ConfigPublisher:
         except (ConnectionError, RedisError) as e:
             logger.warning(f"Failed to publish MODEL_UNLOADED: {e}")
             self._connected = False
+            return False
+
+    async def record_model_usage(self, model_id: str) -> bool:
+        """Record model usage for LRU eviction decisions.
+
+        Writes a Redis HASH at model:usage:{model_id} with:
+        - last_used: ISO 8601 timestamp of this request
+        - request_count: incremented on each call
+
+        The key TTL is refreshed to 24 hours on every write to prevent
+        stale data accumulation for models that are no longer in use.
+
+        LLM Operations Mesh — Phase A (WBS-MESH-A, AC-A.1, AC-A.3, AC-A.4).
+
+        Args:
+            model_id: Model identifier that served the request.
+
+        Returns:
+            True if recorded successfully, False on Redis failure.
+        """
+        if not self.is_connected:
+            logger.debug("ConfigPublisher not connected, skipping usage tracking")
+            return False
+
+        try:
+            usage_key = CACHE_KEY_MODEL_USAGE.format(model_id=model_id)
+            now = datetime.now(timezone.utc).isoformat()
+
+            # Atomically set last_used and increment request_count
+            pipe = self._redis.pipeline()
+            pipe.hset(usage_key, "last_used", now)
+            pipe.hincrby(usage_key, "request_count", 1)
+            pipe.expire(usage_key, USAGE_TTL)
+            await pipe.execute()
+
+            logger.debug(
+                f"Recorded usage for {model_id}",
+                extra={"model_id": model_id, "last_used": now},
+            )
+            return True
+
+        except (ConnectionError, RedisError) as e:
+            # AC-A.4: Graceful fallback — log warning, don't fail inference
+            logger.warning(f"Failed to record model usage for {model_id}: {e}")
             return False
 
 
