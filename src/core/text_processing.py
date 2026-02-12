@@ -60,7 +60,7 @@ _UNCLOSED_TAG_PATTERN: Final[re.Pattern[str]] = re.compile(
 # =============================================================================
 
 
-def strip_reasoning_tags(content: str | None, preserve_final_answer: bool = True) -> str | None:
+def strip_reasoning_tags(content: str | None, _preserve_final_answer: bool = True) -> str | None:
     """Strip reasoning/thinking tags from LLM response content.
     
     Removes chain-of-thought reasoning tags that models like Qwen3 and DeepSeek-R1

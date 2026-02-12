@@ -209,7 +209,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # LLM Operations Mesh - Phase 5: Shutdown Neo4j audit client
     audit_client = get_audit_client()
     if audit_client:
-        await audit_client.close()
+        audit_client.close()
     
     # LLM Operations Mesh - Phase 2: Shutdown Redis publisher
     await shutdown_publisher()

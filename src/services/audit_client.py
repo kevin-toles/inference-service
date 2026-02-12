@@ -143,7 +143,7 @@ class AuditClient:
             logger.warning(f"Failed to connect to Neo4j for audit: {e}")
             return False
     
-    async def close(self) -> None:
+    def close(self) -> None:
         """Close connection and release resources."""
         if self._driver:
             self._driver.close()

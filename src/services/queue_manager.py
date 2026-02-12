@@ -306,14 +306,13 @@ class QueueManager:
         timed_out = False
         initial_active = self._active_count
 
-        # Wait for active requests to finish (poll every 100ms)
+        # Wait for active requests to finish
         if self._active_count > 0:
-            elapsed = 0.0
-            poll_interval = 0.1
-            while self._active_count > 0 and elapsed < timeout:
-                await asyncio.sleep(poll_interval)
-                elapsed += poll_interval
-            if self._active_count > 0:
+            try:
+                async with asyncio.timeout(timeout):
+                    while self._active_count > 0:
+                        await asyncio.sleep(0.1)
+            except TimeoutError:
                 timed_out = True
 
         # Clear any pending items from the queue
