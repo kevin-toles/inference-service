@@ -132,28 +132,6 @@ class Settings(BaseSettings):
     )
 
     # =========================================================================
-    # Vision Language Model (VLM) Configuration - Moondream 2
-    # =========================================================================
-    vision_model_id: str = Field(
-        default="vikhyatk/moondream2",
-        description="HuggingFace model ID for the VLM. Set to empty string to disable.",
-    )
-    vision_model_revision: str = Field(
-        default="2025-01-09",
-        description="Model revision/version from HuggingFace.",
-    )
-    vision_context_length: int = Field(
-        default=2048,
-        ge=512,
-        le=8192,
-        description="Context window size for VLM (Moondream 2 supports 2048).",
-    )
-    vision_device: str | None = Field(
-        default=None,
-        description="Device for VLM inference: 'cpu', 'mps', 'cuda', or None (auto-detect). Moondream runs well on MPS with ~5GB memory.",
-    )
-
-    # =========================================================================
     # Redis Configuration (LLM Operations Mesh - Phase 2)
     # =========================================================================
     redis_url: str = Field(

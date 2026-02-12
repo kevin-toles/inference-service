@@ -48,20 +48,6 @@ vllm = [
     "vllm>=0.6.0",
     "torch>=2.0.0",
 ]
-vlm = [
-    # DeepSeek-VL2 Vision Language Model support
-    # NOTE: transformers pinned to 4.38.x for DeepSeek-VL2 compatibility
-    "transformers>=4.38.0,<4.40.0",
-    "accelerate>=1.0.0",
-    "torch>=2.0.0",
-    "torchvision>=0.15.0",
-    "Pillow>=10.0.0",
-    "sentencepiece>=0.2.0",
-    "einops>=0.7.0",
-    "timm>=0.9.0",
-    "attrdict3>=2.0.0",
-    # Also requires: pip install --no-deps git+https://github.com/deepseek-ai/DeepSeek-VL2.git
-]
 
 [project.urls]
 Repository = "https://github.com/kevintoles/inference-service"

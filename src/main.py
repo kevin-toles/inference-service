@@ -21,7 +21,6 @@ from src.api.error_handlers import register_exception_handlers
 from src.api.routes.completions import router as completions_router
 from src.api.routes.health import router as health_router
 from src.api.routes.models import router as models_router
-from src.api.routes.vision import router as vision_router
 from src.core.config import get_settings
 from src.core.logging import configure_logging, get_logger
 from src.services.model_manager import get_model_manager
@@ -127,38 +126,6 @@ async def _init_model_manager(app: FastAPI, settings: Any, logger: Any) -> None:
         app.state.models_loaded = []
 
 
-def _init_vlm_provider(app: FastAPI, settings: Any, logger: Any) -> None:
-    """Register VLM provider (lazy-loaded, not loaded into memory at startup)."""
-    app.state.vision_provider = None
-
-    if not settings.vision_model_id:
-        logger.info(
-            "VLM disabled - set INFERENCE_VISION_MODEL_ID to enable vision endpoints"
-        )
-        return
-
-    try:
-        from src.providers.moondream import MoondreamProvider
-
-        app.state.vision_provider = MoondreamProvider(
-            model_id=settings.vision_model_id,
-            revision=settings.vision_model_revision,
-            device=settings.vision_device,
-            context_length=settings.vision_context_length,
-        )
-        logger.info(
-            "VLM provider registered (model NOT loaded - will download/load on first use)",
-            model_id=settings.vision_model_id,
-            revision=settings.vision_model_revision,
-            device=settings.vision_device or "auto",
-        )
-    except Exception as e:
-        logger.error(
-            "Failed to register VLM provider - vision endpoints disabled",
-            error=str(e),
-        )
-
-
 # =============================================================================
 # Lifespan Context Manager (Modern FastAPI Pattern)
 # =============================================================================
@@ -222,8 +189,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         max_size=settings.queue_max_size,
     )
 
-    _init_vlm_provider(app, settings, logger)
-
     yield
 
     # =========================================================================
@@ -286,7 +251,6 @@ if tracing_enabled:
 app.include_router(health_router)
 app.include_router(models_router, prefix="/v1")
 app.include_router(completions_router, prefix="/v1")
-app.include_router(vision_router)  # WBS-IMG6: VLM vision endpoints
 
 
 # =============================================================================

@@ -6,8 +6,7 @@ interface for device-specific dtype handling. Concrete implementations
 (MPSBackend, CUDABackend, CPUBackend) handle device-specific conversion.
 
 References:
-    - VLM_DTYPE_COMPATIBILITY_ARCHITECTURE.md
-    - VLM_DTYPE_COMPATIBILITY_WBS.md (WBS-VLM2)
+    - DTYPE_COMPATIBILITY_ARCHITECTURE.md
     - GoF Design Patterns, Ch.5 Strategy Pattern [^2]
     - PyTorch torch.nn.Parameter documentation [^1]
 """
@@ -118,7 +117,7 @@ class MPSBackend(DeviceBackend):
         >>> model = model.to("mps")  # Now safe
     
     References:
-        - VLM_DTYPE_COMPATIBILITY_WBS.md (WBS-VLM3)
+        - DTYPE_COMPATIBILITY_ARCHITECTURE.md
         - GPT-4o Multi-LLM Consensus [^5]
         - PyTorch torch.nn.Parameter documentation [^1]
     """
@@ -218,7 +217,7 @@ class CPUBackend(DeviceBackend):
     """
     CPU-specific backend: converts bfloat16 to float32 for consistency.
     
-    While CPU technically supports bfloat16, the DeepSeek-VL2 model has
+    While CPU technically supports bfloat16, some models have
     mixed dtypes (bfloat16 weights + float32 biases) that cause errors.
     This backend converts all bfloat16 to float32 to ensure consistent dtype.
     

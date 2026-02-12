@@ -17,8 +17,7 @@ Example:
     >>> model = backend.ensure_dtype_compatibility(model)
 
 References:
-    - VLM_DTYPE_COMPATIBILITY_ARCHITECTURE.md
-    - VLM_DTYPE_COMPATIBILITY_WBS.md (WBS-VLM1)
+    - DTYPE_COMPATIBILITY_ARCHITECTURE.md
 """
 
 from .device_backend import CPUBackend, DeviceBackend, MPSBackend
@@ -28,10 +27,6 @@ from .factory import (
     DEVICE_MPS,
     DEVICE_CUDA,
     DEVICE_CPU,
-)
-from .siglip_attention_patch import (
-    apply_siglip_attention_patch,
-    is_patch_applied,
 )
 
 __all__ = [
@@ -43,6 +38,4 @@ __all__ = [
     "DEVICE_MPS",
     "DEVICE_CUDA",
     "DEVICE_CPU",
-    "apply_siglip_attention_patch",
-    "is_patch_applied",
 ]
