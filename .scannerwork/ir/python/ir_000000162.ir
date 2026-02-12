@@ -1,48 +1,0 @@
-
-0.4float
-
-0.1float
-1.0float
-0.5float
-ãÅ"Calculate final quality score.
-
-        Args:
-            issues_remain: Whether issues still exist after critique.
-            rounds_completed: Number of critique-revise rounds completed.
-
-        Returns:
-            Score between 0.0 and 1.0.
-        "strself
-÷ ÷(issues_remain
-÷ ÷(2 rounds_completed
-÷4 ÷(I"|+
-)
-
-‡ ‡("
-__bool__*:BboolH+
-)
-
-‡ ‡("#unaryop !#2!:Bbool "
-
-‡ ‡( *
-‡ ‡(
-"
-
-· ·("‚.
-,
-
-Ê Ê(	
-base_score"#id#:Bfloat3
-1
-
-Á Á(0"#dependent-value#*:
-Bfloat5
-3
-
-Á Á(6round_bonus"
-builtinsmin*:0
-.
-
-Ë Ë('"#dependent-value#:	Bfloat
-
-Ë Ë('*K/Users/kevintoles/POC/inference-service/src/orchestration/modes/critique.py

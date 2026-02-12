@@ -1,5 +1,0 @@
-
-&"Get the inference provider."strself; ;("<*
-(
-= =("#get-field# _provider:
-= =(*I/Users/kevintoles/POC/inference-service/src/orchestration/modes/single.py

@@ -1,305 +1,0 @@
-
-1.0PythonFrontend"1766977696857*py2.B»
-
-imports1
-
-extends2
-
-returns3
-
-	has param4
-
-module5
-
-
-class6
-
-function7
-&
-!src/orchestration/modes/debate.py9
-$
-src.orchestration.modes.debate11
-
-asyncio12
-
-
-time14
-
-
-uuid16
-/
-)src.models.requests.ChatCompletionRequest18
-!
-src.models.requests.Message20
-
-src.models.requests22
-1
-+src.models.responses.ChatCompletionResponse24
-0
-*src.models.responses.OrchestrationMetadata26
- 
-src.models.responses.Usage28
-
-src.models.responses30
-
-src.providers.base32
-/
-)src.orchestration.modes.debate.DebateMode34
-8
-2src.orchestration.modes.debate.DebateMode.__init__36
-
-NoneType38
-*
-$src.providers.base.InferenceProvider40
-F
-@src.orchestration.modes.debate.DebateMode.participant_a_model_id42
-	
-str44
-F
-@src.orchestration.modes.debate.DebateMode.participant_b_model_id46
-D
->src.orchestration.modes.debate.DebateMode._collect_models_used48
-
-
-list50
-F
-@src.orchestration.modes.debate.DebateMode._extract_user_question52
-?
-9src.orchestration.modes.debate.DebateMode._build_response54
-
-float56
-C
-=src.orchestration.modes.debate.DebateMode.reconciler_model_id58
-:
-4src.orchestration.modes.debate.DebateMode._reconcile60
-
-typing.Coroutine62
-@
-:src.orchestration.modes.debate.DebateMode._aggregate_usage64
-=
-7src.orchestration.modes.debate.DebateMode.participant_a66
-@
-:src.orchestration.modes.debate.DebateMode._extract_content68
-:
-4src.orchestration.modes.debate.DebateMode.reconciler70
-=
-7src.orchestration.modes.debate.DebateMode.participant_b72
-7
-1src.orchestration.modes.debate.DebateMode.execute74
-B
-<src.orchestration.modes.debate.DebateMode._parallel_generate76
-8
-2src.orchestration.modes.debate.calculate_agreement78J
-
-8
-89jŽ
- 
-10
-10115 *
-8 (
-
-13
-13125
-
-15
-15145
-
-17
-17165
-
-19
-19185
-
-21
-21205
-
-23
-23225
-
-25
-25245
-
-27
-27265
-
-29
-29285
-
-31
-31305
-
-33
-33325
-
-35
-35346 210
-
-37
-37367 235
-
-39
-39386
-
-41
-41406
-
-43
-43427 235
-
-45
-45446
-
-47
-47467 235
-
-49
-49487 235
-
-51
-51506
-
-53
-53527 235
-
-55
-55547 235
-
-57
-57566
-
-59
-59587 235
-
-61
-61607 235
-
-63
-63626
-
-65
-65647 235
-
-67
-67667 235
-
-69
-69687 235
-
-71
-71707 235
-
-73
-73727 235
-
-75
-75747 235
-
-77
-77767 235
-
-79
-79787 210rœ
-
-10131*
-8 (
-
-10151*
-8 (
-
-10171*
-8 (
-
-10191*
-8! (6
-
-10211*
-88 (?
-
-10231*
-8 (?
-
-10251*
-8 (
-
-10271*
-8 (
-
-10291*
-8 (
-
-
-10311*
-8 (
-
-
-10331*
-8 (1
-
-37393*
-8…	 …(
-
-37414*
-8…	 …(
-
-37414*
-8…	 …(
-
-37414*
-8…	 …(
-
-43453*
-8ª	 ª(
-
-47453*
-8¯	 ¯(
-
-49513*
-8¢	 ¢(
-
-53453*
-8ö	 ö(
-
-55574*
-8·	 ·(
-
-55574*
-8·	 ·(
-
-59453*
-8´	 ´(
-
-61633*
-8Š Š(
-
-61454*
-8Š Š(
-
-61454*
-8Š Š(
-
-67413*
-8›	 ›(
-
-69453*
-8é	 é(
-
-71413*
-8¥	 ¥(
-
-73413*
-8 	  (
-
-75633*
-8¼ ¼(
-
-77633*
-8î î(!
-
-79573*
-8? ?(
-
-79454*
-8? ?(
-
-79454*
-8? ?(

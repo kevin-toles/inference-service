@@ -1,9 +1,0 @@
-
-&"Get the generator model ID."strselfz z("•+
-)
-| |("#get-field# _generator:+
-)
-| |()"#get-field# model_info:)
-'
-| |(2"#get-field# model_id:
-| |(2*K/Users/kevintoles/POC/inference-service/src/orchestration/modes/critique.py

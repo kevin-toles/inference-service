@@ -1,273 +1,0 @@
-
-1.0PythonFrontend"1766977698236*py2.B•
-
-imports1
-
-extends2
-
-returns3
-
-	has param4
-
-module5
-
-
-class6
-
-function7
-*
-%tests/unit/providers/mock_provider.py9
-(
-"tests.unit.providers.mock_provider11
-
-
-time12
-
-typing14
-/
-)src.models.requests.ChatCompletionRequest16
-
-src.models.requests18
-.
-(src.models.responses.ChatCompletionChunk20
-1
-+src.models.responses.ChatCompletionResponse22
-!
-src.models.responses.Choice24
-(
-"src.models.responses.ChoiceMessage26
-&
- src.models.responses.ChunkChoice28
-%
-src.models.responses.ChunkDelta30
- 
-src.models.responses.Usage32
-
-src.models.responses34
-
-src.providers.base36
-5
-/tests.unit.providers.mock_provider.MockProvider38
-*
-$src.providers.base.InferenceProvider40
-B
-<tests.unit.providers.mock_provider.MockProvider.count_tokens42
-	
-int44
-	
-str46
-?
-9tests.unit.providers.mock_provider.MockProvider.is_loaded48
-
-
-bool50
-<
-6tests.unit.providers.mock_provider.MockProvider.stream52
-
-typing.Coroutine54
-:
-4tests.unit.providers.mock_provider.MockProvider.load56
->
-8tests.unit.providers.mock_provider.MockProvider.generate58
-<
-6tests.unit.providers.mock_provider.MockProvider.unload60
->
-8tests.unit.providers.mock_provider.MockProvider.__init__62
-
-NoneType64
-@
-:tests.unit.providers.mock_provider.MockProvider.model_info66
-&
- src.providers.base.ModelMetadata68
->
-8tests.unit.providers.mock_provider.MockProvider.tokenize70
-
-
-list72J
-
-8
-89j«
- 
-10
-10115 *
-8 (
-
-13
-13125
-
-15
-15145
-
-17
-17165
-
-19
-19185
-
-21
-21205
-
-23
-23225
-
-25
-25245
-
-27
-27265
-
-29
-29285
-
-31
-31305
-
-33
-33325
-
-35
-35345
-
-37
-37365
-
-39
-39386 210
-
-41
-41406
-
-43
-43427 239
-
-45
-45446
-
-47
-47466
-
-49
-49487 239
-
-51
-51506
-
-53
-53527 239
-
-55
-55546
-
-57
-57567 239
-
-59
-59587 239
-
-61
-61607 239
-
-63
-63627 239
-
-65
-65646
-
-67
-67667 239
-
-69
-69686
-
-71
-71707 239
-
-73
-73726rÂ
-
-10131*
-8 (
-
-10151*
-8 (!
-
-10171*
-8
-! 
-(6
-
-10191*
-8
- 
-(6
-
-10211*
-8 (
-
-10231*
-8 (
-
-10251*
-8 (
-
-10271*
-8 (
-
-10291*
-8 (
-
-10311*
-8 (
-
-10331*
-8 (
-
-
-10351*
-8 (
-
-
-10371*
-8 (@
-
-39412*
-8 (
-
-43453*
-8	 (
-
-43474*
-8	 (
-
-49513*
-8;	 ;(
-
-53553*
-8X X(
-
-57553*
-8ƒ ƒ(
-
-59553*
-8? ?(
-
-61553*
-8‡ ‡(
-
-63653*
-8	 (
-
-63474*
-8	 (
-
-63454*
-8	 (
-
-67693*
-80	 0(
-
-71733*
-8{	 {(
-
-71474*
-8{	 {(

@@ -1,44 +1,0 @@
-
-¼²"Get the status of a model.
-
-        Args:
-            model_id: The model identifier.
-
-        Returns:
-            Status string: 'loaded', 'available', or 'unknown'.
-        "str
-"loaded"str
-
-	"unknown"str
-	"available"strself
-— —(model_id
-— —(,"ƒ1
-/
-
-   (*"#get-field# _loaded_models:,
-*
-
-   (*"
-#binop in#2in:Bbool "
-
-   (* *
-   (
-"
-
-¡ ¡("…1
-/
-
-¢ ¢(*"#get-field# _model_configs:,
-*
-
-¢ ¢(*"
-#binop in#2in:Bbool "
-
-¢ ¢(* *
-¢ ¢(
-"
-
-£ £(	"
-
-¤ ¤(
-*E/Users/kevintoles/POC/inference-service/src/services/model_manager.py

@@ -1,169 +1,0 @@
-
-1.0PythonFrontend"1766977698244*py2.B™
-
-imports1
-
-extends2
-
-returns3
-
-	has param4
-
-module5
-
-
-class6
-
-function7
-&
-!src/orchestration/modes/single.py9
-$
-src.orchestration.modes.single11
-
-
-time12
-
-collections.abc14
-/
-)src.models.requests.ChatCompletionRequest16
-
-src.models.requests18
-.
-(src.models.responses.ChatCompletionChunk20
-1
-+src.models.responses.ChatCompletionResponse22
-0
-*src.models.responses.OrchestrationMetadata24
-
-src.models.responses26
-
-src.providers.base28
-/
-)src.orchestration.modes.single.SingleMode30
-8
-2src.orchestration.modes.single.SingleMode.__init__32
-
-NoneType34
-*
-$src.providers.base.InferenceProvider36
-8
-2src.orchestration.modes.single.SingleMode.provider38
-7
-1src.orchestration.modes.single.SingleMode.execute40
-
-typing.Coroutine42
-8
-2src.orchestration.modes.single.SingleMode.model_id44
-	
-str46
-6
-0src.orchestration.modes.single.SingleMode.stream48J
-
-8
-89j¯
- 
-10
-10115 *
-8 (
-
-13
-13125
-
-15
-15145
-
-17
-17165
-
-19
-19185
-
-21
-21205
-
-23
-23225
-
-25
-25245
-
-27
-27265
-
-29
-29285
-
-31
-31306 210
-
-33
-33327 231
-
-35
-35346
-
-37
-37366
-
-39
-39387 231
-
-41
-41407 231
-
-43
-43426
-
-45
-45447 231
-
-47
-47466
-
-49
-49487 231r†
-
-10131*
-8 (
-
-10151*
-8 (*
-
-10171*
-8! (6
-
-10191*
-8 (6
-
-10211*
-8 (
-
-10231*
-8 (
-
-10251*
-8 (
-
-10271*
-8 (
-
-10291*
-8 (1
-
-33353*
-82	 2(
-
-33374*
-82	 2(
-
-39373*
-8;	 ;(
-
-41433*
-8D D(
-
-45473*
-8@	 @(
-
-49433*
-8g g(

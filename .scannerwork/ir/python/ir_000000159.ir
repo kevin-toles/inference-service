@@ -1,66 +1,0 @@
-
-Ê‹"Build request for critique phase.
-
-        Args:
-            original_request: Original user request.
-            content: Generated content to critique.
-
-        Returns:
-            Request for critic model.
-        "str
-m	d"Original request: {self._extract_user_message(original_request)}\n\nResponse to review:\n{content}"str
-"system"str
-"user"str
-
-0intself
-á á( original_request
-á á(5content
-á7 á(Clist"á#
-!
-
-î+ î(A"#unknown-value#'
-%
-
-î î(B"#unknown-value#:'
-%
-
-ï ô(
-"#unknown-value#:	3
-1
-
-ì ö(	messages"#unknown-value#Blist(
-&
-
-ì ö(	"
-#is-exact#:Bbool
-
-
-ì ö(	"
-#assume#::
-8
-
-ì ö(	"#set-field# __collection_size:Bint(
-&
-
-ì ö(	"#array-add-last#:(
-&
-
-ì ö(	"#array-add-last#:
-2
-0
-
-ù ù(&"#get-field# critic_model_id:.
-,
-
-ù ù(&"?python-partial-apply?:.
-,
-
-ü ü(4"#get-field# temperature:-
-+
-
-† †(2"#get-field# max_tokens:)
-'
-
-ú °(	"#unknown-value#:
-
-ú °(	*K/Users/kevintoles/POC/inference-service/src/orchestration/modes/critique.py

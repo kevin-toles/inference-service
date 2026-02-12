@@ -1,9 +1,0 @@
-
-.%"Get the model ID from the provider."strself@ @("”*
-(
-B B("#get-field# _provider:+
-)
-B B(("#get-field# model_info:)
-'
-B B(1"#get-field# model_id:
-B B(1*I/Users/kevintoles/POC/inference-service/src/orchestration/modes/single.py

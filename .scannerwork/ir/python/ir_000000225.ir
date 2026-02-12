@@ -1,30 +1,0 @@
-
-¬¢"Convert ModelInfo dataclass to response model.
-
-    Args:
-        model_info: Model info from model manager
-
-    Returns:
-        ModelInfo response object
-    "str
-1000int
-model_infog g(."ƒ)
-'
-q q("#get-field# model_id:'
-%
-r r( "#get-field# status:(
-&
-s s(("#get-field# size_gb:%
-#
-s s(/"	#binop *#*2*:.
-,
-s s(0"#dependent-value#*:Bint/
--
-t t(0	"#get-field# context_length:&
-$
-u u(
-"#get-field# roles:C
-A
-p v("	ModelInfo:	
-Bsrc.api.routes.models.ModelInfo
-p v(*@/Users/kevintoles/POC/inference-service/src/api/routes/models.py

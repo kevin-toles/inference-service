@@ -1,43 +1,0 @@
-
-“‰"Get the provider for a loaded model.
-
-        Args:
-            model_id: The model identifier.
-
-        Returns:
-            The LlamaCppProvider instance for the model.
-
-        Raises:
-            ModelNotLoadedError: If model is not currently loaded.
-        "str
-+""Model '{model_id}' is not loaded"strself
-˜ ˜(model_id
-˜! ˜(."‹1
-/
-
-¤ ¤(."#get-field# _loaded_models:4
-2
-
-¤ ¤(."#binop not in#2not in:Bbool "
-
-¤ ¤(. *
-¤ ¤(
-"—%
-#
-
-¥ ¥(5msg"#id#:BstrZ
-X
-
-¦ ¦(*"ModelNotLoadedError:B.src.services.model_manager.ModelNotLoadedError2
-
-¦ ¦(*"m1
-/
-
-¨ ¨("	"#get-field# _loaded_models:$
-"
-
-¨ ¨(,
-"#array-read#:	
-
-¨ ¨(,
-*E/Users/kevintoles/POC/inference-service/src/services/model_manager.py

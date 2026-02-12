@@ -1,434 +1,0 @@
-
-1.0PythonFrontend"1766977698487*py2.Bﬁ
-
-imports1
-
-extends2
-
-returns3
-
-	has param4
-
-module5
-
-
-class6
-
-function7
-2
--tests/unit/orchestration/modes/test_single.py9
-0
-*tests.unit.orchestration.modes.test_single11
-
-
-time12
-
-collections.abc14
-
-unittest.mock16
-/
-)src.models.requests.ChatCompletionRequest18
-!
-src.models.requests.Message20
-
-src.models.requests22
-.
-(src.models.responses.ChatCompletionChunk24
-1
-+src.models.responses.ChatCompletionResponse26
-!
-src.models.responses.Choice28
-(
-"src.models.responses.ChoiceMessage30
-&
- src.models.responses.ChunkChoice32
-%
-src.models.responses.ChunkDelta34
- 
-src.models.responses.Usage36
-
-src.models.responses38
-$
-src.orchestration.modes.single40
-
-src.providers.base42
-
-asyncio44
-H
-Btests.unit.orchestration.modes.test_single.TestSingleModeStreaming46
-u
-otests.unit.orchestration.modes.test_single.TestSingleModeStreaming.test_single_mode_stream_handles_empty_stream48
-
-typing.Coroutine50
-
-unittest.mock.MagicMock52
-{
-utests.unit.orchestration.modes.test_single.TestSingleModeStreaming.test_single_mode_stream_passes_request_to_provider54
-
-
-list56
-x
-rtests.unit.orchestration.modes.test_single.TestSingleModeStreaming.test_single_mode_stream_preserves_chunk_content58
-n
-htests.unit.orchestration.modes.test_single.TestSingleModeStreaming.test_single_mode_stream_yields_chunks60
-H
-Btests.unit.orchestration.modes.test_single.TestSingleModeEdgeCases62
-w
-qtests.unit.orchestration.modes.test_single.TestSingleModeEdgeCases.test_single_mode_stream_handles_provider_error64
-p
-jtests.unit.orchestration.modes.test_single.TestSingleModeEdgeCases.test_single_mode_handles_provider_error66
-n
-htests.unit.orchestration.modes.test_single.TestSingleModeEdgeCases.test_single_mode_with_different_model68
-@
-:tests.unit.orchestration.modes.test_single.sample_response70
-?
-9tests.unit.orchestration.modes.test_single.sample_request72
->
-8tests.unit.orchestration.modes.test_single.sample_chunks74
-H
-Btests.unit.orchestration.modes.test_single.TestSingleModeExecution76
-t
-ntests.unit.orchestration.modes.test_single.TestSingleModeExecution.test_single_mode_returns_response_unchanged78
-h
-btests.unit.orchestration.modes.test_single.TestSingleModeExecution.test_single_mode_mode_is_single80
-t
-ntests.unit.orchestration.modes.test_single.TestSingleModeExecution.test_single_mode_passes_request_to_provider82
-m
-gtests.unit.orchestration.modes.test_single.TestSingleModeExecution.test_single_mode_uses_one_model_only84
-I
-Ctests.unit.orchestration.modes.test_single.TestSingleModeUsageStats86
-p
-jtests.unit.orchestration.modes.test_single.TestSingleModeUsageStats.test_single_mode_preserves_usage_stats88
-r
-ltests.unit.orchestration.modes.test_single.TestSingleModeUsageStats.test_single_mode_includes_inference_time90
-j
-dtests.unit.orchestration.modes.test_single.TestSingleModeUsageStats.test_single_mode_scores_are_none92
-t
-ntests.unit.orchestration.modes.test_single.TestSingleModeUsageStats.test_single_mode_rounds_is_none_for_single94
-C
-=tests.unit.orchestration.modes.test_single.TestSingleModeInit96
-g
-atests.unit.orchestration.modes.test_single.TestSingleModeInit.test_single_mode_init_with_provider98
-
-NoneType100
-l
-etests.unit.orchestration.modes.test_single.TestSingleModeInit.test_single_mode_model_id_from_provider102
-?
-8tests.unit.orchestration.modes.test_single.mock_provider104J
-
-8
-89jƒ
- 
-10
-10115 *
-8 (
-
-13
-13125
-
-15
-15145
-
-17
-17165
-
-19
-19185
-
-21
-21205
-
-23
-23225
-
-25
-25245
-
-27
-27265
-
-29
-29285
-
-31
-31305
-
-33
-33325
-
-35
-35345
-
-37
-37365
-
-39
-39385
-
-41
-41405
-
-43
-43425
-
-45
-45445
-
-47
-47466 210
-
-49
-49487 247
-
-51
-51506
-
-53
-53526
-
-55
-55547 247
-
-57
-57566
-
-59
-59587 247
-
-61
-61607 247
-
-63
-63626 210
-
-65
-65647 263
-
-67
-67667 263
-
-69
-69687 263
-
-71
-71707 210
-
-73
-73727 210
-
-75
-75747 210
-
-77
-77766 210
-
-79
-79787 277
-
-81
-81807 277
-
-83
-83827 277
-
-85
-85847 277
-
-87
-87866 210
-
-89
-89887 287
-
-91
-91907 287
-
-93
-93927 287
-
-95
-95947 287
-
-97
-97966 210
-
-99
-99987 297
-
-101
-1011006
-
-103
-1031027 297
-
-105
-1051047 210rÂ
-
-10131*
-8	 	(
-
-10151*
-8
- 
-(*
-
-10171*
-8 (/
-
-10191*
-8! (6
-
-10211*
-88 (?
-
-10231*
-8 (?
-
-10251*
-8 (
-
-10271*
-8 (
-
-10291*
-8 (
-
-10311*
-8 (
-
-10331*
-8 (
-
-10351*
-8 (
-
-10371*
-8 (
-
-
-10391*
-8 (
-
-
-10411*
-8 (6
-
-10431*
-8 (@
-
-10451*
-8ı ı(
-
-49513*
-8¸ ¸(;
-
-49534*
-8¸ ¸(;
-
-55513*
-8· ·(A
-
-55534*
-8· ·(A
-
-55574*
-8· ·(A
-
-59513*
-8√ √(>
-
-59534*
-8√ √(>
-
-59574*
-8√ √(>
-
-61513*
-8™ ™(4
-
-61534*
-8™ ™(4
-
-61574*
-8™ ™(4
-
-65513*
-8∆ ∆(=
-
-65534*
-8∆ ∆(=
-
-67513*
-8∂ ∂(6
-
-67534*
-8∂ ∂(6
-
-69513*
-8‹ ‹(4
-
-75573*
-8Y Y(
-
-79513*
-8≠ ≠(:
-
-79534*
-8≠ ≠(:
-
-81513*
-8æ æ(.
-
-81534*
-8æ æ(.
-
-83513*
-8å å(:
-
-83534*
-8å å(:
-
-85513*
-8õ õ(3
-
-85534*
-8õ õ(3
-
-89513*
-8◊ ◊(5
-
-89534*
-8◊ ◊(5
-
-91513*
-8Ë Ë(7
-
-91534*
-8Ë Ë(7
-
-93513*
-8ê ê(/
-
-93534*
-8ê ê(/
-
-95513*
-8Ä Ä(9
-
-95534*
-8Ä Ä(9
-
-991013*
-8ú	 ú(,
-
-99534*
-8ú	 ú(,
-
-1031013*
-8§	 §(0
-
-103534*
-8§	 §(0
-
-105533*
-8# #(

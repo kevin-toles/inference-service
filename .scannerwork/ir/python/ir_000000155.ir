@@ -1,13 +1,0 @@
-
-#"Get the critic model ID."strself ("ö*
-(
-
-Å Å("#get-field# _critic:-
-+
-
-Å Å(&"#get-field# model_info:+
-)
-
-Å Å(/"#get-field# model_id:
-
-Å Å(/*K/Users/kevintoles/POC/inference-service/src/orchestration/modes/critique.py

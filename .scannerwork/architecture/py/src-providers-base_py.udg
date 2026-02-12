@@ -1,207 +1,0 @@
-
-1.0PythonFrontend"1766977695742*py2.Bè
-
-imports1
-
-extends2
-
-returns3
-
-	has param4
-
-module5
-
-
-class6
-
-function7
-
-src/providers/base.py9
-
-src.providers.base11
-	
-abc12
-
-collections.abc14
-
-dataclasses16
-/
-)src.models.requests.ChatCompletionRequest18
-
-src.models.requests20
-.
-(src.models.responses.ChatCompletionChunk22
-1
-+src.models.responses.ChatCompletionResponse24
-
-src.models.responses26
-*
-$src.providers.base.InferenceProvider28
-
-abc.ABC30
-5
-/src.providers.base.InferenceProvider.model_info32
-&
- src.providers.base.ModelMetadata34
-3
--src.providers.base.InferenceProvider.generate36
-
-typing.Coroutine38
-/
-)src.providers.base.InferenceProvider.load40
-1
-+src.providers.base.InferenceProvider.unload42
-1
-+src.providers.base.InferenceProvider.stream44
-3
--src.providers.base.InferenceProvider.tokenize46
-
-
-list48
-	
-str50
-4
-.src.providers.base.InferenceProvider.is_loaded52
-
-
-bool54
-7
-1src.providers.base.InferenceProvider.count_tokens56
-	
-int58J
-
-8
-89j¦
- 
-10
-10115 *
-8 (
-
-13
-13125
-
-15
-15145
-
-17
-17165
-
-19
-19185
-
-21
-21205
-
-23
-23225
-
-25
-25245
-
-27
-27265
-
-29
-29286 210
-
-31
-31306
-
-33
-33327 229
-
-35
-35346 210
-
-37
-37367 229
-
-39
-39386
-
-41
-41407 229
-
-43
-43427 229
-
-45
-45447 229
-
-47
-47467 229
-
-49
-49486
-
-51
-51506
-
-53
-53527 229
-
-55
-55546
-
-57
-57567 229
-
-59
-59586rú
-
-10131*
-8 ($
-
-10151*
-8 (*
-
-10171*
-8 ()
-
-10191*
-8! (6
-
-10211*
-8 (6
-
-10231*
-8" (5
-
-10251*
-87 (M
-
-10271*
-8 (M
-
-29312*
-83 3(
-
-33353*
-8L	 L(
-
-37393*
-8a a(
-
-41393*
-8© ©(
-
-43393*
-8± ±(
-
-45393*
-8u u(
-
-47493*
-8’	 ’(
-
-47514*
-8’	 ’(
-
-53553*
-8X	 X(
-
-57593*
-8ž	 ž(
-
-57514*
-8ž	 ž(

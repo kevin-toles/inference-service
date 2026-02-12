@@ -1,43 +1,0 @@
-
-0.0float
-"division by zero"bool
-
-"S3518"bool
-
-0int
-"a"bool
-B9"Calculate queue utilization as percentage (0.0 to 1.0)."strself
-§ §("„2
-0
-
-© ©("#get-field# _max_concurrent:,
-*
-
-© ©($"
-#binop ==#2==:Bbool "
-
-© ©($ *
-© ©(
-"
-
-ª ª("0
-.
-
-« «(!"#get-field# _active_count:2
-0
-
-«$ «(8"#get-field# _max_concurrent:,
-*
-
-« «(8	"
-#binop !=#2!=:Bbool"
- 
-
-« «(8"
-#assert#:	
-3
-1
-
-« «(8"#dependent-value#*:Bfloat
-
-« «(8*E/Users/kevintoles/POC/inference-service/src/services/queue_manager.py

@@ -1,35 +1,0 @@
-
-–Œ"Apply compression using fast model.
-
-    This is a placeholder that would call a compression model.
-    In production, this would use llama-3.2-3b or similar for compression.
-
-    Args:
-        content: Content to compress.
-        target_ratio: Target compression ratio.
-        preserve: Categories to preserve.
-        drop: Categories to drop.
-
-    Returns:
-        Compressed content.
-    "strcontent
-¾ ¾(target_ratio
-¿ ¿(preserve
-À À(drop
-Á Á("Ì,
-*
-
-Ó Ó(!"
-builtinslen*:Bint'
-%
-
-Ó Ó(0"	#binop *#*2*:<
-:
-
-Ó Ó(1
-target_len"#dependent-value#*:Bint#
-!
-
-Ô Ô(	"#unknown-value#
-
-Ô Ô(	*D/Users/kevintoles/POC/inference-service/src/orchestration/context.py

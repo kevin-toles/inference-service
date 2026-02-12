@@ -1,413 +1,0 @@
-
-1.0PythonFrontend"1766977697429*py2.BÔ
-
-imports1
-
-extends2
-
-returns3
-
-	has param4
-
-module5
-
-
-class6
-
-function7
-&
-!tests/unit/providers/test_base.py9
-$
-tests.unit.providers.test_base11
-
-typing12
-/
-)src.models.requests.ChatCompletionRequest14
-!
-src.models.requests.Message16
-
-src.models.requests18
-.
-(src.models.responses.ChatCompletionChunk20
-1
-+src.models.responses.ChatCompletionResponse22
-
-src.models.responses24
-	
-abc26
-
-src.providers.base28
-(
-"tests.unit.providers.mock_provider30
-
-collections.abc32
-@
-:tests.unit.providers.test_base.TestProviderTypeAnnotations34
-j
-dtests.unit.providers.test_base.TestProviderTypeAnnotations.test_stream_return_type_is_async_iterator36
-
-NoneType38
-d
-^tests.unit.providers.test_base.TestProviderTypeAnnotations.test_generate_return_type_annotated40
-6
-0tests.unit.providers.test_base.TestModelMetadata42
-^
-Xtests.unit.providers.test_base.TestModelMetadata.test_model_metadata_has_required_fields44
-Q
-Ktests.unit.providers.test_base.TestModelMetadata.test_model_metadata_exists46
-T
-Ntests.unit.providers.test_base.TestModelMetadata.test_model_metadata_has_roles48
-Z
-Ttests.unit.providers.test_base.TestModelMetadata.test_model_metadata_optional_fields50
-^
-Xtests.unit.providers.test_base.TestModelMetadata.test_model_metadata_roles_default_empty52
-9
-3tests.unit.providers.test_base.TestProviderWithMock54
-U
-Otests.unit.providers.test_base.TestProviderWithMock.test_mock_provider_tokenize56
-b
-\tests.unit.providers.test_base.TestProviderWithMock.test_mock_provider_is_inference_provider58
-Y
-Stests.unit.providers.test_base.TestProviderWithMock.test_mock_provider_count_tokens60
-Y
-Stests.unit.providers.test_base.TestProviderWithMock.test_mock_provider_instantiates62
-S
-Mtests.unit.providers.test_base.TestProviderWithMock.test_mock_provider_stream64
-
-typing.Coroutine66
-[
-Utests.unit.providers.test_base.TestProviderWithMock.test_mock_provider_has_model_info68
-V
-Ptests.unit.providers.test_base.TestProviderWithMock.test_mock_provider_is_loaded70
-U
-Otests.unit.providers.test_base.TestProviderWithMock.test_mock_provider_generate72
-W
-Qtests.unit.providers.test_base.TestProviderWithMock.test_mock_provider_importable74
-=
-7tests.unit.providers.test_base.TestInferenceProviderABC76
-Y
-Stests.unit.providers.test_base.TestInferenceProviderABC.test_has_is_loaded_property78
-Z
-Ttests.unit.providers.test_base.TestInferenceProviderABC.test_has_model_info_property80
-]
-Wtests.unit.providers.test_base.TestInferenceProviderABC.test_has_stream_abstract_method82
-b
-\tests.unit.providers.test_base.TestInferenceProviderABC.test_cannot_instantiate_abc_directly84
-_
-Ytests.unit.providers.test_base.TestInferenceProviderABC.test_has_tokenize_abstract_method86
-\
-Vtests.unit.providers.test_base.TestInferenceProviderABC.test_inference_provider_is_abc88
-c
-]tests.unit.providers.test_base.TestInferenceProviderABC.test_has_count_tokens_abstract_method90
-_
-Ytests.unit.providers.test_base.TestInferenceProviderABC.test_has_generate_abstract_method92J
-
-8
-89j’
- 
-10
-10115 *
-8 (
-
-13
-13125
-
-15
-15145
-
-17
-17165
-
-19
-19185
-
-21
-21205
-
-23
-23225
-
-25
-25245
-
-27
-27265
-
-29
-29285
-
-31
-31305
-
-33
-33325
-
-35
-35346 210
-
-37
-37367 235
-
-39
-39386
-
-41
-41407 235
-
-43
-43426 210
-
-45
-45447 243
-
-47
-47467 243
-
-49
-49487 243
-
-51
-51507 243
-
-53
-53527 243
-
-55
-55546 210
-
-57
-57567 255
-
-59
-59587 255
-
-61
-61607 255
-
-63
-63627 255
-
-65
-65647 255
-
-67
-67666
-
-69
-69687 255
-
-71
-71707 255
-
-73
-73727 255
-
-75
-75747 255
-
-77
-77766 210
-
-79
-79787 277
-
-81
-81807 277
-
-83
-83827 277
-
-85
-85847 277
-
-87
-87867 277
-
-89
-89887 277
-
-91
-91907 277
-
-93
-93927 277r–
-
-10131*
-8 (!
-
-10151*
-8! (6
-
-10171*
-88 (?
-
-10191*
-8 (?
-
-10211*
-8" (5
-
-10231*
-87 (M
-
-10251*
-8 (M
-
-10271*
-8	 (
-
-10291*
-8	 (9
-
-10291*
-8%	 %(9
-
-10291*
-8-	 -(9
-
-10291*
-85	 5(9
-
-10291*
-8?	 ?(9
-
-10291*
-8E	 E(9
-
-10291*
-8L	 L(9
-
-10291*
-8S	 S(9
-
-10291*
-8]	 ](5
-
-10291*
-8c	 c(5
-
-10291*
-8q	 q(5
-
-10291*
-8	 (5
-
-10291*
-8â	 â(5
-
-10311*
-8ô	 ô(D
-
-10291*
-8ü	 ü(9
-
-10311*
-8†	 †(D
-
-10311*
-8¶	 ¶(D
-
-10311*
-8≠	 ≠(D
-
-10311*
-8∫	 ∫(D
-
-10311*
-8À	 À(D
-
-10311*
-8€	 €(D
-
-10311*
-8‰	 ‰(D
-
-10311*
-8Ì	 Ì(D
-
-10291*
-8¯	 ¯(9
-
-10131*
-8˚ ˚(
-
-10291*
-8Ç	 Ç(9
-
-10131*
-8Ñ Ñ(
-
-10331*
-8Ö	 Ö(F
-
-37393*
-8Ä	 Ä(2
-
-41393*
-8ˆ	 ˆ(,
-
-45393*
-8a	 a(0
-
-47393*
-8[	 [(#
-
-49393*
-8l	 l(&
-
-51393*
-8á	 á(,
-
-53393*
-8z	 z(0
-
-57393*
-8Ÿ	 Ÿ($
-
-59393*
-8ù	 ù(1
-
-61393*
-8‚	 ‚((
-
-63393*
-8§	 §((
-
-65673*
-8∆ ∆((
-
-69393*
-8´	 ´(*
-
-71393*
-8Î	 Î(%
-
-73673*
-8µ µ(*
-
-75393*
-8ó	 ó(&
-
-79393*
-8Q	 Q($
-
-81393*
-8:	 :(%
-
-83393*
-83	 3((
-
-85393*
-8 	  (-
-
-87393*
-8C	 C(*
-
-89393*
-8	 ('
-
-91393*
-8J	 J(.
-
-93393*
-8+	 +(*

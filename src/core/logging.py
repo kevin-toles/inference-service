@@ -38,6 +38,9 @@ from structlog.types import EventDict
 # =============================================================================
 _configured: bool = False
 
+# Default log file path for Linux deployments (S1192)
+_DEFAULT_LINUX_LOG_PATH = "/var/log/inference-service/app.log"
+
 
 # =============================================================================
 # Correlation ID Context (AC-LOG0.3)
@@ -126,7 +129,7 @@ def _get_default_log_path() -> str:
     if sys.platform == "darwin":
         home = Path.home()
         return str(home / "Library" / "Logs" / "ai-platform" / "inference-service" / "app.log")
-    return "/var/log/inference-service/app.log"
+    return _DEFAULT_LINUX_LOG_PATH
 
 
 def configure_logging(
@@ -248,7 +251,7 @@ def get_log_level_from_env(service_prefix: str = "INFERENCE_SERVICE") -> int:
 
 
 def create_file_handler(
-    log_file_path: str = "/var/log/inference-service/app.log",
+    log_file_path: str = _DEFAULT_LINUX_LOG_PATH,
     service_name: str = "inference-service",
     max_bytes: int = 10_485_760,
     backup_count: int = 5,
@@ -270,7 +273,7 @@ def create_file_handler(
 
 def setup_structured_logging(
     service_name: str = "inference-service",
-    log_file_path: str | None = "/var/log/inference-service/app.log",
+    log_file_path: str | None = _DEFAULT_LINUX_LOG_PATH,
     log_level: int | None = None,
 ) -> logging.Logger:
     """Set up structured logging with file handler (WBS-LOG0)."""

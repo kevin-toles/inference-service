@@ -1,14 +1,0 @@
-
-*!"Get model ID for participant A."strself
-ª ª(#"¡1
-/
-
-¬ ¬(""#get-field# _participant_a:-
-+
-
-¬ ¬(-"#get-field# model_info:+
-)
-
-¬ ¬(6"#get-field# model_id:
-
-¬ ¬(6*I/Users/kevintoles/POC/inference-service/src/orchestration/modes/debate.py
