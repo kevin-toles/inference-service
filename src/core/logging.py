@@ -189,7 +189,7 @@ def configure_logging(
             root_logger = logging.getLogger()
             root_logger.setLevel(_level_to_int(level))
             root_logger.addHandler(file_handler)
-        except (PermissionError, OSError) as e:
+        except OSError as e:
             # Log warning to stdout if file logging fails
             print(f'{{"timestamp": "{datetime.now(timezone.utc).isoformat()}", "level": "WARNING", "service": "inference-service", "message": "File logging disabled: {e}"}}', file=sys.stderr)
 
