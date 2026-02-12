@@ -42,6 +42,124 @@ APP_VERSION = "0.1.0"
 
 
 # =============================================================================
+# Lifespan Init Helpers (S3776: extracted to reduce cognitive complexity)
+# =============================================================================
+
+
+async def _init_redis_publisher(settings: Any, logger: Any) -> None:
+    """Initialize Redis config publisher if enabled."""
+    if not settings.redis_enabled:
+        return
+    try:
+        publisher = await initialize_publisher(settings.redis_url)
+        if publisher.is_connected:
+            logger.info(
+                "Redis config publisher initialized",
+                redis_url=settings.redis_url,
+            )
+        else:
+            logger.warning(
+                "Redis unavailable - config changes will not be published",
+                redis_url=settings.redis_url,
+            )
+    except Exception as e:
+        logger.warning(
+            "Failed to initialize Redis publisher",
+            error=str(e),
+        )
+
+
+async def _init_neo4j_audit(logger: Any) -> None:
+    """Initialize Neo4j audit client."""
+    try:
+        audit_client = await init_audit_client()
+        if audit_client and audit_client.is_connected:
+            logger.info(
+                "Neo4j audit client initialized",
+                uri=audit_client._config.uri,
+            )
+        else:
+            logger.info(
+                "Neo4j audit logging disabled or unavailable",
+            )
+    except Exception as e:
+        logger.warning(
+            "Failed to initialize Neo4j audit client",
+            error=str(e),
+        )
+
+
+async def _init_model_manager(app: FastAPI, settings: Any, logger: Any) -> None:
+    """Initialize model manager and optionally load default preset."""
+    model_manager = get_model_manager()
+    app.state.model_manager = model_manager
+
+    if not settings.default_preset:
+        logger.info(
+            "No default preset configured - set INFERENCE_DEFAULT_PRESET to auto-load models"
+        )
+        app.state.current_preset = None
+        app.state.models_loaded = []
+        return
+
+    logger.info(
+        "Auto-loading default preset on startup",
+        preset=settings.default_preset,
+    )
+    try:
+        result = await model_manager.load_preset(settings.default_preset)
+        logger.info(
+            "Default preset loaded successfully",
+            preset=result.preset_id,
+            models=result.models_loaded,
+            memory_gb=result.total_memory_gb,
+            orchestration_mode=result.orchestration_mode,
+        )
+        app.state.current_preset = result.preset_id
+        app.state.models_loaded = result.models_loaded
+    except Exception as e:
+        logger.error(
+            "Failed to load default preset - service will start without models",
+            preset=settings.default_preset,
+            error=str(e),
+        )
+        app.state.current_preset = None
+        app.state.models_loaded = []
+
+
+def _init_vlm_provider(app: FastAPI, settings: Any, logger: Any) -> None:
+    """Register VLM provider (lazy-loaded, not loaded into memory at startup)."""
+    app.state.vision_provider = None
+
+    if not settings.vision_model_id:
+        logger.info(
+            "VLM disabled - set INFERENCE_VISION_MODEL_ID to enable vision endpoints"
+        )
+        return
+
+    try:
+        from src.providers.moondream import MoondreamProvider
+
+        app.state.vision_provider = MoondreamProvider(
+            model_id=settings.vision_model_id,
+            revision=settings.vision_model_revision,
+            device=settings.vision_device,
+            context_length=settings.vision_context_length,
+        )
+        logger.info(
+            "VLM provider registered (model NOT loaded - will download/load on first use)",
+            model_id=settings.vision_model_id,
+            revision=settings.vision_model_revision,
+            device=settings.vision_device or "auto",
+        )
+    except Exception as e:
+        logger.error(
+            "Failed to register VLM provider - vision endpoints disabled",
+            error=str(e),
+        )
+
+
+# =============================================================================
 # Lifespan Context Manager (Modern FastAPI Pattern)
 # =============================================================================
 @asynccontextmanager
@@ -79,92 +197,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     app.state.environment = settings.environment
     app.state.service_name = settings.service_name
 
-    # =========================================================================
-    # LLM Operations Mesh - Phase 2: Initialize Redis config publisher
-    # =========================================================================
-    if settings.redis_enabled:
-        try:
-            publisher = await initialize_publisher(settings.redis_url)
-            if publisher.is_connected:
-                logger.info(
-                    "Redis config publisher initialized",
-                    redis_url=settings.redis_url,
-                )
-            else:
-                logger.warning(
-                    "Redis unavailable - config changes will not be published",
-                    redis_url=settings.redis_url,
-                )
-        except Exception as e:
-            logger.warning(
-                "Failed to initialize Redis publisher",
-                error=str(e),
-            )
+    # Initialize subsystems via extracted helpers
+    await _init_redis_publisher(settings, logger)
+    await _init_neo4j_audit(logger)
+    await _init_model_manager(app, settings, logger)
 
-    # =========================================================================
-    # LLM Operations Mesh - Phase 5: Initialize Neo4j audit client
-    # =========================================================================
-    try:
-        audit_client = await init_audit_client()
-        if audit_client and audit_client.is_connected:
-            logger.info(
-                "Neo4j audit client initialized",
-                uri=audit_client._config.uri,
-            )
-        else:
-            logger.info(
-                "Neo4j audit logging disabled or unavailable",
-            )
-    except Exception as e:
-        logger.warning(
-            "Failed to initialize Neo4j audit client",
-            error=str(e),
-        )
-
-    # =========================================================================
-    # Auto-load default preset if configured
-    # =========================================================================
-    # Initialize model manager and store in app state for route access
-    model_manager = get_model_manager()
-    app.state.model_manager = model_manager
-
-    if settings.default_preset:
-        logger.info(
-            "Auto-loading default preset on startup",
-            preset=settings.default_preset,
-        )
-        try:
-            result = await model_manager.load_preset(settings.default_preset)
-            logger.info(
-                "Default preset loaded successfully",
-                preset=result.preset_id,
-                models=result.models_loaded,
-                memory_gb=result.total_memory_gb,
-                orchestration_mode=result.orchestration_mode,
-            )
-            app.state.current_preset = result.preset_id
-            app.state.models_loaded = result.models_loaded
-        except Exception as e:
-            logger.error(
-                "Failed to load default preset - service will start without models",
-                preset=settings.default_preset,
-                error=str(e),
-            )
-            app.state.current_preset = None
-            app.state.models_loaded = []
-    else:
-        logger.info(
-            "No default preset configured - set INFERENCE_DEFAULT_PRESET to auto-load models"
-        )
-        app.state.current_preset = None
-        app.state.models_loaded = []
-
-    # =========================================================================
     # H-1: Initialize QueueManager for GPU concurrency control
-    # =========================================================================
-    # QueueManager is fully implemented (semaphore + FIFO/priority strategies)
-    # but was never wired in. All params configurable via INFERENCE_* env vars
-    # (Task 2.3). Defaults: max_concurrent=1, max_size=10, strategy=fifo.
     queue_strategy = (
         QueueStrategy.PRIORITY
         if settings.queue_strategy == "priority"
@@ -184,36 +222,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         max_size=settings.queue_max_size,
     )
 
-    # =========================================================================
-    # Register VLM provider (lazy-loaded - NOT loaded into memory at startup)
-    # =========================================================================
-    app.state.vision_provider = None
-    if settings.vision_model_id:  # Check if VLM is enabled
-        try:
-            from src.providers.moondream import MoondreamProvider
-
-            # Create Moondream provider (downloads from HuggingFace on first use)
-            app.state.vision_provider = MoondreamProvider(
-                model_id=settings.vision_model_id,
-                revision=settings.vision_model_revision,
-                device=settings.vision_device,  # None = auto-detect, "cpu" = force CPU
-                context_length=settings.vision_context_length,
-            )
-            logger.info(
-                "VLM provider registered (model NOT loaded - will download/load on first use)",
-                model_id=settings.vision_model_id,
-                revision=settings.vision_model_revision,
-                device=settings.vision_device or "auto",
-            )
-        except Exception as e:
-            logger.error(
-                "Failed to register VLM provider - vision endpoints disabled",
-                error=str(e),
-            )
-    else:
-        logger.info(
-            "VLM disabled - set INFERENCE_VISION_MODEL_ID to enable vision endpoints"
-        )
+    _init_vlm_provider(app, settings, logger)
 
     yield
 
