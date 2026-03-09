@@ -46,7 +46,7 @@ class ConfigPublisher:
     Example:
         publisher = ConfigPublisher("redis://localhost:6379")
         await publisher.connect()
-        await publisher.publish_model_loaded("qwen3-8b", context_length=2048)
+        await publisher.publish_model_loaded("qwen3.5-9b", context_length=32768)
         await publisher.close()
     """
     

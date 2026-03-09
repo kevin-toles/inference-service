@@ -311,8 +311,8 @@ class TestIndividualModels:
 
     @pytest.mark.asyncio
     async def test_qwen3_8b_connectivity(self, client: httpx.AsyncClient) -> None:
-        """Test qwen3-8b responds to prompts (new Qwen3 model)."""
-        model_id = "qwen3-8b"
+        """Test qwen3.5-9b responds to prompts (new Qwen3 model)."""
+        model_id = "qwen3.5-9b"
         if not await check_model_available(client, model_id):
             pytest.skip(f"Model {model_id} not available")
         if not await load_model(client, model_id):

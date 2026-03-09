@@ -79,7 +79,7 @@ class AuditClient:
     Example:
         client = AuditClient(AuditClientConfig.from_env())
         await client.connect()
-        await client.log_model_loaded("qwen3-8b", context_length=2048)
+        await client.log_model_loaded("qwen3.5-9b", context_length=32768)
         await client.close()
     """
     

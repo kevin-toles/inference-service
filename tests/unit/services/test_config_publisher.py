@@ -34,7 +34,7 @@ from src.services.config_publisher import (
 # Constants
 # =============================================================================
 
-TEST_MODEL_ID = "qwen3-8b"
+TEST_MODEL_ID = "qwen3.5-9b"
 TEST_REDIS_URL = "redis://localhost:6379"
 
 

@@ -76,9 +76,9 @@ single:
     hardware: "Server (24GB+ VRAM)"
 
   S9:
-    name: "Qwen3 8B Solo"
-    models: [qwen3-8b]
-    total_size_gb: 4.7
+    name: "Qwen3.5 9B Solo"
+    models: [qwen3.5-9b]
+    total_size_gb: 5.68
     orchestration_mode: single
     description: "General-purpose Qwen3, good at code"
     hardware: "Mac 16GB (light)"
@@ -141,14 +141,14 @@ dual:
     hardware: "Mac 16GB (comfortable)"
 
   D4v2:
-    name: "Thinking + Code (Qwen3)"
-    models: [deepseek-r1-7b, qwen3-8b]
-    total_size_gb: 9.4
+    name: "Thinking + Code (Qwen3.5)"
+    models: [deepseek-r1-7b, qwen3.5-9b]
+    total_size_gb: 10.38
     orchestration_mode: critique
     roles:
-      qwen3-8b: generator
+      qwen3.5-9b: generator
       deepseek-r1-7b: critic
-    description: "Qwen3-based code generation with chain-of-thought critique - upgraded from D4"
+    description: "Qwen3.5-based code generation with chain-of-thought critique - upgraded from D4v2"
     hardware: "Mac 16GB (comfortable)"
 
   D5:

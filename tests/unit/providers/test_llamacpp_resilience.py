@@ -61,7 +61,7 @@ def simple_request():
 def qwen3_request():
     """Request without explicit max_tokens (to test Qwen3 default cap)."""
     return ChatCompletionRequest(
-        model="qwen3-8b",
+        model="qwen3.5-9b",
         messages=[Message(role="user", content="Explain something")],
         max_tokens=None,
     )
@@ -237,7 +237,7 @@ class TestQwen3MaxTokensCap:
 
     async def test_qwen3_default_max_tokens_is_2048(self, mock_llama, qwen3_request):
         """Qwen3 models without explicit max_tokens should default to 2048."""
-        provider = _make_provider(mock_llama, model_id="qwen3-8b")
+        provider = _make_provider(mock_llama, model_id="qwen3.5-9b")
         await provider.generate(qwen3_request)
 
         call_kwargs = mock_llama.return_value.create_chat_completion.call_args
@@ -254,11 +254,11 @@ class TestQwen3MaxTokensCap:
     async def test_qwen3_explicit_max_tokens_is_respected(self, mock_llama):
         """If caller specifies max_tokens, it should override the Qwen3 cap."""
         request = ChatCompletionRequest(
-            model="qwen3-8b",
+            model="qwen3.5-9b",
             messages=[Message(role="user", content="Hello")],
             max_tokens=512,
         )
-        provider = _make_provider(mock_llama, model_id="qwen3-8b")
+        provider = _make_provider(mock_llama, model_id="qwen3.5-9b")
         await provider.generate(request)
 
         call_kwargs = mock_llama.return_value.create_chat_completion.call_args
